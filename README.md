@@ -17,3 +17,7 @@ https://nu-msr.github.io/me495_site/lecture13_rethink.html
 ## Baxter 
 1. official page: https://sdk.rethinkrobotics.com/wiki/Home
 2. git : https://github.com/RethinkRobotics/
+
+
+https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial
+https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config
