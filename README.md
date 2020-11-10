@@ -14,6 +14,9 @@ The goal of this project is to use the robot baxter and build a **HUGE** tower f
 3. rosrun baxter_tools enable_robot.py -e
 4. roslaunch baxter_moveit_config demo_baxter.launch right_electric_gripper:=True left_electric_gripper:=True
 
+# Apriltag Install
+`pip3 install apriltag`
+
 
 # Usefull links 
 ## from matt
@@ -27,3 +30,5 @@ https://nu-msr.github.io/me495_site/lecture13_rethink.html
 ## moveIT
 https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial
 https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config
+
+
