@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""
+This node is going to control the Baxter to grap a cup. 
+"""
+
+import rospy
+import sys
+import moveit_commander
+
+
+class Handler:
+    """ Helper class for node control_arm.
+    Setup moveit for Baxter.
+    """
+    def __init__(self):
+        self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
+        self.scene = moveit_commander.PlanningSceneInterface()
+        # 7 degree freedom
+        self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
+        self.left_hand_group = moveit_commander.MoveGroupCommander("left_hand", robot_description='robot_description')
+        self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
+        self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
+
+        self.test_arm()
+
+    def test_arm(self):
+        current = self.left_arm_group.get_current_joint_values()
+        rospy.loginfo(f"Current joints are {current}")
+        self.left_arm_group.set_joint_value_target([0, 0, 0, 0, 0, 0, 0])
+        self.left_arm_group.go(wait=True)
+        self.left_arm_group.stop()
+        current = self.left_arm_group.get_current_joint_values()
+        rospy.loginfo(f"Current joints are {current}")
+
+
+def main():
+    """ The main() function. """
+    moveit_commander.roscpp_initialize(sys.argv)
+    rospy.loginfo(sys.argv)
+    rospy.init_node('control_arm')
+    handler = Handler()
+    rospy.spin()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
