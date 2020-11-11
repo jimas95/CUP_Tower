@@ -24,13 +24,25 @@ class Handler:
         self.test_arm()
 
     def test_arm(self):
-        current = self.left_arm_group.get_current_joint_values()
-        rospy.loginfo(f"Current joints are {current}")
-        self.left_arm_group.set_joint_value_target([0, 0, 0, 0, 0, 0, 0])
+        # current = self.left_arm_group.get_current_joint_values()
+        current = self.left_arm_group.get_current_pose()
+        rospy.loginfo(f"left Current = {current}")
+        current = self.right_arm_group.get_current_pose()
+        rospy.loginfo(f"right Current = {current}")
+        # self.left_arm_group.set_joint_value_target([0, 0, 0, 0, 0, 0, 0])
+        # self.left_arm_group.go(wait=True)
+        # self.left_arm_group.stop()
+
+        self.left_arm_group.set_position_target([1, 0.5, 0.5])
         self.left_arm_group.go(wait=True)
         self.left_arm_group.stop()
-        current = self.left_arm_group.get_current_joint_values()
-        rospy.loginfo(f"Current joints are {current}")
+        self. left_arm_group.clear_pose_targets()
+
+        self.right_arm_group.set_position_target([1, -0.5, 0.5])
+        self.right_arm_group.go(wait=True)
+        self.right_arm_group.stop()
+        self.right_arm_group.clear_pose_targets()
+
 
 
 def main():
