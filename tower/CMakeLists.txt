@@ -10,7 +10,13 @@ project(tower)
 find_package(catkin REQUIRED)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(catkin REQUIRED COMPONENTS 
+    geometry_msgs
+    message_generation
+    roscpp
+    rospy
+    std_msgs
+)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -50,11 +56,10 @@ find_package(catkin REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  Step.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -64,10 +69,11 @@ find_package(catkin REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+    DEPENDENCIES
+    geometry_msgs
+    std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -103,6 +109,10 @@ catkin_package(
 #  LIBRARIES tower
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
+    CATKIN_DEPENDS geometry_msgs
+    CATKIN_DEPENDS message_runtime
+    CATKIN_DEPENDS roscpp
+    CATKIN_DEPENDS std_msgs
 )
 
 ###########
@@ -155,10 +165,10 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS
+    nodes/control_arm
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html

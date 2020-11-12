@@ -13,6 +13,7 @@ The goal of this project is to use the robot baxter and build a **HUGE** tower f
 2. rosrun baxter_interface joint_trajectory_action_server.py
 3. rosrun baxter_tools enable_robot.py -e
 4. roslaunch baxter_moveit_config demo_baxter.launch right_electric_gripper:=True left_electric_gripper:=True
+5. rosrun tower control_arm joint_states:=robot/joint_states
 
 # Apriltag Install
 `pip3 install apriltag`
