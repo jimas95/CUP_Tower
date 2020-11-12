@@ -15,6 +15,7 @@ The goal of this project is to use the robot baxter and build a **HUGE** tower f
 4. rosrun baxter_tools enable_robot.py -e
 5. roslaunch baxter_moveit_config demo_baxter.launch right_electric_gripper:=True left_electric_gripper:=True
 6. rosrun tower control_arm joint_states:=robot/joint_states
+
 note: remember to change `joint_limits.yaml` to values specified in `joint_limits_true.yaml` for real robot.
 
 ## calling tests service with the following choices
