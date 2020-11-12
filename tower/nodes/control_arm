@@ -15,6 +15,7 @@ from std_srvs.srv import Empty
 from geometry_msgs.msg import Pose, Quaternion
 from tower.srv import Step
 from tf_conversions import transformations
+from baxter_interface import Gripper
 
 
 class Handler:
@@ -30,6 +31,10 @@ class Handler:
         self.left_hand_group = moveit_commander.MoveGroupCommander("left_hand", robot_description='robot_description')
         # self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
+        self.right_gripper = Gripper('right')
+        self.right_gripper.calibrate()
+        self.left_gripper = Gripper('left')
+        self.left_gripper.calibrate()
 
         # self.test_arm()
         # self.test_both_arms()
@@ -97,6 +102,7 @@ class Handler:
         Returns: 
             string  - "Error Code = <the error code returned by the moveit MoveGroupCommander>
         """
+        # arms
         pose_goal = Pose()
         pose_goal.position.x = req.x
         pose_goal.position.y = req.y
@@ -112,6 +118,16 @@ class Handler:
         result = self.both_arms_group.execute(plan, wait=True)
         self.both_arms_group.stop()
         self.both_arms_group.clear_pose_targets()
+
+        # grippers
+        if req.open_gripper and req.choose_left:
+            self.left_gripper.open(block=True)
+        elif req.open_gripper and not req.choose_left:
+            self.right_gripper.open(block=True)
+        elif not req.open_gripper and req.choose_left:
+            self.left_gripper.close(block=True)
+        elif not req.open_gripper and not req.choose_left:
+            self.right_gripper.close(block=True)
 
         return f"Error Code = {errCode.val}"
 
