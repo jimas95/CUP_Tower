@@ -7,8 +7,15 @@ project(tower)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
-
+find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
+  message_generation
+  message_runtime
+  rospy
+  rostest
+  rosunit
+  std_msgs
+)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -101,7 +108,13 @@ find_package(catkin REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES tower
-#  CATKIN_DEPENDS other_catkin_pkg
+ CATKIN_DEPENDS
+      actionlib_msgs
+     message_generation
+     message_runtime
+     rospy
+     std_msgs
+     apriltag_ros
 #  DEPENDS system_lib
 )
 
@@ -155,10 +168,13 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+ catkin_install_python(PROGRAMS
+   nodes/cam_display
+   nodes/tag_detection
+   nodes/simulator
+   nodes/apriltag_generator
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
