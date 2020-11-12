@@ -20,8 +20,10 @@ The goal of this project is to use the robot baxter and build a **HUGE** tower f
 
 # Usefull links 
 ## from matt
-https://nu-msr.github.io/me495_site/final_project2020.html
-https://nu-msr.github.io/me495_site/lecture13_rethink.html
+[final project](https://nu-msr.github.io/me495_site/final_project2020.html)
+[rethink](https://nu-msr.github.io/me495_site/lecture13_rethink.html)
+## google doc link
+[google doc](https://docs.google.com/document/d/1DyX0WEIv16zhfOnIXlYJH8nFUndHB3Xdr9HTS7mL4ks/edit?usp=sharing)
 
 ## Baxter 
 1. official page: https://sdk.rethinkrobotics.com/wiki/Home
