@@ -32,3 +32,17 @@ https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial
 https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config
 
 
+# Real Robot 
+
+1. `<nmcli con up Rethink>`
+2. `<ping baxter.local>`  does ping ? 
+3. `<export ROS_MASTER_URI=http://10.42.0.2:11311>`
+4. `<export ROS_IP=10.42.0.1>`
+5. `<unset ROS_HOSTNAME>`
+6. `<rosnode list>` should show stuff
+7. `<rostopic echo /robot/joint_states >`
+
+## Enable robot 
+1. Enable    :`<rosrun baxter_tools enable_robot.py -e>`
+2. Disable   :`<rosrun baxter_tools enable_robot.py -d>`
+3. Show state:`<rosrun baxter_tools enable_robot.py -e>`
