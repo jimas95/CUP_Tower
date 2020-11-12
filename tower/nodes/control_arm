@@ -13,7 +13,7 @@ import sys
 import moveit_commander
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Pose, Quaternion
-from tower.srv import Step
+from tower.srv import Step, ControlTest
 from tf_conversions import transformations
 from baxter_interface import Gripper
 
@@ -28,33 +28,56 @@ class Handler:
         # 7 DOF
         self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
         # self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
-        self.left_hand_group = moveit_commander.MoveGroupCommander("left_hand", robot_description='robot_description')
+        # self.left_hand_group = moveit_commander.MoveGroupCommander("left_hand", robot_description='robot_description')
         # self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
-        self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
+        # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
         self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
         self.left_gripper.calibrate()
+        rospy.loginfo("SET UP READY")
 
         # self.test_arm()
         # self.test_both_arms()
 
         self.step = rospy.Service("step", Step, self.step_callback)
-        self.current_pose = rospy.Service("current_pose", Empty, self.current_pose_callback)
+        self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
 
-    def current_pose_callback(self, req):
+    def test_control_callback(self, req):
+        """ helper service for testing other services or functions.
+            Edit the inputs for service to test different cases.
+            Args:
+                req.choice - choose which test to execute
+                            0. print current pose of left and right arm
+                            1. test step service with left arm 
+                            2. test step service with right arm 
+        """
+        if req.choice == 0: 
+            result = self.current_pose()
+            return result.replace('\n', ' ')
+        elif req.choice == 1:
+            step_service = rospy.ServiceProxy("step", Step)
+            result = step_service(open_gripper = False, choose_left = True, x=1.0, y=0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
+            return result.output
+        elif req.choice == 2:
+            step_service = rospy.ServiceProxy("step", Step)
+            result = step_service(open_gripper = True, choose_left = False, x=1.0, y=-0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
+            return result.output
+
+        return "N/A"
+
+    def current_pose(self):
         """ helper service for debugging current pose of gripper"""
-        current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
-        q = current.pose.orientation
-        angles = transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
-        rospy.loginfo(f"left Current = {current.pose} --- euler: {angles}")
+        left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
+        q = left_current.pose.orientation
+        left_angles = transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
 
-        current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
-        q = current.pose.orientation
-        angles = transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
-        rospy.loginfo(f"right Current = {current.pose} --- euler: {angles}")
-        return[]
-
+        right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
+        q = left_current.pose.orientation
+        right_angles = transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
+        return f"left pos = {left_current.pose.position}, left euler = {left_angles}; right pos = {right_current.pose.position}, right euler = {right_angles}"
+    
+    """
     def test_both_arms(self):
         self.both_arms_group.set_position_target([1, 0.5, 0.5], end_effector_link = "left_gripper")
         self.both_arms_group.go(wait=True)
@@ -65,8 +88,9 @@ class Handler:
         self.both_arms_group.go(wait=True)
         self.both_arms_group.stop()
         self.both_arms_group.clear_pose_targets()
+    """
 
-
+    """
     def test_arm(self):
         current = self.left_arm_group.get_current_pose()
         rospy.loginfo(f"left Current = {current}")
@@ -82,6 +106,7 @@ class Handler:
         self.right_arm_group.go(wait=True)
         self.right_arm_group.stop()
         self.right_arm_group.clear_pose_targets()
+    """
 
     def step_callback(self, req):
         """ Helper funciton for step service
@@ -117,7 +142,7 @@ class Handler:
         (result, plan, frac, errCode) = self.both_arms_group.plan()
         result = self.both_arms_group.execute(plan, wait=True)
         self.both_arms_group.stop()
-        self.both_arms_group.clear_pose_targets()
+        self.both_arms_group.clear_pose_target(end_effector_link = ee_link)
 
         # grippers
         if req.open_gripper and req.choose_left:
