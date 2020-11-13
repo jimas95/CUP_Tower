@@ -41,6 +41,27 @@ def all_close(goal, actual, tolerance):
 
   return True
 
+
+"""
+yaml file radious , height 
+function add_one_cup --> should take input name , position
+add function add_all_cups() --> uses add one cup 
+    how many cups 
+    random position
+    inline position 
+
+create_scene_random_cups
+create_scene_inline_cups
+attach_box/detach should take name(cup#) input 
+function moves one cups
+remove stuff like scene = self.scene
+
+get cups that are not in order 
+
+
+"""
+
+
 class Scene():
     def __init__(self,myscene):
         ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
@@ -79,14 +100,15 @@ class Scene():
         Input:
         timeout (int)
         '''
+        height  = 0.1 
+        radious = 0.05
         cylinder_pose = geometry_msgs.msg.PoseStamped()
         cylinder_pose.header.frame_id = 'world'
         cylinder_pose.pose.orientation.w = 1.0
         cylinder_pose.pose.position.x = 1.0
         cylinder_pose.pose.position.y = 0.0
-        cylinder_pose.pose.position.z = 0.025
-        height  = 0.1 
-        radious = 0.05
+        cylinder_pose.pose.position.z = height/2.0
+
         self.scene.add_cylinder(name,cylinder_pose,height,radious)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
