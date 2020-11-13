@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import cv2
+import numpy as np
+import apriltag
+
+
+# cap = cv2.VideoCapture(0)
+detector = apriltag.Detector()
+while True:
+    # ret, img = cap.read()
+    img = cv2.imread("tag.jpeg")
+    gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    results = detector.detect(img)
+    for cur_result in results:
+        tag_id = cur_result.tag_id
+        cx = cur_result.center.astype(np.int32)
+        corners = cur_result.corners.astype(np.int32)
+        for pt in corners:
+            cv2.circle(img, tuple(pt), 3, (255, 0, 0))
+        cv2.circle(img, tuple(cx), 3, (0, 0, 255))
+        cv2.putText(img, str(tag_id), tuple(cx), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0, 255, 0))
+
+    cv2.imshow('img', img)
+    cv2.waitKey(2)

@@ -16,7 +16,9 @@ from geometry_msgs.msg import Pose, Quaternion
 from tower.srv import Step, ControlTest
 from tf_conversions import transformations
 from baxter_interface import Gripper
-
+# from tower.simulator import Scene
+from tower.simulator import Scene
+#from simulator import Scene
 
 class Handler:
     """ Helper class for node control_arm.
@@ -24,7 +26,7 @@ class Handler:
     """
     def __init__(self):
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
-        self.scene = moveit_commander.PlanningSceneInterface()
+        scene = moveit_commander.PlanningSceneInterface()
         # 7 DOF
         self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
         # self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
@@ -32,9 +34,9 @@ class Handler:
         # self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
-        self.right_gripper.calibrate()
+        # self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
-        self.left_gripper.calibrate()
+        # self.left_gripper.calibrate()
         rospy.loginfo("SET UP READY")
 
         # self.test_arm()
@@ -42,6 +44,12 @@ class Handler:
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
+
+        # create scene 
+        self.myscene = Scene(scene)
+        self.myscene.create_scene_one_cup()
+        
+
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
