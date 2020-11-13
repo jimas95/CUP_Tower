@@ -16,7 +16,9 @@ from geometry_msgs.msg import Pose, Quaternion
 from tower.srv import Step, ControlTest
 from tf_conversions import transformations
 from baxter_interface import Gripper
-
+# from tower.simulator import Scene
+from tower.simulator import Scene
+#from simulator import Scene
 
 class Handler:
     """ Helper class for node control_arm.
@@ -32,9 +34,10 @@ class Handler:
         # self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
-        self.right_gripper.calibrate()
+        # self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
-        self.left_gripper.calibrate()
+        # self.left_gripper.calibrate()
+        rospy.loginfo("SET UP READY")
         rospy.loginfo("SET UP READY")
 
         # self.test_arm()
@@ -42,6 +45,27 @@ class Handler:
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
+        rospy.loginfo("SETrtgrtg UP READY")
+
+        # call scene class
+        # create scene 
+        self.scene = Scene()
+        rospy.loginfo("SETrtgrtg UP READY")
+        self.scene.add_box()
+        rospy.loginfo("SET UPf4rg4g54g5oliykjthn READY")
+
+        rospy.logerr("SET UP READY")
+        
+
+        # box_pose = geometry_msgs.msg.PoseStamped()
+        # box_pose.header.frame_id = "world"
+        # box_pose.pose.orientation.w = 1.0
+        # box_pose.pose.position.x = 0.25
+        
+
+        # self.box_name = "box"
+        # self.scene.add_box(self.box_name, box_pose, size=(4.025, 4.025, 4.25))
+        # self.scene.add_box()
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
