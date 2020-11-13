@@ -50,11 +50,11 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-   FILES
-  AprilTagDetection.msg
-  AprilTagDetectionArray.msg
-# )
+add_message_files(
+  FILES
+    AprilTagDetection.msg
+    AprilTagDetectionArray.msg
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -116,7 +116,7 @@ catkin_package(
     CATKIN_DEPENDS message_runtime
     CATKIN_DEPENDS roscpp
     CATKIN_DEPENDS std_msgs
-    CATKIN DEPENDS sensor_msgs
+    CATKIN_DEPENDS sensor_msgs
 )
 
 ###########
