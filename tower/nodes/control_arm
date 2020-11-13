@@ -47,19 +47,9 @@ class Handler:
 
         # create scene 
         self.myscene = Scene(scene)
-        # self.myscene.add_box()
-
+        self.myscene.create_scene_one_cup()
         
 
-        # box_pose = geometry_msgs.msg.PoseStamped()
-        # box_pose.header.frame_id = "world"
-        # box_pose.pose.orientation.w = 1.0
-        # box_pose.pose.position.x = 0.25
-        
-
-        # self.box_name = "box"
-        # self.scene.add_box(self.box_name, box_pose, size=(4.025, 4.025, 4.25))
-        # self.scene.add_box()
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
