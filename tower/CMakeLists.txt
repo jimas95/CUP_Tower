@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     rospy
     std_msgs
+    sensor_msgs
 )
 
 
@@ -50,9 +51,9 @@ catkin_python_setup()
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
+   FILES
+  AprilTagDetection.msg
+  AprilTagDetectionArray.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -73,6 +74,7 @@ add_service_files(
 generate_messages(
     DEPENDENCIES
     geometry_msgs
+    sensor_msgs
     std_msgs  # Or other packages containing msgs
 )
 
@@ -114,6 +116,7 @@ catkin_package(
     CATKIN_DEPENDS message_runtime
     CATKIN_DEPENDS roscpp
     CATKIN_DEPENDS std_msgs
+    CATKIN DEPENDS sensor_msgs
 )
 
 ###########
@@ -168,6 +171,9 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
     nodes/control_arm
+    nodes/cam_display
+    nodes/tracker
+    nodes/tag_detection
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
