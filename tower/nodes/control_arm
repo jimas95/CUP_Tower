@@ -26,7 +26,7 @@ class Handler:
     """
     def __init__(self):
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
-        self.scene = moveit_commander.PlanningSceneInterface()
+        scene = moveit_commander.PlanningSceneInterface()
         # 7 DOF
         self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
         # self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
@@ -38,23 +38,17 @@ class Handler:
         self.left_gripper = Gripper('left')
         # self.left_gripper.calibrate()
         rospy.loginfo("SET UP READY")
-        rospy.loginfo("SET UP READY")
 
         # self.test_arm()
         # self.test_both_arms()
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
-        rospy.loginfo("SETrtgrtg UP READY")
 
-        # call scene class
         # create scene 
-        self.scene = Scene()
-        rospy.loginfo("SETrtgrtg UP READY")
-        self.scene.add_box()
-        rospy.loginfo("SET UPf4rg4g54g5oliykjthn READY")
+        self.myscene = Scene(scene)
+        # self.myscene.add_box()
 
-        rospy.logerr("SET UP READY")
         
 
         # box_pose = geometry_msgs.msg.PoseStamped()
