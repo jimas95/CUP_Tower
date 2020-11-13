@@ -10,7 +10,7 @@ while True:
     # ret, img = cap.read()
     img = cv2.imread("tag.jpeg")
     gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    results = detector.detect(gray_scale)
+    results = detector.detect(img)
     for cur_result in results:
         tag_id = cur_result.tag_id
         cx = cur_result.center.astype(np.int32)

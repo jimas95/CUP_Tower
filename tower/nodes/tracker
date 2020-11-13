@@ -2,11 +2,8 @@
 
 
 import rospy
-
 from sensor_msgs.msg import Image
-
 from cv_bridge import CvBridge, CvBridgeError
-
 import cv2
 import numpy as np
 import apriltag
@@ -31,12 +28,13 @@ def main():
     image_topic = "/cameras/left_hand_camera/image"
     # Set up your subscriber and define its callback
     rospy.Subscriber(image_topic, Image, image_callback)
+    
 
-    # cap = cv2.VideoCapture(0)
+    cap = 
     detector = apriltag.Detector()
     while True:
-        # ret, img = cap.read()
-        img = cv2.imread('tag.jpeg')
+        ret, img = cap.read()
+        # img = cv2.imread('tag.jpeg')
         gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         results = detector.detect(gray_scale)
         for cur_result in results:
@@ -53,7 +51,7 @@ def main():
 
 
     # Spin until ctrl + c
-    rospy.sleep(0.5)
+    rospy.sleep(2)
     rospy.spin()
 
 if __name__ == '__main__':
