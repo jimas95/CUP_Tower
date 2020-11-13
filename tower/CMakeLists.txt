@@ -15,6 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
   rostest
   rosunit
   std_msgs
+  geometry_msgs
+  sensor_msgs
+  std_msgs
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -50,12 +53,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
+add_message_files(
+  FILES
+  AprilTagDetection.msg
+  AprilTagDetectionArray.msg
+)
 ## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
@@ -71,10 +73,15 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
+generate_messages(
+    DEPENDENCIES
+    geometry_msgs
+    sensor_msgs
+    std_msgs
+
 #   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
-# )
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -113,8 +120,9 @@ catkin_package(
      message_generation
      message_runtime
      rospy
+     roscpp
      std_msgs
-     apriltag_ros
+     cv_bridge
 #  DEPENDS system_lib
 )
 
@@ -173,6 +181,7 @@ include_directories(
    nodes/tag_detection
    nodes/simulator
    nodes/apriltag_generator
+   nodes/tracker
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

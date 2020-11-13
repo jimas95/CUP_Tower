@@ -19,7 +19,6 @@ class Display(object):
     """
     def __init__(self):
         # Initialise arm message
-        self.arm = "right"
         # Right arm subscriber
         self.rsub = rospy.Subscriber('/cameras/right_hand_camera/image',
                                      Image,
