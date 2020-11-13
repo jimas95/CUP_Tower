@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+<!-- 
+<arg name="gui" default="true"/>
+
+
+<include file="$(find tower)/launch/baxter_world.launch">
+    <arg name="gui" value="$(arg gui)" />
+</include> -->
+
+<node pkg="baxter_interface" type="joint_trajectory_action_server.py" name="joint_trajectory_action_server"/>
+<node pkg="baxter_interface" type="gripper_action_server.py" name="gripper_action_server"/>
+<node pkg="baxter_tools" type="enable_robot.py" name="enable_robot" args="-e"/>
+
+<include file="$(find baxter_moveit_config)/launch/demo_baxter.launch">
+    <arg name="right_electric_gripper" value="True" />
+    <arg name="left_electric_gripper" value="True" />
+</include>
+
+
+</launch>
