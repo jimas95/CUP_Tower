@@ -52,9 +52,10 @@ class Scene():
         self.scene = myscene
 
 
-        self.add_table()
-    
-    
+        # self.add_table()
+        # self.add_cup("cup1")
+        # self.create_scene_one_cup()
+        rospy.loginfo("added scene")
 
     def add_table(self):
         # add ctable surface 
@@ -72,13 +73,32 @@ class Scene():
         self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
         
 
-    
+    def add_cup(self,name, timeout=4):
+        '''
+        Adds one cup
+        Input:
+        timeout (int)
+        '''
+        cylinder_pose = geometry_msgs.msg.PoseStamped()
+        cylinder_pose.header.frame_id = 'world'
+        cylinder_pose.pose.orientation.w = 1.0
+        cylinder_pose.pose.position.x = 1.0
+        cylinder_pose.pose.position.y = 0.0
+        cylinder_pose.pose.position.z = 0.025
+        height  = 0.1 
+        radious = 0.05
+        self.scene.add_cylinder(name,cylinder_pose,height,radious)
+        return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
+
+
+    def create_scene_one_cup(self):
+        self.add_table()
+        self.add_cup("cup1")
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
         """Copied from tutorial
         """
-        # Copy class variables to local variables to make the web tutorials more clear.
 
         start = rospy.get_time()
         seconds = rospy.get_time()
@@ -101,38 +121,6 @@ class Scene():
         return False
         ## END_SUB_TUTORIAL
 
-    def add_box(self, timeout=4):
-        '''
-        Adds small object to the world
-        Input:
-        timeout (int)
-        '''
-        box_name = "tabsdvdfle"
-        box_pose = geometry_msgs.msg.PoseStamped()
-        box_pose.header.frame_id = 'world'
-        box_pose.pose.orientation.w = 1.0
-        box_pose.pose.position.z = -0.1
-        box_pose.pose.position.x = 1.5
-        self.scene.add_box(box_name, box_pose, size=(2, 2, 0.2))
-        # self.box_name=box_name
-        # self.wait_for_state_update(box_is_known=True, timeout=5)
-        print("jhfng")
-        
-
-
-
-
-
-
-
-        # box_pose = geometry_msgs.msg.PoseStamped()
-        # box_pose.header.frame_id = "world"
-        # box_pose.pose.orientation.w = 1.0
-        # box_pose.pose.position.x = 1
-        # self.box_name = "box"
-        # self.scene.add_box(self.box_name, box_pose, size=(4.025, 4.025, 4.25))
-
-        # return self.wait_for_state_update(box_is_known=True, timeout=5)
 
 
     def attach_box(self, timeout=4):
@@ -152,8 +140,6 @@ class Scene():
         grasping_group = 'interbotix_gripper'
         touch_links = self.robot.get_link_names(group=grasping_group)
         self.scene.attach_box(self.eef_link, self.box_name, touch_links=touch_links)
-        print("BOX")
-        ## END_SUB_TUTORIAL
 
         # We wait for the planning scene to update.
         return self.wait_for_state_update(box_is_attached=True, box_is_known=False, timeout=timeout)
@@ -200,12 +186,3 @@ class Scene():
 
         # We wait for the planning scene to update.
         return self.wait_for_state_update(box_is_attached=False, box_is_known=False, timeout=timeout)
-
-# def main():
-#     try:
-#         tutorial = MoveGroupPythonIntefaceTutorial()
-#         tutorial.add_box()
-
-# if __name__ == "__main__":
-#     main()
- 
