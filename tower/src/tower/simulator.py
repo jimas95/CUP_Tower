@@ -1,9 +1,5 @@
 """ 
-Uses the MoveIt Python API to create a planning scene and perform some path planning tasks
-SERVICES:
-  + <reset> (<Empty>) ~ adds the realsense box to the scene and moves robot to the Home position
-  + <step> (<Step>) ~ moves the robot to a user-speciified position
-  + <follow> (<Empty>) ~ has the robot move to a specified set of waypoints 
+
 """
 import sys
 import copy
@@ -42,8 +38,7 @@ def all_close(goal, actual, tolerance):
   return True
 
 
-"""
-yaml file radious , height 
+""" 
 function add_one_cup --> should take input name , position
 add function add_all_cups() --> uses add one cup 
     how many cups 
@@ -54,13 +49,13 @@ create_scene_random_cups
 create_scene_inline_cups
 attach_box/detach should take name(cup#) input 
 function moves one cups
-remove stuff like scene = self.scene
+
 
 get cups that are not in order 
 
 
 """
-
+import rospy
 
 class Scene():
     def __init__(self,myscene):
@@ -68,18 +63,26 @@ class Scene():
         ## to the world surrounding the robot:
 
         rospy.loginfo("INIT")
-        # Misc variables
-        # self.scene = moveit_commander.PlanningSceneInterface()
+        
+        # variables
         self.scene = myscene
+        self.cup_radius = rospy.get_param("radius")
+        self.cup_height = rospy.get_param("length")
+        rospy.logerr(self.cup_height)
+        # table size
+        self.table_x = 1.5
+        self.table_y = 2.5
+        self.table_z = 0.2
 
-
-        # self.add_table()
+        
         # self.add_cup("cup1")
         # self.create_scene_one_cup()
         rospy.loginfo("added scene")
 
+    # Adding objects
     def add_table(self):
-        # add ctable surface 
+        """Adds table object to planning scene
+        """
         box_name = "table"
         box_pose = geometry_msgs.msg.PoseStamped()
         box_pose.header.frame_id = 'world'
@@ -88,36 +91,62 @@ class Scene():
         box_pose.pose.position.x = 1.5
         box_pose.pose.position.y = 0.0
         box_pose.pose.position.z = 0.0
-        self.scene.add_box(box_name, box_pose, size=(1.5, 2.5, 0.2))
+        self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
         self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
         
 
-    def add_cup(self,name, timeout=4):
+    def add_cup(self, name, timeout=4):
         '''
         Adds one cup
         Input:
         timeout (int)
         '''
-        height  = 0.1 
-        radious = 0.05
         cylinder_pose = geometry_msgs.msg.PoseStamped()
         cylinder_pose.header.frame_id = 'world'
         cylinder_pose.pose.orientation.w = 1.0
         cylinder_pose.pose.position.x = 1.0
         cylinder_pose.pose.position.y = 0.0
-        cylinder_pose.pose.position.z = height/2.0
+        cylinder_pose.pose.position.z = self.cup_height/2.0 + self.table_z/2
 
-        self.scene.add_cylinder(name,cylinder_pose,height,radious)
+        self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
+        return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
+    
+    def add_one_cup(self, name, pos):
+        """Adds a cup object at a specified position
+        Args:
+            name (str): name of cup to place in scene (ex. cup3)
+            pos (list): postion of specified cup [x, y, z] in planning scene
+        Returns:
+            True or False (bool): pending on result from wait_for_state_update
+        """
+        cylinder_pose = geometry_msgs.msg.PoseStamped()
+        cylinder_pose.header.frame_id = 'world'
+        #cylinder_pose.pose.orientation.w = 1.0
+        cylinder_pose.pose.position.x = pos[0]
+        cylinder_pose.pose.position.y = pos[1]
+        cylinder_pose.pose.position.z = self.cup_height/2.0 + self.table_z/2
+
+        self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
 
+
+    # Creating Scenes
     def create_scene_one_cup(self):
+        """Adds table
+        """
         self.add_table()
         self.add_cup("cup1")
+        self.add_one_cup("TESTER", [1,3])
+    
 
 
+
+    
+
+    # Other 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
         """Copied from tutorial
         """
@@ -169,19 +198,13 @@ class Scene():
     def detach_box(self, timeout=4):
         """Copied from tutorial
         """
-        # Copy class variables to local variables to make the web tutorials more clear.
-        # In practice, you should use the class variables directly unless you have a good
-        # reason not to.
-        box_name = self.box_name
-        scene = self.scene
-        eef_link = self.eef_link
 
         ## BEGIN_SUB_TUTORIAL detach_object
         ##
         ## Detaching Objects from the Robot
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         ## We can also detach and remove the object from the planning scene:
-        scene.remove_attached_object(eef_link, name=box_name)
+        self.scene.remove_attached_object(self.eef_link, name= self.box_name)
         ## END_SUB_TUTORIAL
 
         # We wait for the planning scene to update.
@@ -193,15 +216,13 @@ class Scene():
         # Copy class variables to local variables to make the web tutorials more clear.
         # In practice, you should use the class variables directly unless you have a good
         # reason not to.
-        box_name = self.box_name
-        scene = self.scene
 
         ## BEGIN_SUB_TUTORIAL remove_object
         ##
         ## Removing Objects from the Planning Scene
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         ## We can remove the box from the world.
-        scene.remove_world_object(box_name)
+        self.scene.remove_world_object(self.box_name)
 
         ## **Note:** The object must be detached before we can remove it from the world
         ## END_SUB_TUTORIAL
