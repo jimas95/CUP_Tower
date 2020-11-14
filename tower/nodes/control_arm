@@ -14,9 +14,11 @@ import moveit_commander
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Pose, Quaternion
 from tower.srv import Step, ControlTest
+from tf.transformations import*
 from tf_conversions import transformations
 from baxter_interface import Gripper
-
+# from tf_conversions.transformations import quaternion_from_euler
+from tower.simulator import Scene
 
 class Handler:
     """ Helper class for node control_arm.
@@ -24,7 +26,7 @@ class Handler:
     """
     def __init__(self):
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
-        self.scene = moveit_commander.PlanningSceneInterface()
+        scene = moveit_commander.PlanningSceneInterface()
         # 7 DOF
         self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
         # self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
@@ -32,9 +34,9 @@ class Handler:
         # self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
-        self.right_gripper.calibrate()
+        # self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
-        self.left_gripper.calibrate()
+        # self.left_gripper.calibrate()
         rospy.loginfo("SET UP READY")
 
         # self.test_arm()
@@ -42,6 +44,65 @@ class Handler:
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
+
+        # create scene 
+        self.myscene = Scene(scene)
+        self.myscene.create_scene_one_cup()
+        
+
+    def pick_cup_one_hand(self,name,hand):
+        
+        if(hand=="left_gripper"):
+            self.left_gripper.open(block=True)
+        elif(hand=="right_gripper"):
+            self.right_gripper.open(block=True)
+
+        pose_goal = self.myscene.get_cup_position(name)
+        pose_goal = self.orientation_forward(pose_goal)
+
+        # self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+        # (result, plan, frac, errCode) = self.both_arms_group.plan()
+        # result = self.both_arms_group.execute(plan, wait=True)
+        # self.both_arms_group.stop()
+        # self.both_arms_group.clear_pose_target(end_effector_link = hand)
+
+
+    def pick_cup_two_hands(self,name1,name2):
+        #open grippers
+        self.left_gripper.open(block=True)
+        self.right_gripper.open(block=True)
+
+        #get eef possition
+        pose_goal1 = self.myscene.get_cup_position(name1)
+        pose_goal1 = self.orientation_forward(pose_goal1)
+
+        pose_goal2 = self.myscene.get_cup_position(name2)
+        pose_goal2 = self.orientation_forward(pose_goal2)
+
+        #set eef possition
+        self.both_arms_group.set_pose_target(pose_goal1, end_effector_link = "left_gripper")
+        self.both_arms_group.set_pose_target(pose_goal2, end_effector_link = "right_gripper")
+
+
+    def execute_path(self):
+        #execute 
+        (result, plan, frac, errCode) = self.both_arms_group.plan()
+        result = self.both_arms_group.execute(plan, wait=True)
+        self.both_arms_group.stop()
+        self.both_arms_group.clear_pose_target(end_effector_link = "left_gripper")
+        self.both_arms_group.clear_pose_target(end_effector_link = "right_gripper")
+
+    def orientation_forward(self,pose):
+        q = quaternion_from_euler(0, 1.5707,0)
+        pose.position.z +=0.2
+        pose.orientation.x = q[0]
+        pose.orientation.y = q[1]
+        pose.orientation.z = q[2]
+        pose.orientation.w = q[3]
+        return pose
+
+    def place_cup(self):
+        pass
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
@@ -63,6 +124,14 @@ class Handler:
             step_service = rospy.ServiceProxy("step", Step)
             result = step_service(open_gripper = True, choose_left = False, x=1.0, y=-0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
             return result.output
+        elif req.choice == 3:
+            self.pick_cup_one_hand("Cup_1","left_gripper")
+            self.execute_path()
+        elif req.choice == 4:
+            self.pick_cup_one_hand("Cup_1","left_gripper")
+            self.pick_cup_one_hand("Cup_3","right_gripper")
+            self.execute_path()
+
 
         return "N/A"
 
@@ -140,6 +209,7 @@ class Handler:
         rospy.loginfo(f"Moving {ee_link}")
         self.both_arms_group.set_pose_target(pose_goal, end_effector_link = ee_link)
         (result, plan, frac, errCode) = self.both_arms_group.plan()
+
         result = self.both_arms_group.execute(plan, wait=True)
         self.both_arms_group.stop()
         self.both_arms_group.clear_pose_target(end_effector_link = ee_link)
