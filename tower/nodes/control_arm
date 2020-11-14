@@ -16,9 +16,10 @@ from geometry_msgs.msg import Pose, Quaternion
 from tower.srv import Step, ControlTest
 from tf_conversions import transformations
 from baxter_interface import Gripper
-# from tower.simulator import Scene
+
+# from python package
 from tower.simulator import Scene
-#from simulator import Scene
+
 
 class Handler:
     """ Helper class for node control_arm.
@@ -45,12 +46,13 @@ class Handler:
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
 
-        # create scene 
+        # create scene
         self.myscene = Scene(scene)
+        self.myscene.add_table()   # added this for some reason table not showing up again
         self.myscene.create_scene_one_cup()
         
 
-
+   
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
             Edit the inputs for service to test different cases.
