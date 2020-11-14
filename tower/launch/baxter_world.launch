@@ -63,4 +63,7 @@
       <arg name="gui" value="$(arg gui)" />
   </include>
 
+  <!-- add cups yaml file -->
+  <rosparam command="load" file="$(find tower)/config/cups.yaml" />
+
 </launch>
