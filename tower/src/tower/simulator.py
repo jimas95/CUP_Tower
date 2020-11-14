@@ -74,6 +74,15 @@ class Scene():
 
         rospy.loginfo("added scene")
 
+        # OBJECT VARIABLES
+        self.cup_radius = rospy.get_param("radius") # cup size
+        self.cup_height = rospy.get_param("length")
+        self.table_x = 1.1 # table size
+        self.table_y = 2.1
+        self.table_z = 0.05
+
+        rospy.logerr(self.cup_radius)
+
     def add_table(self,name,position, timeout=4):
         # add ctable surface 
         box_name = name
@@ -84,7 +93,7 @@ class Scene():
         box_pose.pose.position.x = position.x
         box_pose.pose.position.y = position.y
         box_pose.pose.position.z = position.z
-        self.scene.add_box(box_name, box_pose, size=(1.1, 2.1, 0.05))
+        self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
         self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
@@ -96,8 +105,6 @@ class Scene():
         Input:
         timeout (int)
         '''
-        height  = 0.1 
-        radious = 0.025
         cylinder_pose = geometry_msgs.msg.PoseStamped()
         cylinder_pose.header.frame_id = 'world'
         cylinder_pose.pose.orientation.w = 1.0
@@ -105,7 +112,7 @@ class Scene():
         cylinder_pose.pose.position.y = position.y
         cylinder_pose.pose.position.z = position.z
 
-        self.scene.add_cylinder(name,cylinder_pose,height,radious)
+        self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
     def get_cup_position(self,name):
