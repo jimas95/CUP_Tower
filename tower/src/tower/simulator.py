@@ -67,28 +67,24 @@ class Scene():
         ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
         ## to the world surrounding the robot:
 
-        rospy.loginfo("INIT")
-        # Misc variables
-        # self.scene = moveit_commander.PlanningSceneInterface()
+        rospy.loginfo("INIT Scene")
         self.scene = myscene
         self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
 
-        # self.add_table()
-        # self.add_cup("cup1")
-        # self.create_scene_one_cup()
+
         rospy.loginfo("added scene")
 
-    def add_table(self):
+    def add_table(self,name,position, timeout=4):
         # add ctable surface 
-        box_name = "table"
+        box_name = name
         box_pose = geometry_msgs.msg.PoseStamped()
         box_pose.header.frame_id = 'world'
         box_pose.pose.orientation.w = 1.0
         
-        box_pose.pose.position.x = 1.5
-        box_pose.pose.position.y = 0.0
-        box_pose.pose.position.z = -0.1
-        self.scene.add_box(box_name, box_pose, size=(1.5, 2.5, 0.2))
+        box_pose.pose.position.x = position.x
+        box_pose.pose.position.y = position.y
+        box_pose.pose.position.z = position.z
+        self.scene.add_box(box_name, box_pose, size=(1.1, 2.1, 0.05))
 
 
         self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
@@ -101,7 +97,7 @@ class Scene():
         timeout (int)
         '''
         height  = 0.1 
-        radious = 0.05
+        radious = 0.025
         cylinder_pose = geometry_msgs.msg.PoseStamped()
         cylinder_pose.header.frame_id = 'world'
         cylinder_pose.pose.orientation.w = 1.0
@@ -113,17 +109,20 @@ class Scene():
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
     def get_cup_position(self,name):
-        cup = self.gms("name","base")
+        cup = self.gms(name,"base")
+
         return cup.pose
 
     def create_scene_one_cup(self):
-        self.add_table()
         cup1 = self.gms("Cup_1","base")
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
         self.add_cup("cup1",cup1.pose.position)
         self.add_cup("cup2",cup2.pose.position)
         self.add_cup("cup3",cup3.pose.position)
+
+        table = self.gms("Table","base")
+        self.add_table("Table",table.pose.position)
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):

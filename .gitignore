@@ -1,1 +1,2 @@
-tower/src/tower/__pycache__/
+*.pyc
+*.vscode

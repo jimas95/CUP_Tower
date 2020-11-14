@@ -10,9 +10,9 @@
     </include>
 
     <include>
-      <uri>model://table</uri>
+      <uri>model://flat_table</uri>
       <name>Table</name>
-      <pose>1.0 0.0 0.0 0 0 1.57</pose>
+      <pose>1.0 0.0 1.0 0 0 0</pose>
     </include>
 
     <include>

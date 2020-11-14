@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version='1.4'>
-  <model name="cup">      
-      <static>0</static>
+  <model name="flat_table">      
+      <static>1</static>
       <link name='link'>
         <inertial>
           <mass>0.25</mass>
@@ -16,10 +16,9 @@
         </inertial>
         <collision name='collision'>
           <geometry>
-            <cylinder>
-            	<radius>0.025</radius>
-            	<length>0.100</length>
-          	</cylinder>
+            <box>
+	       <size> 1.0 2.0 0.05 </size>
+            </box>
           </geometry>
           <surface>
             <friction>
@@ -40,15 +39,14 @@
         </collision>
         <visual name='visual'>
           <geometry>
-            <cylinder>
-            	<radius>0.025</radius>
-            	<length>0.100</length>
-          	</cylinder>
+            <box>
+	       <size> 1.0 2.0 0.05  </size>
+            </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Blue</name>
+              <name>Gazebo/Wood</name>
             </script>
           </material>
         </visual>

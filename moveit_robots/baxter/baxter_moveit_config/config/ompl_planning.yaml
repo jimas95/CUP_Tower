@@ -15,6 +15,7 @@ planner_configs:
     type: geometric::KPIECE
   RRTStarkConfigDefault:
     type: geometric::RRTstar
+    optimization_objective: MaximizeMinClearanceObjective
   BKPIECEkConfigDefault:
     type: geometric::BKPIECE
 left_arm:
