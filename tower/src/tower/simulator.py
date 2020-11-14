@@ -15,7 +15,7 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 from moveit_msgs.msg import MoveItErrorCodes
-
+from gazebo_msgs.srv import GetModelState
 
 
 
@@ -71,7 +71,7 @@ class Scene():
         # Misc variables
         # self.scene = moveit_commander.PlanningSceneInterface()
         self.scene = myscene
-
+        self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
 
         # self.add_table()
         # self.add_cup("cup1")
@@ -87,14 +87,14 @@ class Scene():
         
         box_pose.pose.position.x = 1.5
         box_pose.pose.position.y = 0.0
-        box_pose.pose.position.z = 0.0
+        box_pose.pose.position.z = -0.1
         self.scene.add_box(box_name, box_pose, size=(1.5, 2.5, 0.2))
 
 
         self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
         
 
-    def add_cup(self,name, timeout=4):
+    def add_cup(self,name,position, timeout=4):
         '''
         Adds one cup
         Input:
@@ -105,17 +105,25 @@ class Scene():
         cylinder_pose = geometry_msgs.msg.PoseStamped()
         cylinder_pose.header.frame_id = 'world'
         cylinder_pose.pose.orientation.w = 1.0
-        cylinder_pose.pose.position.x = 1.0
-        cylinder_pose.pose.position.y = 0.0
-        cylinder_pose.pose.position.z = height/2.0
+        cylinder_pose.pose.position.x = position.x
+        cylinder_pose.pose.position.y = position.y
+        cylinder_pose.pose.position.z = position.z
 
         self.scene.add_cylinder(name,cylinder_pose,height,radious)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
+    def get_cup_position(self,name):
+        cup = self.gms("name","base")
+        return cup.pose
 
     def create_scene_one_cup(self):
         self.add_table()
-        self.add_cup("cup1")
+        cup1 = self.gms("Cup_1","base")
+        cup2 = self.gms("Cup_2","base")
+        cup3 = self.gms("Cup_3","base")
+        self.add_cup("cup1",cup1.pose.position)
+        self.add_cup("cup2",cup2.pose.position)
+        self.add_cup("cup3",cup3.pose.position)
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):

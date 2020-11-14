@@ -50,6 +50,11 @@ class Handler:
         self.myscene.create_scene_one_cup()
         
 
+    def pick_cup(self):
+        pass
+
+    def place_cup(self):
+        pass
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
