@@ -26,6 +26,9 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 # Apriltag Install
 `pip3 install apriltag`
 
+# kill gazebo
+1. killall gzclient
+2. killall rosmaster
 
 # Usefull links 
 ## from matt
