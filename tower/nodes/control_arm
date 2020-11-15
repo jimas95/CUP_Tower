@@ -48,6 +48,13 @@ class Handler:
         # create scene 
         self.myscene = Scene(scene)
         self.myscene.create_scene_one_cup()
+
+        # attach object
+        group_names = self.robot.get_group_names()
+        print("============ Available Planning Groups:", self.robot.get_group_names())
+        
+        self.myscene.attach_cup("right_hand", self.robot)
+    
         
 
     def pick_cup_one_hand(self,name,hand):
