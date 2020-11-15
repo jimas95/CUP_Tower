@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="config" default="true"/>
-  <arg name="rviz_config" default="$(find baxter_moveit_config)/launch/moveit.rviz" />
+  <arg name="rviz_config" default="$(find tower)/config/moveIt.rviz" />
   <arg name="planner" default="ompl" />
   <arg name="debug" default="false" />
 
