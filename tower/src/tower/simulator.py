@@ -43,8 +43,6 @@ def all_close(goal, actual, tolerance):
 
 
 """
-yaml file radious , height 
-function add_one_cup --> should take input name , position
 add function add_all_cups() --> uses add one cup 
     how many cups 
     random position
@@ -83,7 +81,13 @@ class Scene():
 
         rospy.logerr(self.cup_radius)
 
+
+
+
+    # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
+        """Adds table object to planning scene
+        """
         # add ctable surface 
         box_name = name
         box_pose = geometry_msgs.msg.PoseStamped()
@@ -99,37 +103,47 @@ class Scene():
         self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
         
 
-    def add_cup(self,name,position, timeout=4):
-        '''
-        Adds one cup
-        Input:
-        timeout (int)
-        '''
+    def add_cup(self,name, position, timeout=4):
+        """Adds a cup object at a specified position
+        Args:
+            name (str): name of cup to place in scene (ex. cup3)
+            posistion (????): postion of specified cup in planning scene
+            timeout (int): we wait until updates have been made or "timeout" seconds have passed
+        Returns: 
+            True or False (bool): pending on result from wait_for_state_update
+        """
         cylinder_pose = geometry_msgs.msg.PoseStamped()
         cylinder_pose.header.frame_id = 'world'
         cylinder_pose.pose.orientation.w = 1.0
         cylinder_pose.pose.position.x = position.x
         cylinder_pose.pose.position.y = position.y
-        cylinder_pose.pose.position.z = position.z
+        cylinder_pose.pose.position.z = position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
 
         self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
-    def get_cup_position(self,name):
-        cup = self.gms(name,"base")
 
+
+    def get_cup_position(self,name):
+        """Dimitris 
+        """
+        cup = self.gms(name,"base")
         return cup.pose
 
     def create_scene_one_cup(self):
+        """Dimitris
+        """
         cup1 = self.gms("Cup_1","base")
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
         self.add_cup("cup1",cup1.pose.position)
         self.add_cup("cup2",cup2.pose.position)
         self.add_cup("cup3",cup3.pose.position)
-
         table = self.gms("Table","base")
         self.add_table("Table",table.pose.position)
+
+
+
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
@@ -159,26 +173,37 @@ class Scene():
 
 
 
-    def attach_box(self, timeout=4):
-        """Copied from tutorial
+    # def attach_cup(self, ee_link, cup_name, robot,  timeout=4):
+    def attach_cup(self, ee_link, robot,  timeout=4):
+        """Attaches objects to the robot.
+        Adds link names to touch_links array. 
+        This tells the planning scene to ignore collisons between the robot and 
+        cups.
+        Args:
+             ee_link (str): name of end effector group name
+             cup_name (str) : cup object to attach to robot
+             robot (RobotComander object): provides info about robot
         """
-    
-        ## BEGIN_SUB_TUTORIAL attach_object
-        ##
-        ## Attaching Objects to the Robot
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        ## Next, we will attach the box to the Arm's wrist. Manipulating objects requires the
-        ## robot be able to touch them without the planning scene reporting the contact as a
-        ## collision. By adding link names to the ``touch_links`` array, we are telling the
-        ## planning scene to ignore collisions between those links and the box. For the Interbotix
-        ## robot, we set ``grasping_group = 'interbotix_gripper'``. If you are using a different robot,
-        ## you should change this value to the name of your end effector group name.
-        grasping_group = 'interbotix_gripper'
-        touch_links = self.robot.get_link_names(group=grasping_group)
-        self.scene.attach_box(self.eef_link, self.box_name, touch_links=touch_links)
+        # get a list of known objects in scene
+        known_object_list = self.scene.get_known_object_names()
+        rospy.logerr("KNOWN OBJECTS")
+        rospy.logerr(known_object_list)
 
-        # We wait for the planning scene to update.
-        return self.wait_for_state_update(box_is_attached=True, box_is_known=False, timeout=timeout)
+        # start attach object code from tutorial
+        grasping_group = ee_link   # end effector group name
+        rospy.logerr(grasping_group)
+        touch_links = robot.get_link_names(group = grasping_group)
+        
+        #http://docs.ros.org/en/noetic/api/moveit_commander/html/planning__scene__interface_8py_source.html
+        self.scene.attach_mesh(ee_link, known_object_list[1], touch_links = touch_links)   # attach mesh is a moveit commander function
+
+
+        #wait for planning scene to update
+        return self.wait_for_state_update(known_object_list[1], box_is_attached=True, box_is_known=False, timeout=timeout)
+      
+   
+
+
 
     def detach_box(self, timeout=4):
         """Copied from tutorial
