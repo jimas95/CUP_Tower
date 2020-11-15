@@ -12,7 +12,7 @@ import rospy
 import sys
 import moveit_commander
 from std_srvs.srv import Empty
-from geometry_msgs.msg import Pose, Quaternion
+from geometry_msgs.msg import Pose, Quaternion,Point
 from tower.srv import Step, ControlTest
 from tf.transformations import*
 from tf_conversions import transformations
@@ -27,11 +27,11 @@ class Handler:
     def __init__(self):
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
         scene = moveit_commander.PlanningSceneInterface()
-        # 7 DOF
+        # 14 DOF
         self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
-        # self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
+        self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
         # self.left_hand_group = moveit_commander.MoveGroupCommander("left_hand", robot_description='robot_description')
-        # self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
+        self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
         # self.right_gripper.calibrate()
@@ -50,49 +50,50 @@ class Handler:
         self.myscene.create_scene_one_cup()
 
         # attach object
-        group_names = self.robot.get_group_names()
-        print("============ Available Planning Groups:", self.robot.get_group_names())
-        
-        self.myscene.attach_cup("right_hand", self.robot)
-    
-        
+        # rospy.logdebug("============ Available Planning Groups:", self.robot.get_group_names())
+        # self.myscene.attach_cup("right_hand", self.robot)
 
-    def pick_cup_one_hand(self,name,hand):
+    def go_home_position(self):
+        pose = Pose()
+        pose.position = Point(1,0.7,0.6)
+        pose = self.orientation_forward(pose)
+
+        self.both_arms_group.set_pose_target(pose, end_effector_link = "left_gripper")
+        pose.position = Point(1,-0.7,0.6)
+        self.both_arms_group.set_pose_target(pose, end_effector_link = "right_gripper")
+        
+        self.execute_path()
+
+
+    def pick_cup_one_hand_pre_grasp(self,name,hand):
         
         if(hand=="left_gripper"):
-            self.left_gripper.open(block=True)
+            self.left_gripper.open(block=False)
         elif(hand=="right_gripper"):
-            self.right_gripper.open(block=True)
+            self.right_gripper.open(block=False)
 
         pose_goal = self.myscene.get_cup_position(name)
         pose_goal = self.orientation_forward(pose_goal)
-
-        # self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
-        # (result, plan, frac, errCode) = self.both_arms_group.plan()
-        # result = self.both_arms_group.execute(plan, wait=True)
-        # self.both_arms_group.stop()
-        # self.both_arms_group.clear_pose_target(end_effector_link = hand)
+        pose_goal.position.z+=0.0
+        pose_goal.position.x-=0.1
+        rospy.logdebug(pose_goal)
 
 
-    def pick_cup_two_hands(self,name1,name2):
-        #open grippers
-        self.left_gripper.open(block=True)
-        self.right_gripper.open(block=True)
-
-        #get eef possition
-        pose_goal1 = self.myscene.get_cup_position(name1)
-        pose_goal1 = self.orientation_forward(pose_goal1)
-
-        pose_goal2 = self.myscene.get_cup_position(name2)
-        pose_goal2 = self.orientation_forward(pose_goal2)
-
-        #set eef possition
-        self.both_arms_group.set_pose_target(pose_goal1, end_effector_link = "left_gripper")
-        self.both_arms_group.set_pose_target(pose_goal2, end_effector_link = "right_gripper")
-
-
+        self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+        
+    def pick_cup_one_hand_grasp(self,name,hand):
+        
+        pose_goal = self.myscene.get_cup_position(name)
+        pose_goal = self.orientation_forward(pose_goal)
+        pose_goal.position.z+=0.02
+        pose_goal.position.x+=0.05
+        return [pose_goal]
+        #self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+   
     def execute_path(self):
-        #execute 
+        """
+        find plan for both hands & execute it 
+        """
         (result, plan, frac, errCode) = self.both_arms_group.plan()
         result = self.both_arms_group.execute(plan, wait=True)
         self.both_arms_group.stop()
@@ -101,7 +102,6 @@ class Handler:
 
     def orientation_forward(self,pose):
         q = quaternion_from_euler(0, 1.5707,0)
-        pose.position.z +=0.2
         pose.orientation.x = q[0]
         pose.orientation.y = q[1]
         pose.orientation.z = q[2]
@@ -119,6 +119,11 @@ class Handler:
                             0. print current pose of left and right arm
                             1. test step service with left arm 
                             2. test step service with right arm 
+                            3. set hands at home position
+                            4. set hands at grasping position
+                            5. set hand to grasp position
+                            6. grab cups
+                            7. restart scene
         """
         if req.choice == 0: 
             result = self.current_pose()
@@ -132,13 +137,43 @@ class Handler:
             result = step_service(open_gripper = True, choose_left = False, x=1.0, y=-0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
             return result.output
         elif req.choice == 3:
-            self.pick_cup_one_hand("Cup_1","left_gripper")
-            self.execute_path()
-        elif req.choice == 4:
-            self.pick_cup_one_hand("Cup_1","left_gripper")
-            self.pick_cup_one_hand("Cup_3","right_gripper")
-            self.execute_path()
+            self.go_home_position()
 
+        elif req.choice == 4:
+            rospy.logdebug("Setting goal for cup 1 ....")
+            self.pick_cup_one_hand_pre_grasp("Cup_1","left_gripper")
+            rospy.logdebug("Setting goal  for cup 3 ....")
+            self.pick_cup_one_hand_pre_grasp("Cup_3","right_gripper")
+            rospy.logdebug("Executing pre-grasp")
+            self.execute_path()
+        elif req.choice == 5:
+            waypoints_left = self.pick_cup_one_hand_grasp("Cup_1", "left_gripper")
+            plan, _ = self.left_arm_group.compute_cartesian_path(waypoints_left,   # waypoints to follow
+                                   0.001,        # eef_step
+                                   0.0)         # jump_threshold
+            self.left_arm_group.execute(plan, wait=True)
+            waypoints_right = self.pick_cup_one_hand_grasp("Cup_3", "right_gripper")
+            plan, _ = self.right_arm_group.compute_cartesian_path(waypoints_right,   # waypoints to follow
+                                   0.001,        # eef_step
+                                   0.0)         # jump_threshold
+            self.right_arm_group.execute(plan, wait=True)
+        elif req.choice == 6:
+             self.left_gripper.close(block=True)
+             self.right_gripper.close(block=True)
+             self.myscene.attach_cup("left_hand", self.robot,"Cup_1")
+             self.myscene.attach_cup("right_hand", self.robot,"Cup_3")
+
+        elif req.choice == 7:
+            self.myscene.restart_scene()
+        
+       # elif req.choice == 7:
+        #     self.left_gripper.close(block=True)
+         #    self.right_gripper.close(block=True)
+          #   self.myscene.attach_cup("left_hand", self.robot,"Cup_1")
+
+
+
+            
 
         return "N/A"
 
@@ -238,7 +273,7 @@ def main():
     """ The main() function. """
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.loginfo(sys.argv)
-    rospy.init_node('control_arm')
+    rospy.init_node('control_arm',log_level=rospy.DEBUG)
     handler = Handler()
     rospy.spin()
 
