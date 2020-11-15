@@ -54,6 +54,7 @@ add_message_files(
   FILES
     AprilTagDetection.msg
     AprilTagDetectionArray.msg
+
 )
 
 ## Generate services in the 'srv' folder
@@ -174,6 +175,7 @@ catkin_install_python(PROGRAMS
     nodes/cam_display
     nodes/tracker
     nodes/tag_detection
+    nodes/realsense_detect
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
