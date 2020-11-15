@@ -15,7 +15,9 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 from moveit_msgs.msg import MoveItErrorCodes
-from gazebo_msgs.srv import GetModelState
+from gazebo_msgs.srv import GetModelState,SetModelState
+from geometry_msgs.msg import Pose,Point,Twist
+from gazebo_msgs.msg import ModelState
 
 
 
@@ -68,6 +70,7 @@ class Scene():
         rospy.loginfo("INIT Scene")
         self.scene = myscene
         self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
+        self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
 
 
         rospy.loginfo("added scene")
@@ -79,7 +82,7 @@ class Scene():
         self.table_y = 2.1
         self.table_z = 0.05
 
-        rospy.logerr(self.cup_radius)
+        # rospy.logerr(self.cup_radius)
 
 
 
@@ -122,10 +125,24 @@ class Scene():
         self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
 
+    
 
+    def restart_scene(self):
+        "restarts gazebo scene"
+        pose = Pose()
+        twist = Twist()
+        pose.position = Point(1,0.0,0.3)
+        
 
+        pose.position.y = 0
+        self.sms(ModelState("Cup_1",pose,twist,"base"))
+        pose.position.y = 0.5
+        self.sms(ModelState("Cup_2",pose,twist,"base"))
+        pose.position.y = -0.5
+        self.sms(ModelState("Cup_3",pose,twist,"base"))
+        
     def get_cup_position(self,name):
-        """Dimitris 
+        """return the position of Cup
         """
         cup = self.gms(name,"base")
         return cup.pose
@@ -174,7 +191,7 @@ class Scene():
 
 
     # def attach_cup(self, ee_link, cup_name, robot,  timeout=4):
-    def attach_cup(self, ee_link, robot,  timeout=4):
+    def attach_cup(self, ee_link, robot,cup_name,  timeout=4):
         """Attaches objects to the robot.
         Adds link names to touch_links array. 
         This tells the planning scene to ignore collisons between the robot and 
@@ -186,7 +203,8 @@ class Scene():
         """
         # get a list of known objects in scene
         known_object_list = self.scene.get_known_object_names()
-        rospy.logerr("KNOWN OBJECTS")
+        if cup_name not in known_object_list:
+           rospy.logerr("Object %s does not exist in the scene", cup_name)
         rospy.logerr(known_object_list)
 
         # start attach object code from tutorial
