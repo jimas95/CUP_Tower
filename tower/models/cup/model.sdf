@@ -18,7 +18,7 @@
           <geometry>
             <cylinder>
             	<radius>0.025</radius>
-            	<length>0.100</length>
+            	<length>0.15</length>
           	</cylinder>
           </geometry>
           <surface>
@@ -42,13 +42,13 @@
           <geometry>
             <cylinder>
             	<radius>0.025</radius>
-            	<length>0.100</length>
+            	<length>0.150</length>
           	</cylinder>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Blue</name>
+              <name>Gazebo/Red</name>
             </script>
           </material>
         </visual>
