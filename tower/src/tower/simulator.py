@@ -128,18 +128,19 @@ class Scene():
     
 
     def restart_scene(self):
-        "restarts gazebo scene"
+        """restarts gazebo scene    """
         pose = Pose()
         twist = Twist()
         pose.position = Point(1,0.0,0.3)
         
-
         pose.position.y = 0
         self.sms(ModelState("Cup_1",pose,twist,"base"))
-        pose.position.y = 0.5
+        pose.position.y = 0.4
         self.sms(ModelState("Cup_2",pose,twist,"base"))
-        pose.position.y = -0.5
+        pose.position.y = -0.4
         self.sms(ModelState("Cup_3",pose,twist,"base"))
+
+        self.create_scene_one_cup()
         
     def get_cup_position(self,name):
         """return the position of Cup
@@ -148,14 +149,14 @@ class Scene():
         return cup.pose
 
     def create_scene_one_cup(self):
-        """Dimitris
+        """Creates scene at moveIt with 3 cups at the table
         """
         cup1 = self.gms("Cup_1","base")
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
-        self.add_cup("cup1",cup1.pose.position)
-        self.add_cup("cup2",cup2.pose.position)
-        self.add_cup("cup3",cup3.pose.position)
+        self.add_cup("Cup_1",cup1.pose.position)
+        self.add_cup("Cup_2",cup2.pose.position)
+        self.add_cup("Cup_3",cup3.pose.position)
         table = self.gms("Table","base")
         self.add_table("Table",table.pose.position)
 
@@ -204,8 +205,8 @@ class Scene():
         # get a list of known objects in scene
         known_object_list = self.scene.get_known_object_names()
         if cup_name not in known_object_list:
-           rospy.logerr("Object %s does not exist in the scene", cup_name)
-        rospy.logerr(known_object_list)
+            rospy.logerr("Object %s does not exist in the scene", cup_name)
+            rospy.logerr(known_object_list)
 
         # start attach object code from tutorial
         grasping_group = ee_link   # end effector group name
@@ -213,11 +214,11 @@ class Scene():
         touch_links = robot.get_link_names(group = grasping_group)
         
         #http://docs.ros.org/en/noetic/api/moveit_commander/html/planning__scene__interface_8py_source.html
-        self.scene.attach_mesh(ee_link, known_object_list[1], touch_links = touch_links)   # attach mesh is a moveit commander function
+        self.scene.attach_mesh(ee_link, cup_name, touch_links = touch_links)   # attach mesh is a moveit commander function
 
 
         #wait for planning scene to update
-        return self.wait_for_state_update(known_object_list[1], box_is_attached=True, box_is_known=False, timeout=timeout)
+        return self.wait_for_state_update(cup_name, box_is_attached=True, box_is_known=False, timeout=timeout)
       
    
 
