@@ -142,11 +142,7 @@ class Scene():
 
         self.create_scene_one_cup()
         
-    def get_cup_position(self,name):
-        """return the position of Cup
-        """
-        cup = self.gms(name,"base")
-        return cup.pose
+
 
     def create_scene_one_cup(self):
         """Creates scene at moveIt with 3 cups at the table
@@ -224,7 +220,7 @@ class Scene():
 
 
 
-    def detach_box(self, timeout=4):
+    def detach_box(self,cup_name, timeout=4):
         """Copied from tutorial
         """
         # Copy class variables to local variables to make the web tutorials more clear.
@@ -266,3 +262,44 @@ class Scene():
 
         # We wait for the planning scene to update.
         return self.wait_for_state_update(box_is_attached=False, box_is_known=False, timeout=timeout)
+
+
+    def cups_sorted(self):
+        """
+        Returns True if all cups are inside inLine area 
+        Returns False if any cup is still inside the workspace
+        """
+        return True
+
+    def assing_cup_st1(self,hand):
+        """
+        this function is for state 1 
+        Return the name of a cup that should be grabed from hand arm
+        left_hand arm gets y>0 
+        right_hand arm gets y<0
+        priority is given to cup with min(x)
+        """
+        pass
+
+
+    def get_cup_position(self,name):
+        """return the position of Cup
+        """
+        cup = self.gms(name,"base")
+        return cup.pose
+
+
+    def get_next_sorting_position(self,hand):
+        """
+        Return the position that we should leave cup on inLine workstation
+        """
+        pass
+
+    def create_sorting_list_position(self):
+        """
+        create a list for each hand that has the position we should leave each cup at inLine workstation
+        """
+
+        pass
+
+    
