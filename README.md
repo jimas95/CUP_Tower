@@ -10,11 +10,8 @@ The goal of this project is to use the robot baxter and build a **HUGE** tower f
 
 ## control baxter and Rviz with moveit
 1. roslaunch tower baxter_world.launch
-2. rosrun baxter_interface joint_trajectory_action_server.py
-3. rosrun baxter_interface gripper_action_server.py
-4. rosrun baxter_tools enable_robot.py -e
-5. roslaunch baxter_moveit_config demo_baxter.launch right_electric_gripper:=True left_electric_gripper:=True
-6. rosrun tower control_arm joint_states:=robot/joint_states
+2. roslaunch tower build_tower.launch
+3. rosrun tower control_arm joint_states:=robot/joint_states
 
 note: remember to change `joint_limits.yaml` to values specified in `joint_limits_true.yaml` for real robot.
 
@@ -22,6 +19,12 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 0. print current pose of left and right arm
 1. test step service with left arm 
 2. test step service with right arm 
+3. set hands at home position
+4. set hands at grasping position
+5. set hand to grasp position
+6. grab cups
+7. restart scene
+8. print current joint values of both arms
 
 # Apriltag Install
 `pip3 install apriltag`

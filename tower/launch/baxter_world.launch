@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
-  <env name="GAZEBO_MODEL_PATH" value="$(find tower)/models:$(optenv GAZEBO_MODEL_PATH)" />
-
+  <env name="GAZEBO_MODEL_PATH" value="$(find tower)/models:$(optenv GAZEBO_MODEL_PATH)"/>
 
 
   <!-- these are the arguments you can pass this launch file, for example paused:=true -->

@@ -9,6 +9,7 @@ SERVICES:
 """
 
 import rospy
+import numpy as np
 import sys
 import moveit_commander
 from std_srvs.srv import Empty
@@ -25,41 +26,61 @@ class Handler:
     Setup moveit for Baxter.
     """
     def __init__(self):
+        self.START_JOINTS = [0.19, 1.04, -0.02, 0.49, -0.18, 0.03, -0.01, \
+                             -0.27, 1.04, 0.03, 0.5, -0.08, 0.03, 0.03]
+
+        self.HOME_JOINTS = [0.1,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
+                            -0.1, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
+
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
         scene = moveit_commander.PlanningSceneInterface()
         # 14 DOF
         self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
         self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
-        # self.left_hand_group = moveit_commander.MoveGroupCommander("left_hand", robot_description='robot_description')
         self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
-        # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
         # self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
         # self.left_gripper.calibrate()
-        rospy.loginfo("SET UP READY")
-
-        # self.test_arm()
-        # self.test_both_arms()
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
 
         # create scene 
         self.myscene = Scene(scene)
+        self.myscene.restart_scene()
         self.myscene.create_scene_one_cup()
 
         # attach object
         # rospy.logdebug("============ Available Planning Groups:", self.robot.get_group_names())
         # self.myscene.attach_cup("right_hand", self.robot)
+        rospy.loginfo("SET UP READY")
+
+    def go_start_position(self):
+        """ go to HOME position for easier grasping """
+        self.both_arms_group.set_joint_value_target(self.START_JOINTS)
+
+        # pose = Pose()
+        # pose.position = Point(1,0.7,0.6)
+        # pose = self.orientation_forward(pose)
+
+        # self.both_arms_group.set_pose_target(pose, end_effector_link = "left_gripper")
+        # pose.position = Point(1,-0.7,0.6)
+        # self.both_arms_group.set_pose_target(pose, end_effector_link = "right_gripper")
+        
+        self.execute_path()
 
     def go_home_position(self):
-        pose = Pose()
-        pose.position = Point(1,0.7,0.6)
+        """ go to HOME position for easier grasping """
+        self.both_arms_group.set_joint_value_target(self.HOME_JOINTS)
+        self.execute_path()
+        
+        pose = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper").pose
         pose = self.orientation_forward(pose)
-
         self.both_arms_group.set_pose_target(pose, end_effector_link = "left_gripper")
-        pose.position = Point(1,-0.7,0.6)
+
+        pose = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper").pose
+        pose = self.orientation_forward(pose)
         self.both_arms_group.set_pose_target(pose, end_effector_link = "right_gripper")
         
         self.execute_path()
@@ -124,10 +145,18 @@ class Handler:
                             5. set hand to grasp position
                             6. grab cups
                             7. restart scene
+                            8. print current joint values
+                            9. go to initial start position of robot 
         """
         if req.choice == 0: 
             result = self.current_pose()
             return result.replace('\n', ' ')
+        elif req.choice == 8:
+            result = self.current_joints()
+            return result.replace('\n', ' ')
+        elif req.choice == 9:
+            self.go_start_position()
+            return "go to start position"
         elif req.choice == 1:
             step_service = rospy.ServiceProxy("step", Step)
             result = step_service(open_gripper = False, choose_left = True, x=1.0, y=0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
@@ -138,7 +167,7 @@ class Handler:
             return result.output
         elif req.choice == 3:
             self.go_home_position()
-
+            return "go to home position"
         elif req.choice == 4:
             rospy.logdebug("Setting goal for cup 1 ....")
             self.pick_cup_one_hand_pre_grasp("Cup_1","left_gripper")
@@ -187,6 +216,11 @@ class Handler:
         q = left_current.pose.orientation
         right_angles = transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])
         return f"left pos = {left_current.pose.position}, left euler = {left_angles}; right pos = {right_current.pose.position}, right euler = {right_angles}"
+        
+    def current_joints(self):
+        """ helper service for debugging current joint of gripper"""
+        current = self.both_arms_group.get_current_joint_values()
+        return f"joints = {np.round(current,2)}"
     
     """
     def test_both_arms(self):
