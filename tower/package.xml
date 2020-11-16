@@ -65,6 +65,9 @@
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>baxter_description</exec_depend>
   <exec_depend>xacro</exec_depend>
+  <exec_depend>baxter_interface</exec_depend>
+  <exec_depend>baxter_tools</exec_depend>
+  <exec_depend>baxter_moveit_config</exec_depend>
 
 
 

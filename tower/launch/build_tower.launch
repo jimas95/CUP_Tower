@@ -14,6 +14,7 @@
 <node pkg="baxter_tools" type="enable_robot.py" name="enable_robot" args="-e"/>
 
 <include file="$(find baxter_moveit_config)/launch/demo_baxter.launch">
+    <arg name="load_robot_description" value="true"/>
     <arg name="right_electric_gripper" value="True" />
     <arg name="left_electric_gripper" value="True" />
 </include>
