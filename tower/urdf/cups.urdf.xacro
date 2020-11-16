@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<robot name="cup" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:property name="yaml_file" value="$(find tower)/config/scene_objects.yaml" />
+
+<xacro:property name="t" value="${load_yaml(yaml_file)}"/>
+<xacro:property name="radius" value="${t['radius']}" />
+<xacro:property name="length" value="${t['length']}"/>
+<xacro:property name="PI" value="3.1415926535897931" />
+
+
+    <!-- LEFT WHEEL -->
+  <link name="wheel_left_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius= "1" length ="1" />
+      </geometry>
+      <material name="black">
+                <color rgba="0 0 0 0.5"/>
+      </material>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="1" length = "1"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0 0 0" />
+      <mass value="0.2" />
+      <!-- mass = 0.2 in inertia eq -->
+      <inertia ixx="${0.2*(1/12)*(3*1**2 + 1**2)}" ixy="0" ixz="0"
+               iyy="${0.2*(1/12)*(3*1**2 + 1**2)}" iyz="0"
+               izz="${0.2*(1/2)*1**2}" />
+      </inertial>
+  </link>
+
+  <gazebo reference="wheel_left_link">
+    <mu1>1</mu1>
+    <mu2>1</mu2>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+
+
+</robot>
+
+
+
+
+
+
+
+
+<!-- <link name="cup">
+  <visual>
+    <origin xyz="$0 0 0" rpy="$0 0 0" />
+    <geometry>
+      <cylinder radius="${radius}" length="${length}" />
+    </geometry>
+    <material name="blue_mat">
+         <color rgba="0 0 1 1" />
+    </material>
+  </visual>
+
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <cylinder radius="${radius}" length = "${length}"/>
+    </geometry>
+  </collision>
+
+  <inertial>
+    <origin xyz="0 0 0" />
+    <mass value="0.2" />
+
+    <inertia ixx="${0.2*(1/12)*(3*radius**2 + length**2)}" ixy="0" ixz="0"
+              iyy="${0.2*(1/12)*(3*radius**2 + length**2)}" iyz="0"
+              izz="${0.2*(1/2)*radius**2}" />
+  </inertial>
+
+</link>
+
+<gazebo reference="cup">
+  <mu1>1</mu1>
+  <mu2>1</mu2>
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+
+
+</robot> -->
