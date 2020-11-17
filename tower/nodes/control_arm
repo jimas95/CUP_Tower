@@ -65,7 +65,9 @@ class Handler:
         # self.myscene.attach_cup("right_hand", self.robot)
 
         # self.go_home_position()
-        rospy.set_param('move_group/trajectory_execution/allowed_execution_duration_scaling', 20.0)
+        rospy.set_param('move_group/trajectory_execution/allowed_execution_duration_scaling', 10.0)
+        self.right_arm_group.set_planning_time(10.0)
+        self.left_arm_group.set_planning_time(10.0)
 
         rospy.loginfo("SET UP READY")
 
@@ -89,16 +91,6 @@ class Handler:
                 self.HOME_JOINTS[7] = self.START_JOINTS[7]
             self.both_arms_group.set_joint_value_target(target)
             self.execute_path()
-
-
-        # pose = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper").pose
-        # pose = self.orientation_forward(pose)
-        # self.both_arms_group.set_pose_target(pose, end_effector_link = "left_gripper")
-
-        # pose = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper").pose
-        # pose = self.orientation_forward(pose)
-        # self.both_arms_group.set_pose_target(pose, end_effector_link = "right_gripper")
-        # self.execute_path()
 
 
     def gripper_control(self,state,gripper):
@@ -128,6 +120,50 @@ class Handler:
         else:
             rospy.logerr("Wrong gripper !")
 
+    def execute_cartesian(self,hand, waypoints, eef_step):
+        """ Helper function for compute and execute cartesian path.
+        This function will use set_pose instead of the cartesian trajectory plan fraction is below 0.5.
+
+        Args:
+            hand(string) - "left_gripper" or "right_gripper". Select which move group to execute
+            waypoint(list) - desired trajectory of hand
+            eef_step(float) - step size during each mini waypoint
+        """
+        for goal in waypoints:
+            if hand=="right_gripper":
+                plan, frac = self.right_arm_group.compute_cartesian_path([goal],   # waypoints to follow
+                                        eef_step,        # eef_step
+                                        0.0)         # jump_threshold
+                rospy.loginfo(f"frac = {frac}")
+                if frac <= 0.5: 
+                    rospy.loginfo("use set pose")
+                    self.right_arm_group.set_pose_target(goal)
+                    (result, plan, frac, errCode) = self.right_arm_group.plan()
+                self.right_arm_group.execute(plan, wait=True)
+                self.right_arm_group.stop()
+                self.right_arm_group.clear_pose_targets()
+            elif hand=="left_gripper":
+                plan, frac = self.left_arm_group.compute_cartesian_path([goal],   # waypoints to follow
+                                        eef_step,        # eef_step
+                                        0.0)         # jump_threshold
+                rospy.loginfo(f"frac = {frac}")
+                if frac <= 0.5: 
+                    rospy.loginfo("use set pose")
+                    self.right_arm_group.set_pose_target(goal)
+                    (result, plan, frac, errCode) = self.right_arm_group.plan()
+                self.left_arm_group.execute(plan, wait=True)
+                self.left_arm_group.stop()
+                self.left_arm_group.clear_pose_targets()
+    
+    def go_to(self,pose_goal,hand):
+        """ helper function for moving gripper to standoff position before grasping cup
+            
+            Args: 
+                pose_goal(Pose) - position of eef
+                hand(String) - name of gripper to use
+        """
+        self.gripper_control(state=True,gripper="both")
+        self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
 
     def pre_grasp_pos(self,cup_name,hand):
         """ helper function for moving gripper to standoff position before grasping cup
@@ -143,18 +179,6 @@ class Handler:
         pose_goal.position.z+=self.PRE_GRASP_POS[2]
         self.go_to(pose_goal,hand)
 
-    def go_to(self,pose_goal,hand):
-        """ helper function for moving gripper to standoff position before grasping cup
-            
-            Args: 
-                pose_goal(Pose) - position of eef
-                hand(String) - name of gripper to use
-        """
-        self.gripper_control(state=True,gripper="both")
-        self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
-
-
-        
     def grasp_pos(self,name,hand):
         """ helper function for grasping cup
             
@@ -170,22 +194,7 @@ class Handler:
         pose_goal.position.y+=target[1]
         pose_goal.position.z+=target[2]              
 
-        if hand=="right_gripper":
-            self.right_arm_group.set_planning_time(20.0)
-            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
-                                    0.005,        # eef_step
-                                    0.0)         # jump_threshold
-            self.right_arm_group.execute(plan, wait=True)
-            self.right_arm_group.stop()
-            self.right_arm_group.clear_pose_targets()
-        elif hand=="left_gripper":
-            self.left_arm_group.set_planning_time(20.0)
-            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
-                                    0.005,        # eef_step
-                                    0.0)         # jump_threshold
-            self.left_arm_group.execute(plan, wait=True)
-            self.left_arm_group.stop()
-            self.left_arm_group.clear_pose_targets()
+        self.execute_cartesian(hand, [pose_goal], 0.005)
     
     def place_cup_one_hand(self,name,hand):
         """ helper function for grasping cup
@@ -220,53 +229,7 @@ class Handler:
         pose_goal3 = self.orientation_sideway(pose_goal3, hand)
         # self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
         # self.execute_path()
-
-        if hand=="right_gripper":
-            rospy.loginfo(f"goal 1 = {pose_goal1}")
-            rospy.loginfo(f"goal 2 = {pose_goal2}")
-            rospy.loginfo(f"goal 3 = {pose_goal3}")
-            self.left_arm_group.set_planning_time(20.0)
-            plan, frac = self.right_arm_group.compute_cartesian_path([pose_goal1],   # waypoints to follow
-                                    0.1,        # eef_step
-                                    0.0)         # jump_threshold
-            rospy.loginfo(f"frac = {frac}")
-            self.right_arm_group.execute(plan, wait=True)
-            if frac <= 0.1:
-                self.both_arms_group.set_pose_target(pose_goal1, end_effector_link = hand)
-                self.execute_path()
-            self.right_arm_group.stop()
-            self.right_arm_group.clear_pose_targets()
-
-            plan, frac = self.right_arm_group.compute_cartesian_path([pose_goal2],   # waypoints to follow
-                                    0.1,        # eef_step
-                                    0.0)         # jump_threshold
-            rospy.loginfo(f"frac = {frac}")
-            self.right_arm_group.execute(plan, wait=True)
-            if frac <= 0.1:
-                self.both_arms_group.set_pose_target(pose_goal2, end_effector_link = hand)
-                self.execute_path()
-            self.right_arm_group.stop()
-            self.right_arm_group.clear_pose_targets()
-
-            plan, frac = self.right_arm_group.compute_cartesian_path([pose_goal3],   # waypoints to follow
-                                    0.1,        # eef_step
-                                    0.0)         # jump_threshold
-            rospy.loginfo(f"frac = {frac}")
-            self.right_arm_group.execute(plan, wait=True)
-            if frac <= 0.1:
-                self.both_arms_group.set_pose_target(pose_goal3, end_effector_link = hand)
-                self.execute_path()
-            self.right_arm_group.stop()
-            self.right_arm_group.clear_pose_targets()
-        elif hand=="left_gripper":
-            self.left_arm_group.set_planning_time(20.0)
-            plan, _ = self.left_arm_group.compute_cartesian_path([current.pose, pose_goal1, pose_goal2, pose_goal3],   # waypoints to follow
-                                    0.1,        # eef_step
-                                    0.0)         # jump_threshold
-            self.left_arm_group.execute(plan, wait=True)
-            self.left_arm_group.stop()
-            self.left_arm_group.clear_pose_targets()
-       
+        self.execute_cartesian(hand, [pose_goal1, pose_goal2, pose_goal3], 0.1)
 
         # place
         rospy.loginfo("place")
@@ -274,23 +237,8 @@ class Handler:
         pose_goal.position.x += self.PLACE_POS[0]
         pose_goal.position.y += self.PLACE_POS[1]
         pose_goal.position.z += self.PLACE_POS[2]
-        if hand=="right_gripper":
-            self.right_arm_group.set_planning_time(20.0)
-            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
-                                    0.01,        # eef_step
-                                    0.0)         # jump_threshold
-            self.right_arm_group.execute(plan, wait=True)
-            self.right_arm_group.stop()
-            self.right_arm_group.clear_pose_targets()
-        elif hand=="left_gripper":
-            self.left_arm_group.set_planning_time(20.0)
-            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
-                                    0.01,        # eef_step
-                                    0.0)         # jump_threshold
-            self.left_arm_group.execute(plan, wait=True)
-            self.left_arm_group.stop()
-            self.left_arm_group.clear_pose_targets()
-       
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+
         rospy.loginfo("open gripper")
         self.gripper_control(state=True,gripper="both")
 
@@ -307,10 +255,6 @@ class Handler:
         self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
         self.execute_path()
 
-        # rospy.loginfo("HOME")
-        # target = self.HOME_JOINTS.copy()
-        # self.both_arms_group.set_joint_value_target(target)
-        # self.execute_path()
 
     def grab_and_place_cup(self, name, hand):
         """ grab and place a cup to another position
@@ -385,6 +329,8 @@ class Handler:
                             8. print current joint values
                             9. go to initial start position of robot 
                             10. grab and place cup_3 with right_hand
+                            11. test10 using state_1
+                            12. execute cartesian path
         """
         if req.choice == 0: 
             result = self.current_pose()
@@ -426,13 +372,30 @@ class Handler:
         elif req.choice == 10:
             self.grab_and_place_cup("Cup_3", "right_gripper")
             return "grab and place cup_3"
-        elif req.choice == 10:
+        elif req.choice == 11:
             rospy.logdebug("Executing state 1.....")
             self.state_1()
             rospy.logdebug("Executing state 1 DONE")
             return "grab and place cup_3"
-
-        
+        elif req.choice == 12:
+            current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper").pose
+            goal1 = Pose()
+            goal1.position.x = current.position.x         
+            goal1.position.y = current.position.y          
+            goal1.position.z = current.position.z + 0.1        
+            goal1.orientation = current.orientation
+            goal2 = Pose()
+            goal2.position.x = current.position.x         
+            goal2.position.y = current.position.y - 0.1        
+            goal2.position.z = current.position.z + 0.1        
+            goal2.orientation = current.orientation            
+            goal3 = Pose()
+            goal3.position.x = current.position.x + 0.1        
+            goal3.position.y = current.position.y - 0.1      
+            goal3.position.z = current.position.z + 0.1        
+            goal3.orientation = current.orientation
+            self.execute_cartesian("right_gripper", [goal1, goal2, goal3], 0.01)
+            return "execute cartesian for right hand to current+(0.1, -0.1, 0.1)"
 
         return "N/A"
 
