@@ -155,7 +155,7 @@ class Handler:
 
 
         
-    def pick_cup_one_hand_grasp(self,name,hand):
+    def grasp_pos(self,name,hand):
         """ helper function for grasping cup
             
             Args: 
@@ -323,13 +323,13 @@ class Handler:
         self.pre_grasp_pos(name, hand)
         self.execute_path()
         rospy.loginfo("grasp")
-        self.pick_cup_one_hand_grasp(name, hand)
+        self.grasp_pos(name, hand)
 
         # self.right_gripper.close(block=True) # <-- comment this out to avoid collision
         self.myscene.attach_cup("right_hand", self.robot, name)
         
         # rospy.loginfo("after grasp")
-        # self.pick_cup_one_hand_grasp(name, hand, "post")
+        # self.grasp_pos(name, hand, "post")
 
         self.place_cup_one_hand(name, hand)
         
@@ -415,7 +415,7 @@ class Handler:
             rospy.logdebug("Executing pre-grasp")
             return "before grasp cup_3"
         elif req.choice == 5:
-            self.pick_cup_one_hand_grasp("Cup_3", "right_gripper")
+            self.grasp_pos("Cup_3", "right_gripper")
             return "grasp cup_3"
         elif req.choice == 6:
             self.gripper_control(state=False,gripper="both")
@@ -477,8 +477,8 @@ class Handler:
             self.execute_path()
 
             #Go to grasping position of cup
-            self.pick_cup_one_hand_grasp(cap_nameL, "left_gripper")
-            self.pick_cup_one_hand_grasp(cap_nameR, "right_gripper")
+            self.grasp_pos(cap_nameL, "left_gripper")
+            self.grasp_pos(cap_nameR, "right_gripper")
             self.execute_path()
 
             #Close gripper
