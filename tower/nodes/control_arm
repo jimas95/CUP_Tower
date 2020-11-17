@@ -196,7 +196,7 @@ class Handler:
             rospy.loginfo(f"frac = {frac}")
             self.right_arm_group.execute(plan, wait=True)
             if frac <= 0.1:
-                self.both_arms_group.set_pose_target(pose_goal3, end_effector_link = hand)
+                self.both_arms_group.set_pose_target(pose_goal1, end_effector_link = hand)
                 self.execute_path()
             self.right_arm_group.stop()
             self.right_arm_group.clear_pose_targets()
@@ -207,7 +207,7 @@ class Handler:
             rospy.loginfo(f"frac = {frac}")
             self.right_arm_group.execute(plan, wait=True)
             if frac <= 0.1:
-                self.both_arms_group.set_pose_target(pose_goal3, end_effector_link = hand)
+                self.both_arms_group.set_pose_target(pose_goal2, end_effector_link = hand)
                 self.execute_path()
             self.right_arm_group.stop()
             self.right_arm_group.clear_pose_targets()
