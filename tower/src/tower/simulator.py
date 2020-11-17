@@ -198,18 +198,17 @@ class Scene():
              cup_name (str) : cup object to attach to robot
              robot (RobotComander object): provides info about robot
         """
+        rospy.logdebug("attach : "+str(cup_name))
         # get a list of known objects in scene
         known_object_list = self.scene.get_known_object_names()
         if cup_name not in known_object_list:
             rospy.logerr("Object %s does not exist in the scene", cup_name)
             rospy.logerr(known_object_list)
 
-        # start attach object code from tutorial
         grasping_group = ee_link   # end effector group name
-        rospy.logdebug(grasping_group)
         touch_links = robot.get_link_names(group = grasping_group)
+        rospy.logerr(touch_links)
         
-        #http://docs.ros.org/en/noetic/api/moveit_commander/html/planning__scene__interface_8py_source.html
         self.scene.attach_mesh(ee_link, cup_name, touch_links = touch_links)   # attach mesh is a moveit commander function
 
 
@@ -220,26 +219,18 @@ class Scene():
 
 
 
-    def detach_box(self,cup_name, timeout=4):
-        """Copied from tutorial
+    def detach_cup(self,cup_name,ee_link, timeout=4):
+        """detach a cup from robot
+
         """
         # Copy class variables to local variables to make the web tutorials more clear.
         # In practice, you should use the class variables directly unless you have a good
         # reason not to.
-        box_name = self.box_name
-        scene = self.scene
-        eef_link = self.eef_link
-
-        ## BEGIN_SUB_TUTORIAL detach_object
-        ##
-        ## Detaching Objects from the Robot
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        ## We can also detach and remove the object from the planning scene:
-        scene.remove_attached_object(eef_link, name=box_name)
-        ## END_SUB_TUTORIAL
+        rospy.logdebug("detach :"+str(cup_name))
+        self.scene.remove_attached_object(ee_link, name=cup_name)
 
         # We wait for the planning scene to update.
-        return self.wait_for_state_update(box_is_known=True, box_is_attached=False, timeout=timeout)
+        return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
 
