@@ -235,6 +235,7 @@ class Scene():
    
 
 
+<<<<<<< HEAD
 
     def detach_cup(self,cup_name,ee_link, timeout=4):
         """detach a cup from robot
@@ -273,6 +274,32 @@ class Scene():
         """
         pass
 
+=======
+    def detach_box(self, cup_name, ee_link, timeout=4):
+        """Copied from tutorial
+        """
+
+        ## Detaching Objects from the Robot
+        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ## We can also detach and remove the object from the planning scene:
+        self.scene.remove_attached_object(ee_link, name=cup_name)
+        
+
+        # We wait for the planning scene to update.
+        return self.wait_for_state_update(cup_name, box_is_known=True, box_is_attached=False, timeout=timeout)
+
+    def remove_box(self, cup_name, ee_link,timeout=4):
+        """Copied from tutorial
+        """
+
+        ## Removing Objects from the Planning Scene
+        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ## We can remove the box from the world.
+        self.scene.remove_world_object(cup_name)
+
+        ## **Note:** The object must be detached before we can remove it from the world
+    
+>>>>>>> updates cup dimensions
 
     def get_cup_position(self,name):
         """return the position of Cup

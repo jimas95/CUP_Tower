@@ -1,3 +1,4 @@
 # cup variables
-radius: 0.025
+radius: 0.05
+# radius: 0.025
 length: 0.15  # cup height 
