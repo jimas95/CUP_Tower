@@ -202,6 +202,7 @@ class Handler:
             self.right_arm_group.clear_pose_targets()
 
             plan, frac = self.right_arm_group.compute_cartesian_path([pose_goal2],   # waypoints to follow
+<<<<<<< HEAD
                                     0.1,        # eef_step
                                     0.0)         # jump_threshold
             rospy.loginfo(f"frac = {frac}")
@@ -213,11 +214,27 @@ class Handler:
             self.right_arm_group.clear_pose_targets()
 
             plan, frac = self.right_arm_group.compute_cartesian_path([pose_goal3],   # waypoints to follow
+=======
+>>>>>>> 0db712d05d0f4733db9632817e11fc881fbd9009
                                     0.1,        # eef_step
                                     0.0)         # jump_threshold
             rospy.loginfo(f"frac = {frac}")
             self.right_arm_group.execute(plan, wait=True)
             if frac <= 0.1:
+<<<<<<< HEAD
+=======
+                self.both_arms_group.set_pose_target(pose_goal2, end_effector_link = hand)
+                self.execute_path()
+            self.right_arm_group.stop()
+            self.right_arm_group.clear_pose_targets()
+
+            plan, frac = self.right_arm_group.compute_cartesian_path([pose_goal3],   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
+            rospy.loginfo(f"frac = {frac}")
+            self.right_arm_group.execute(plan, wait=True)
+            if frac <= 0.1:
+>>>>>>> 0db712d05d0f4733db9632817e11fc881fbd9009
                 self.both_arms_group.set_pose_target(pose_goal3, end_effector_link = hand)
                 self.execute_path()
             self.right_arm_group.stop()
