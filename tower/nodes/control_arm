@@ -28,13 +28,13 @@ class Handler:
     def __init__(self):
         self.START_JOINTS = [0.19, 1.04, -0.02, 0.49, -0.18, 0.03, -0.01, \
                              -0.27, 1.04, 0.03, 0.5, -0.08, 0.03, 0.03]
-        self.HOME_JOINTS = [1.0,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
-                            -1.1, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
+        self.HOME_JOINTS = [0.5,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
+                            -0.5, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
         # self.PRE_GRASP_POS = [0.06, 0.0, 0.15]
         # self.GRASP_POS = [0.06, 0.0, 0.03]
-        self.PRE_GRASP_POS = [-0.03, 0.0, 0.2]
-        self.GRASP_POS = [0.05, 0.0, 0.2]
-        self.BEFORE_PLACE_POS = [0.7, -0.1, 0.4]
+        self.PRE_GRASP_POS = [-0.03, 0.0, 0.03]
+        self.GRASP_POS = [0.05, 0.0, 0.03]
+        self.BEFORE_PLACE_POS = [0.7, -0.1, 0.2]
         self.PLACE_POS = [0.0, 0.0, -0.1]
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
         scene = moveit_commander.PlanningSceneInterface()
@@ -70,15 +70,21 @@ class Handler:
 
     def go_home_position(self):
         """ go to HOME position for easier grasping """
-        target = self.START_JOINTS.copy()
-        for i in range(6):
-            target[i] = self.HOME_JOINTS[i]
-            target[i+7] = self.HOME_JOINTS[i+7]
-            if i == 1:
-                target[0] = self.START_JOINTS[0]
-                target[7] = self.START_JOINTS[7]
-            self.both_arms_group.set_joint_value_target(target)
-            self.execute_path()
+        target = self.HOME_JOINTS
+        self.both_arms_group.set_joint_value_target(target)
+        self.execute_path()
+
+        # target = self.START_JOINTS.copy()
+        # for i in range(6):
+        #     target[i] = self.HOME_JOINTS[i]
+        #     target[i+7] = self.HOME_JOINTS[i+7]
+        #     if i == 1:
+        #         target[0] = self.START_JOINTS[0]
+        #         self.HOME_JOINTS[0] = self.START_JOINTS[0]
+        #         target[7] = self.START_JOINTS[7]
+        #         self.HOME_JOINTS[7] = self.START_JOINTS[7]
+        #     self.both_arms_group.set_joint_value_target(target)
+        #     self.execute_path()
 
 
         # pose = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper").pose
@@ -97,10 +103,10 @@ class Handler:
                 name(String) - name of cup
                 hand(String) - name of gripper to use
         """
-        if hand=="left_gripper":
-            self.left_gripper.open(block=True)
-        elif hand=="right_gripper":
-            self.right_gripper.open(block=True)
+        # if hand=="left_gripper":
+        #     self.left_gripper.open(block=True)
+        # elif hand=="right_gripper":
+        #     self.right_gripper.open(block=True)
 
         pose_goal = self.myscene.get_cup_position(name)
         pose_goal = self.orientation_forward(pose_goal)
@@ -120,12 +126,7 @@ class Handler:
                 hand(String) - name of gripper to use
                 after_grasp(String) - whether the hand has graspped the cup
         """
-        if state == "grasp":
-            target = self.GRASP_POS
-        elif state == "post":
-            target = self.PRE_GRASP_POS
-            target[2] = self.BEFORE_PLACE_POS[2]
-
+        target = self.GRASP_POS
         pose_goal = self.myscene.get_cup_position(name)
         pose_goal = self.orientation_forward(pose_goal)
         pose_goal.position.x+=target[0]
@@ -162,6 +163,7 @@ class Handler:
         rospy.loginfo("before place")
         target = self.BEFORE_PLACE_POS
         current = self.both_arms_group.get_current_pose(end_effector_link=hand)
+        rospy.loginfo(f"current = {current.pose}")
 
         pose_goal1 = current.pose
         pose_goal1.position.x=current.pose.position.x
@@ -185,7 +187,19 @@ class Handler:
 
         if hand=="right_gripper":
             self.right_arm_group.set_planning_time(20.0)
-            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal1, pose_goal2, pose_goal3],   # waypoints to follow
+            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal1],   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
+            self.right_arm_group.execute(plan, wait=True)
+            self.right_arm_group.stop()
+            self.right_arm_group.clear_pose_targets()
+            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal2],   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
+            self.right_arm_group.execute(plan, wait=True)
+            self.right_arm_group.stop()
+            self.right_arm_group.clear_pose_targets()
+            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal3],   # waypoints to follow
                                     0.1,        # eef_step
                                     0.0)         # jump_threshold
             self.right_arm_group.execute(plan, wait=True)
@@ -193,7 +207,7 @@ class Handler:
             self.right_arm_group.clear_pose_targets()
         elif hand=="left_gripper":
             self.left_arm_group.set_planning_time(20.0)
-            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
+            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal1, pose_goal2, pose_goal3],   # waypoints to follow
                                     0.1,        # eef_step
                                     0.0)         # jump_threshold
             self.left_arm_group.execute(plan, wait=True)
@@ -225,11 +239,11 @@ class Handler:
             self.left_arm_group.clear_pose_targets()
        
         # open gripper 
-        rospy.loginfo("open gripper")
-        if hand=="left_gripper":
-            self.left_gripper.open(block=True)
-        elif hand=="right_gripper":
-            self.right_gripper.open(block=True)
+        # rospy.loginfo("open gripper")
+        # if hand=="left_gripper":
+        #     self.left_gripper.open(block=True)
+        # elif hand=="right_gripper":
+        #     self.right_gripper.open(block=True)
 
         # after place
         rospy.loginfo("after place")
@@ -244,10 +258,10 @@ class Handler:
         self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
         self.execute_path()
 
-        rospy.loginfo("HOME")
-        target = self.HOME_JOINTS.copy()
-        self.both_arms_group.set_joint_value_target(target)
-        self.execute_path()
+        # rospy.loginfo("HOME")
+        # target = self.HOME_JOINTS.copy()
+        # self.both_arms_group.set_joint_value_target(target)
+        # self.execute_path()
 
     def grab_and_place_cup(self, name, hand):
         """ grab and place a cup to another position
@@ -261,11 +275,11 @@ class Handler:
         rospy.loginfo("grasp")
         self.pick_cup_one_hand_grasp(name, hand, "grasp")
 
-        self.right_gripper.close(block=True)
+        # self.right_gripper.close(block=True)
         # self.myscene.attach_cup("right_hand", self.robot, name)
         
-        rospy.loginfo("after grasp")
-        self.pick_cup_one_hand_grasp(name, hand, "post")
+        # rospy.loginfo("after grasp")
+        # self.pick_cup_one_hand_grasp(name, hand, "post")
 
         self.place_cup_one_hand(name, hand)
         
@@ -330,11 +344,6 @@ class Handler:
         elif req.choice == 9:
             self.go_start_position()
             return "go to start position"
-        elif req.choice == 10:
-            both_time = self.both_arms_group.get_planning_time()
-            right_time = self.right_arm_group.get_planning_time()
-            left_time = self.left_arm_group.get_planning_time()
-            return f"both = {both_time}; right = {right_time}; left = {left_time}"
         elif req.choice == 1:
             step_service = rospy.ServiceProxy("step", Step)
             result = step_service(open_gripper = False, choose_left = True, x=1.0, y=0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
