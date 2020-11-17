@@ -55,9 +55,7 @@ class Handler:
         self.myscene.create_scene_one_cup()
 
         #Go to starting position
-        target = self.START_JOINTS
-        self.both_arms_group.set_joint_value_target(target)
-        self.execute_path()
+        self.go_start_position()
 
 
         # attach object
@@ -178,6 +176,7 @@ class Handler:
         pose_goal.position.y+=self.PRE_GRASP_POS[1]
         pose_goal.position.z+=self.PRE_GRASP_POS[2]
         self.go_to(pose_goal,hand)
+        
 
     def grasp_pos(self,name,hand):
         """ helper function for grasping cup
@@ -376,7 +375,7 @@ class Handler:
             rospy.logdebug("Executing state 1.....")
             self.state_1()
             rospy.logdebug("Executing state 1 DONE")
-            return "grab and place cup_3"
+            return "Executing state 1 DONE"
         elif req.choice == 12:
             current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper").pose
             goal1 = Pose()
@@ -421,50 +420,61 @@ class Handler:
         """
         # NEED TO HANDLE EXPECTION OF ONLY ONE CUP LEFT AND SECOND ARM HAS TO STAY NULL
         #go_home_position
+        
+        rospy.logerr("Go to home position")
         self.go_home_position()
         # Repeat until all cups are sorted
+        rospy.logerr("Starting state 1")
         while(not self.myscene.cups_sorted()):
-
+            rospy.logerr("Set grasping cups")
             #Assign a cup to grasp (left arm gets y>0 right arm gets y<0)
             cap_nameL = self.myscene.assing_cup_st1("left_hand")
             cap_nameR = self.myscene.assing_cup_st1("right_hand")   
             cap_nameL = "Cup_1"
             cap_nameR = "Cup_3"
             #Get position of cup
-            cap_posL = self.myscene.get_cup_position(cap_nameL)
-            cap_posR = self.myscene.get_cup_position(cap_nameR)
-
+            # cap_posL = self.myscene.get_cup_position(cap_nameL)
+            # cap_posR = self.myscene.get_cup_position(cap_nameR)
+            rospy.logerr("Go to pregrasping position")
             #Go to pregrasping position ( near the cup)
             self.pre_grasp_pos(cap_nameL,"left_gripper")
             self.pre_grasp_pos(cap_nameR,"right_gripper")
             self.execute_path()
-
-            #Go to grasping position of cup
+            rospy.logerr("GO to grasping position")
+            #Go to grasping position of cup (Cartesian Path)
             self.grasp_pos(cap_nameL, "left_gripper")
             self.grasp_pos(cap_nameR, "right_gripper")
-            self.execute_path()
+            
 
             #Close gripper
+            rospy.logerr("Close Grippers")
             self.gripper_control(state=False,gripper="both")
             
             #Attach cup at robot
+            rospy.logerr("Attach Cups")
             self.myscene.attach_cup("left_hand", self.robot,cap_nameL)
             self.myscene.attach_cup("right_hand", self.robot,cap_nameR)
 
-            #Get leaving cup position
+            #Get leaving cup position 
+            # return tuple (x,y)
+            rospy.logerr("Get Positon to leave cups ")
             cap_posL =self.myscene.get_next_sorting_position("left_hand")
             cap_posR =self.myscene.get_next_sorting_position("right_hand")
 
             #Go to leaving position
+            rospy.logerr("Go to position leaving cups")
+            #not implementes
             self.place_cup(cap_posL,"left_gripper")
             self.place_cup(cap_posR,"right_gripper")
             self.go_home_position() #for debuging
             #Open gripper
+            rospy.logerr("Open grippes")
             self.gripper_control(state=True,gripper="both")
 
             # Detach cup from robot
-            self.myscene.detach_box(cap_nameL)
-            self.myscene.detach_box(cap_nameR)
+            rospy.logerr("Detach cups")
+            self.myscene.detach_cup(cap_nameL,"left_hand")
+            self.myscene.detach_cup(cap_nameR,"right_hand")
 
             # Go to Home position
             self.go_home_position()

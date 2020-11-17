@@ -239,7 +239,7 @@ class Scene():
         Returns True if all cups are inside inLine area 
         Returns False if any cup is still inside the workspace
         """
-        return True
+        return False
 
     def assing_cup_st1(self,hand):
         """
@@ -265,7 +265,6 @@ class Scene():
         return type: tuple (x,y)
         """
         #this is fake needs to implemented
-        pose = Pose()
         if(hand=="left_hand"):
             return (1,0.9)
         elif(hand=="right_hand"):
@@ -277,8 +276,8 @@ class Scene():
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
-        self.sorted_list_pos_left =[] 
-        self.sorted_list_pos_right=[]
+        self.sorted_list_pos_left =[(1.2,0.9),(0.8,0.9)] 
+        self.sorted_list_pos_right=[(1,-0.9)]
         pass
 
     
