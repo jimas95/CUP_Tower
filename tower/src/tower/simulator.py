@@ -127,7 +127,7 @@ class Scene():
 
     
 
-    def restart_scene(self):
+    def restart_scene_workStation(self):
         """restarts gazebo scene    """
         pose = Pose()
         twist = Twist()
@@ -140,11 +140,25 @@ class Scene():
         pose.position.y = -0.4
         self.sms(ModelState("Cup_3",pose,twist,"base"))
 
-        self.create_scene_one_cup()
+        self.create_scene()
+
+    def restart_scene_inline(self):
+        """restarts gazebo scene    """
+        pose = Pose()
+        twist = Twist()
+        pose.position = Point(0.8,0.9,0.3)
         
+        self.sms(ModelState("Cup_1",pose,twist,"base"))
+        pose.position.x = 1.2
+        self.sms(ModelState("Cup_2",pose,twist,"base"))
+        pose.position.y = -pose.position.y
+        pose.position.x = 0.8
+        self.sms(ModelState("Cup_3",pose,twist,"base"))
+
+        self.create_scene() 
 
 
-    def create_scene_one_cup(self):
+    def create_scene(self):
         """Creates scene at moveIt with 3 cups at the table
         """
         cup1 = self.gms("Cup_1","base")
@@ -157,7 +171,15 @@ class Scene():
         self.add_table("Table",table.pose.position)
 
 
-
+    def create_scene_inline(self):
+        cup1 = self.gms("Cup_1","base")
+        cup2 = self.gms("Cup_2","base")
+        cup3 = self.gms("Cup_3","base")
+        self.add_cup("Cup_1",cup1.pose.position)
+        self.add_cup("Cup_2",cup2.pose.position)
+        self.add_cup("Cup_3",cup3.pose.position)
+        table = self.gms("Table","base")
+        self.add_table("Table",table.pose.position)
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):

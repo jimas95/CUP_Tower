@@ -52,7 +52,7 @@ class Handler:
 
         # create scene 
         self.myscene = Scene(scene)
-        self.myscene.create_scene_one_cup()
+        self.myscene.create_scene()
 
         #Go to starting position
         self.go_start_position()
@@ -395,6 +395,16 @@ class Handler:
             goal3.orientation = current.orientation
             self.execute_cartesian("right_gripper", [goal1, goal2, goal3], 0.01)
             return "execute cartesian for right hand to current+(0.1, -0.1, 0.1)"
+        elif req.choice == 13:
+            rospy.logdebug("Restart Scene Workstation.....")
+            self.myscene.restart_scene_workStation()
+            return "Restart Scene Workstation....."
+        elif req.choice == 14:
+            rospy.logdebug("Restart Scene Inline.....")
+            self.myscene.restart_scene_inline()
+            return "Restart Scene Inline....."
+
+
 
         return "N/A"
 
