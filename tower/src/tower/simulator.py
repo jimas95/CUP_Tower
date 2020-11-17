@@ -206,7 +206,7 @@ class Scene():
 
         # start attach object code from tutorial
         grasping_group = ee_link   # end effector group name
-        rospy.logerr(grasping_group)
+        rospy.logdebug(grasping_group)
         touch_links = robot.get_link_names(group = grasping_group)
         
         #http://docs.ros.org/en/noetic/api/moveit_commander/html/planning__scene__interface_8py_source.html

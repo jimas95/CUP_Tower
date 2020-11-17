@@ -26,6 +26,7 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 7. restart scene
 8. print current joint values of both arms
 9. go to initial start position of robot (this will sometimes collide with table)
+10. grab and place cup_3 with right_hand
 
 # Apriltag Install
 `pip3 install apriltag`
