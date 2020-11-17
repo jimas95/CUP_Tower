@@ -238,7 +238,7 @@ class Handler:
         pose_goal.position.y += self.PLACE_POS[1]
         pose_goal.position.z += self.PLACE_POS[2]
         self.execute_cartesian(hand, [pose_goal], 0.01)
-
+       
         rospy.loginfo("open gripper")
         self.gripper_control(state=True,gripper="both")
 
