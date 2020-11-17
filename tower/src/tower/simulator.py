@@ -78,9 +78,11 @@ class Scene():
         # OBJECT VARIABLES
         self.cup_radius = rospy.get_param("radius") # cup size
         self.cup_height = rospy.get_param("length")
-        self.table_x = 1.1 # table size
-        self.table_y = 2.1
-        self.table_z = 0.05
+        self.table_x = rospy.get_param("table_x")
+        self.table_y = rospy.get_param("table_y")
+        self.table_z = rospy.get_param("table_z")
+
+        self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
 
@@ -248,12 +250,24 @@ class Scene():
         # We wait for the planning scene to update.
         return self.wait_for_state_update(box_is_attached=False, box_is_known=False, timeout=timeout)
 
+    
 
     def cups_sorted(self):
         """
         Returns True if all cups are inside inLine area 
         Returns False if any cup is still inside the workspace
         """
+        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+        for cup in cups_list:
+            position = self.get_cup_position(cup)
+            y_pos = position.position.y
+            rospy.logerr(cup)
+            rospy.logerr(position.position.y)
+            # if the cup is in the middle two quadrants of the table
+            if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
+                rospy.logerr("HI")
+                rospy.logerr(self.table_y/4)
+                return False
         return True
 
     def assing_cup_st1(self,hand):
