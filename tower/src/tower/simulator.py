@@ -83,9 +83,13 @@ class Scene():
         # OBJECT VARIABLES
         self.cup_radius = rospy.get_param("radius") # cup size
         self.cup_height = rospy.get_param("length")
-        self.table_x = 1.1 # table size
-        self.table_y = 2.1
-        self.table_z = 0.05
+        self.table_x = rospy.get_param("table_x")
+        self.table_y = rospy.get_param("table_y")
+        self.table_z = rospy.get_param("table_z")
+        self.table_posx = rospy.get_param("t_x")    
+        self.table_posy = rospy.get_param("t_y")
+        self.table_posz = rospy.get_param("t_z")
+        self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
 
@@ -232,10 +236,7 @@ class Scene():
         #wait for planning scene to update
         return self.wait_for_state_update(cup_name, box_is_attached=True, box_is_known=False, timeout=timeout)
       
-   
 
-
-<<<<<<< HEAD
 
     def detach_cup(self,cup_name,ee_link, timeout=4):
         """detach a cup from robot
@@ -251,18 +252,46 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
-    def fake_sms(ModelState):
+    def fake_sms(self, ModelState):
         pass
 
-    def fake_gms(ModelState):
-        pass
+    def fake_gms(self, name,base):
+        pos = Pose()
+        if(name=="Cup_1"):
+            pos.position.x= 1.0
+            pos.position.y= 0.5
+            pos.position.z= -0.06
+        elif(name=="Cup_2"):
+            pos.position.x= 1.0
+            pos.position.y= -0.5
+            pos.position.z= 0.06
+        elif(name=="Cup_3"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
+        elif(name=="Table"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.0
+        return ModelState(name,pos,Twist(), "base")
 
     def cups_sorted(self):
         """
         Returns True if all cups are inside inLine area 
         Returns False if any cup is still inside the workspace
         """
-        return False
+        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+        for cup in cups_list:
+            position = self.get_cup_position(cup)
+            y_pos = position.position.y
+            rospy.logerr(cup)
+            rospy.logerr(position.position.y)
+            # if the cup is in the middle two quadrants of the table
+            if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
+                rospy.logerr("HI")
+                rospy.logerr(self.table_y/4)
+                return False
+        return True
 
     def assing_cup_st1(self,hand):
         """
@@ -274,32 +303,6 @@ class Scene():
         """
         pass
 
-=======
-    def detach_box(self, cup_name, ee_link, timeout=4):
-        """Copied from tutorial
-        """
-
-        ## Detaching Objects from the Robot
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        ## We can also detach and remove the object from the planning scene:
-        self.scene.remove_attached_object(ee_link, name=cup_name)
-        
-
-        # We wait for the planning scene to update.
-        return self.wait_for_state_update(cup_name, box_is_known=True, box_is_attached=False, timeout=timeout)
-
-    def remove_box(self, cup_name, ee_link,timeout=4):
-        """Copied from tutorial
-        """
-
-        ## Removing Objects from the Planning Scene
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        ## We can remove the box from the world.
-        self.scene.remove_world_object(cup_name)
-
-        ## **Note:** The object must be detached before we can remove it from the world
-    
->>>>>>> updates cup dimensions
 
     def get_cup_position(self,name):
         """return the position of Cup
@@ -325,7 +328,7 @@ class Scene():
                 rospy.logerr("ERROR list of sorted points is empty!")
             rospy.logerr("ERROR IN get_next_sorting_position")
 
-    def create_sorted_list_position(self):
+    def create_sorted_list_position(self,reverse):
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
@@ -333,24 +336,25 @@ class Scene():
         self.sorted_list_pos_right = []
 
 
-        radious = 0.10 
+        radious = self.cup_radius
 
         for i in range(self.cup_n):
 
             L_pose = Pose()
             L_pose.position.x = 0.6
             L_pose.position.y = 0.8
-            L_pose.position.z = 1
+            L_pose.position.z = -0.05
             L_pose.position.x = L_pose.position.x + 2*radious*i
             self.sorted_list_pos_left.append(L_pose)
 
             R_pose = Pose()
             R_pose.position.x = 0.6
             R_pose.position.y = -0.8
-            R_pose.position.z = 1
+            R_pose.position.z = -0.05
             R_pose.position.x = R_pose.position.x + 2*radious*i
             rospy.logerr(L_pose)
             self.sorted_list_pos_right.append(R_pose)
         
-
-        rospy.logerr(self.sorted_list_pos_right)
+        if(reverse):
+            self.sorted_list_pos_left.reverse()
+            self.sorted_list_pos_right.reverse()

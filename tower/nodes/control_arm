@@ -32,6 +32,7 @@ class Handler:
         
         self.START_JOINTS = [0.19, 1.04, -0.02, 0.49, -0.18, 0.03, -0.01, \
                              -0.27, 1.04, 0.03, 0.5, -0.08, 0.03, 0.03]
+<<<<<<< HEAD
         self.HOME_JOINTS = [0.9,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
                             -0.9, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
         # self.PRE_GRASP_POS = [0.06, 0.0, 0.15]
@@ -41,6 +42,15 @@ class Handler:
         self.GRASP_POS = [0.05, 0.0, 0.03]
         # self.BEFORE_PLACE_POS = [99.0, 99.0, 0.3] #99.0 should be replaced by what's return from Scene.get_next_sorting_position
         self.BEFORE_PLACE_POS = [0.0, 0.0, 0.1]
+=======
+        self.HOME_JOINTS = [1.0,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
+                            -1.1, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
+        # self.PRE_GRASP_POS = [0.06, 0.0, 0.15]
+        # self.GRASP_POS = [0.06, 0.0, 0.03]
+        self.PRE_GRASP_POS = [-0.03, 0.0, 0.2]
+        self.GRASP_POS = [0.05, 0.0, 0.2]
+        self.BEFORE_PLACE_POS = [0.7, -0.1, 0.4]
+>>>>>>> fix merge error
         self.PLACE_POS = [0.0, 0.0, -0.1]
         self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
         scene = moveit_commander.PlanningSceneInterface()
@@ -58,6 +68,7 @@ class Handler:
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
 
         # create scene 
+<<<<<<< HEAD
         self.buildTower = BuildTower()
         self.myscene = Scene(scene,REAL_ROBOT)
         self.myscene.create_scene()
@@ -65,15 +76,24 @@ class Handler:
         #Go to starting position
         # self.go_start_position()
 
+=======
+        self.myscene = Scene(scene)
+        self.myscene.create_scene_one_cup()
+>>>>>>> fix merge error
 
         # attach object
         # rospy.logdebug("============ Available Planning Groups:", self.robot.get_group_names())
         # self.myscene.attach_cup("right_hand", self.robot)
 
+<<<<<<< HEAD
         # might not need these 
         # rospy.set_param('move_group/trajectory_execution/allowed_execution_duration_scaling', 10.0)
         # self.right_arm_group.set_planning_time(10.0)
         # self.left_arm_group.set_planning_time(10.0)
+=======
+        # self.go_home_position()
+        rospy.set_param('move_group/trajectory_execution/allowed_execution_duration_scaling', 20.0)
+>>>>>>> fix merge error
 
         rospy.loginfo("SET UP READY")
 
@@ -84,6 +104,7 @@ class Handler:
 
     def go_home_position(self):
         """ go to HOME position for easier grasping """
+<<<<<<< HEAD
 
         current = self.both_arms_group.get_current_joint_values()
         target = current.copy()
@@ -191,6 +212,39 @@ class Handler:
         pose_goal.position.z+=self.BEFORE_PLACE_POS[2]
         self.go_to(pose_goal,hand)
         
+=======
+        target = self.START_JOINTS.copy()
+        for i in range(6):
+            target[i] = self.HOME_JOINTS[i]
+            target[i+7] = self.HOME_JOINTS[i+7]
+            if i == 1:
+                target[0] = self.START_JOINTS[0]
+                target[7] = self.START_JOINTS[7]
+            self.both_arms_group.set_joint_value_target(target)
+            self.execute_path()
+
+
+        # pose = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper").pose
+        # pose = self.orientation_forward(pose)
+        # self.both_arms_group.set_pose_target(pose, end_effector_link = "left_gripper")
+
+        # pose = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper").pose
+        # pose = self.orientation_forward(pose)
+        # self.both_arms_group.set_pose_target(pose, end_effector_link = "right_gripper")
+        # self.execute_path()
+
+    def pick_cup_one_hand_pre_grasp(self,name,hand):
+        """ helper function for moving gripper to standoff position before grasping cup
+            
+            Args: 
+                name(String) - name of cup
+                hand(String) - name of gripper to use
+        """
+        if hand=="left_gripper":
+            self.left_gripper.open(block=True)
+        elif hand=="right_gripper":
+            self.right_gripper.open(block=True)
+>>>>>>> fix merge error
 
     def pre_grasp_pos(self,cup_name,hand):
         """ helper function for moving gripper to standoff position before grasping cup
@@ -218,6 +272,7 @@ class Handler:
         target = self.GRASP_POS
         pose_goal = self.myscene.get_cup_position(name)
         pose_goal = self.orientation_forward(pose_goal)
+<<<<<<< HEAD
         pose_goal.position.x+=target[0]
         pose_goal.position.y+=target[1]
         pose_goal.position.z+=target[2]              
@@ -305,6 +360,173 @@ class Handler:
         
         self.place_cup_one_hand(hand, (0.7, -0.1), False)
         
+=======
+        pose_goal.position.x+=self.PRE_GRASP_POS[0]
+        pose_goal.position.y+=self.PRE_GRASP_POS[1]
+        pose_goal.position.z+=self.PRE_GRASP_POS[2]
+        # rospy.logdebug(pose_goal)
+
+        self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+        self.execute_path()
+        
+    def pick_cup_one_hand_grasp(self,name,hand, state):
+        """ helper function for grasping cup
+            
+            Args: 
+                name(String) - name of cup
+                hand(String) - name of gripper to use
+                after_grasp(String) - whether the hand has graspped the cup
+        """
+        if state == "grasp":
+            target = self.GRASP_POS
+        elif state == "post":
+            target = self.PRE_GRASP_POS
+            target[2] = self.BEFORE_PLACE_POS[2]
+
+        pose_goal = self.myscene.get_cup_position(name)
+        pose_goal = self.orientation_forward(pose_goal)
+        pose_goal.position.x+=target[0]
+        pose_goal.position.y+=target[1]
+        pose_goal.position.z+=target[2]
+        rospy.loginfo(f"goal for {state} = {pose_goal}")
+
+        if hand=="right_gripper":
+            self.right_arm_group.set_planning_time(20.0)
+            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
+                                    0.005,        # eef_step
+                                    0.0)         # jump_threshold
+            self.right_arm_group.execute(plan, wait=True)
+            self.right_arm_group.stop()
+            self.right_arm_group.clear_pose_targets()
+        elif hand=="left_gripper":
+            self.left_arm_group.set_planning_time(20.0)
+            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
+                                    0.005,        # eef_step
+                                    0.0)         # jump_threshold
+            self.left_arm_group.execute(plan, wait=True)
+            self.left_arm_group.stop()
+            self.left_arm_group.clear_pose_targets()
+    
+    def place_cup_one_hand(self,name,hand):
+        """ helper function for grasping cup
+            
+            Args: 
+                name(String) - name of cup
+                hand(String) - name of gripper to use
+        """
+
+        # before place
+        rospy.loginfo("before place")
+        target = self.BEFORE_PLACE_POS
+        current = self.both_arms_group.get_current_pose(end_effector_link=hand)
+
+        pose_goal1 = current.pose
+        pose_goal1.position.x=current.pose.position.x
+        pose_goal1.position.y=current.pose.position.y
+        pose_goal1.position.z=target[2]
+        pose_goal1 = self.orientation_sideway(pose_goal1, hand)
+
+        pose_goal2 = current.pose
+        pose_goal2.position.x=target[0]
+        pose_goal2.position.y=current.pose.position
+        pose_goal2.position.z=target[2]
+        pose_goal2 = self.orientation_sideway(pose_goal2, hand)
+        
+        pose_goal3 = current.pose
+        pose_goal3.position.x=target[0]
+        pose_goal3.position.y=target[1]
+        pose_goal3.position.z=target[2]
+        pose_goal3 = self.orientation_sideway(pose_goal3, hand)
+        # self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+        # self.execute_path()
+
+        if hand=="right_gripper":
+            self.right_arm_group.set_planning_time(20.0)
+            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal1, pose_goal2, pose_goal3],   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
+            self.right_arm_group.execute(plan, wait=True)
+            self.right_arm_group.stop()
+            self.right_arm_group.clear_pose_targets()
+        elif hand=="left_gripper":
+            self.left_arm_group.set_planning_time(20.0)
+            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
+            self.left_arm_group.execute(plan, wait=True)
+            self.left_arm_group.stop()
+            self.left_arm_group.clear_pose_targets()
+       
+
+        # place
+        rospy.loginfo("place")
+        pose_goal = pose_goal3
+        pose_goal.position.x += self.PLACE_POS[0]
+        pose_goal.position.y += self.PLACE_POS[1]
+        pose_goal.position.z += self.PLACE_POS[2]
+        if hand=="right_gripper":
+            self.right_arm_group.set_planning_time(20.0)
+            plan, _ = self.right_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
+                                    0.01,        # eef_step
+                                    0.0)         # jump_threshold
+            self.right_arm_group.execute(plan, wait=True)
+            self.right_arm_group.stop()
+            self.right_arm_group.clear_pose_targets()
+        elif hand=="left_gripper":
+            self.left_arm_group.set_planning_time(20.0)
+            plan, _ = self.left_arm_group.compute_cartesian_path([pose_goal],   # waypoints to follow
+                                    0.01,        # eef_step
+                                    0.0)         # jump_threshold
+            self.left_arm_group.execute(plan, wait=True)
+            self.left_arm_group.stop()
+            self.left_arm_group.clear_pose_targets()
+       
+        # open gripper 
+        rospy.loginfo("open gripper")
+        if hand=="left_gripper":
+            self.left_gripper.open(block=True)
+        elif hand=="right_gripper":
+            self.right_gripper.open(block=True)
+
+        # after place
+        rospy.loginfo("after place")
+        target = self.BEFORE_PLACE_POS
+        pose_goal = self.myscene.get_cup_position(name)
+        pose_goal = self.orientation_forward(pose_goal)
+        pose_goal.position.x=target[0]
+        pose_goal.position.y=target[1]
+        pose_goal.position.z=target[2]
+        pose_goal = self.orientation_sideway(pose_goal, hand)
+        rospy.loginfo(f"goal = {pose_goal}")
+        self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+        self.execute_path()
+
+        rospy.loginfo("HOME")
+        target = self.HOME_JOINTS.copy()
+        self.both_arms_group.set_joint_value_target(target)
+        self.execute_path()
+
+    def grab_and_place_cup(self, name, hand):
+        """ grab and place a cup to another position
+            
+            Args: 
+                name(String) - name of cup
+                hand(String) - name of gripper to use
+        """
+        rospy.loginfo("pre grasp")
+        self.pick_cup_one_hand_pre_grasp(name, hand)
+        rospy.loginfo("grasp")
+        self.pick_cup_one_hand_grasp(name, hand, "grasp")
+
+        self.right_gripper.close(block=True)
+        # self.myscene.attach_cup("right_hand", self.robot, name)
+        
+        rospy.loginfo("after grasp")
+        self.pick_cup_one_hand_grasp(name, hand, "post")
+
+        self.place_cup_one_hand(name, hand)
+        
+>>>>>>> fix merge error
 
     def execute_path(self):
         """
@@ -326,6 +548,7 @@ class Handler:
         pose.orientation.w = q[3]
         return pose
 
+<<<<<<< HEAD
     def orientation_sideway(self, pose, hand, sorting):
         """ helper function for setting the orientation sideway at given pose 
 
@@ -338,12 +561,21 @@ class Handler:
         elif (hand == "left_gripper" and not sorting) or (hand == "right_gripper" and sorting):
             q = quaternion_from_euler(0.785, 1.5707, 0)
         
+=======
+    def orientation_sideway(self,pose, hand):
+        """ helper function for setting the orientation sideway at given pose """
+        if hand == "right_gripper":
+            q = quaternion_from_euler(-0.785, 1.5707, 0)
+        elif hand == "left_gripper":
+            q = quaternion_from_euler(0.785, 1.5707, 0)
+>>>>>>> fix merge error
         pose.orientation.x = q[0]
         pose.orientation.y = q[1]
         pose.orientation.z = q[2]
         pose.orientation.w = q[3]
         return pose
 
+<<<<<<< HEAD
     def place_cup(self, pos, hand, sorting):
         """ helper function for moving hand to standoff position before placing """
         current = self.both_arms_group.get_current_pose(end_effector_link=hand)
@@ -357,6 +589,10 @@ class Handler:
         pose_goal.position.z=self.BEFORE_PLACE_POS[2] + self.PLACE_POS[2]
         pose_goal = self.orientation_sideway(pose_goal, hand, sorting)
         self.go_to(pose_goal,hand)
+=======
+    def place_cup(self,pos,hand):
+        pass
+>>>>>>> fix merge error
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
@@ -374,6 +610,7 @@ class Handler:
                             8. print current joint values
                             9. go to initial start position of robot 
                             10. grab and place cup_3 with right_hand
+<<<<<<< HEAD
                             11. test10 using state_1
                             12. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
                             13. restart scene work station
@@ -383,6 +620,8 @@ class Handler:
                             20. right hand grab and place cup at (1.0, -0.5, -0.5)
 
                             
+=======
+>>>>>>> fix merge error
         """
         if req.choice == 0: 
             result = self.current_pose()
@@ -393,6 +632,11 @@ class Handler:
         elif req.choice == 9:
             self.go_start_position()
             return "go to start position"
+        elif req.choice == 10:
+            both_time = self.both_arms_group.get_planning_time()
+            right_time = self.right_arm_group.get_planning_time()
+            left_time = self.left_arm_group.get_planning_time()
+            return f"both = {both_time}; right = {right_time}; left = {left_time}"
         elif req.choice == 1:
             step_service = rospy.ServiceProxy("step", Step)
             result = step_service(open_gripper = False, choose_left = True, x=1.0, y=0.5, z=0.5, r=1.57, p=0.0, yaw=0.0)
@@ -410,6 +654,7 @@ class Handler:
             return "right gripper open and close"
         elif req.choice == 4:
             # rospy.logdebug("Setting goal for cup 1 ....")
+<<<<<<< HEAD
             # self.pre_grasp_pos("Cup_1","left_gripper")
             rospy.logdebug("Setting goal  for cup 3 ....")
             self.gripper_control(state=True,gripper="right_gripper")
@@ -424,11 +669,27 @@ class Handler:
             self.gripper_control(state=False,gripper="both")
             self.myscene.attach_cup("left_hand", self.robot,"Cup_1")
             self.myscene.attach_cup("right_hand", self.robot,"Cup_3")
+=======
+            # self.pick_cup_one_hand_pre_grasp("Cup_1","left_gripper")
+            rospy.logdebug("Setting goal  for cup 3 ....")
+            self.pick_cup_one_hand_pre_grasp("Cup_3","right_gripper")
+            rospy.logdebug("Executing pre-grasp")
+            return "before grasp cup_3"
+        elif req.choice == 5:
+            self.pick_cup_one_hand_grasp("Cup_3", "right_gripper", "grasp")
+            return "grasp cup_3"
+        elif req.choice == 6:
+             self.left_gripper.close(block=True)
+             self.right_gripper.close(block=True)
+             self.myscene.attach_cup("left_hand", self.robot,"Cup_1")
+             self.myscene.attach_cup("right_hand", self.robot,"Cup_3")
+>>>>>>> fix merge error
         elif req.choice == 7:
             self.myscene.restart_scene()
         elif req.choice == 10:
             self.grab_and_place_cup("Cup_3", "right_gripper")
             return "grab and place cup_3"
+<<<<<<< HEAD
         elif req.choice == 11:
             rospy.logdebug("Executing state 1.....")
             self.state_1()
@@ -679,6 +940,91 @@ class Handler:
             self.pre_grasp_pos(cap_nameL,"left_gripper")
             self.pre_grasp_pos(cap_nameR,"right_gripper")
             self.execute_path()
+=======
+        
+
+        return "N/A"
+
+
+
+
+    def state_1(self):
+        """
+        gets all cups from random locations and places them sorted at left/right side of the table
+        For each arm 
+        1 Assign a cup to grasp (left arm gets y>0 right arm gets y<0)
+        2 Get position of cup
+        3 Go to pregrasping position ( near the cup)
+        4 Go to grasping position of cup
+        5 Close gripper
+        6 Attach cup at robot
+        7 Get leaving cup position
+        8 Go to leaving position
+        9 Open gripper
+        10 Detach cup from robot
+        11 Go to Home position
+        13 Repeat until all cups are sorted
+        """
+        # NEED TO HANDLE EXPECTION OF ONLY ONE CUP LEFT AND SECOND ARM HAS TO STAY NULL
+        #go_home_position
+        self.go_home_position()
+        # Repeat until all cups are sorted
+        while(not self.myscene.cups_sorted()):
+
+            #Assign a cup to grasp (left arm gets y>0 right arm gets y<0)
+            cap_nameL = self.myscene.assing_cup_st1("left_hand")
+            cap_nameR = self.myscene.assing_cup_st1("right_hand")   
+
+            #Get position of cup
+            cap_posL = self.myscene.get_cup_position(cap_nameL)
+            cap_posR = self.myscene.get_cup_position(cap_nameR)
+
+            #Go to pregrasping position ( near the cup)
+            self.pick_cup_one_hand_pre_grasp(cap_nameL,"left_gripper")
+            self.pick_cup_one_hand_pre_grasp(cap_nameR,"right_gripper")
+            self.execute_path()
+
+            #Go to grasping position of cup
+            self.pick_cup_one_hand_grasp(cap_nameL, "left_gripper")
+            self.pick_cup_one_hand_grasp(cap_nameR, "right_gripper")
+            self.execute_path()
+
+            #Close gripper
+            self.left_gripper.close(block=True)
+            self.right_gripper.close(block=True)
+
+            #Attach cup at robot
+            self.myscene.attach_cup("left_hand", self.robot,cap_nameL)
+            self.myscene.attach_cup("right_hand", self.robot,cap_nameR)
+
+            #Get leaving cup position
+            cap_posL =self.myscene.get_next_sorting_position("left_hand")
+            cap_posR =self.myscene.get_next_sorting_position("right_hand")
+
+            #Go to leaving position
+            self.place_cup(cap_posL,"left_gripper")
+            self.place_cup(cap_posR,"right_gripper")
+
+            #Open gripper
+            self.left_gripper.open(block=True)
+            self.right_gripper.open(block=True)
+
+            # Detach cup from robot
+            self.myscene.detach_box(cap_nameL)
+            self.myscene.detach_box(cap_nameR)
+
+            # Go to Home position
+            self.go_home_position()
+
+
+
+    def state_2(self):
+        """
+        from a sorted cup enviroment 
+        BUILDS A CUP TOWER !
+        """
+        pass
+>>>>>>> fix merge error
 
             rospy.logerr("GO to grasping position")
             #Go to grasping position of cup (Cartesian Path)
@@ -686,6 +1032,7 @@ class Handler:
             self.grasp_pos(cap_nameR, "right_gripper")
             
 
+<<<<<<< HEAD
             #Close gripper
             rospy.logerr("Close Grippers")
             self.gripper_control(state=False,gripper="both")
@@ -734,6 +1081,8 @@ class Handler:
         pass
 
 
+=======
+>>>>>>> fix merge error
 
 
     def current_pose(self):
