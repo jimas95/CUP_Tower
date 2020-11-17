@@ -26,8 +26,8 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 7. restart scene
 8. print current joint values of both arms
 9. go to initial start position of robot (this will sometimes collide with table)
-10. grab and place cup_3 with right_hand
-11. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
+10. test10 with state_1
+12. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
 
 # Apriltag Install
 `pip3 install apriltag`

@@ -79,16 +79,16 @@ class Handler:
     def go_home_position(self):
         """ go to HOME position for easier grasping """
 
-
-        target = self.START_JOINTS.copy()
+        current = self.both_arms_group.get_current_joint_values()
+        target = current.copy()
         for i in range(6):
             target[i] = self.HOME_JOINTS[i]
             target[i+7] = self.HOME_JOINTS[i+7]
             if i == 1:
                 target[0] = self.START_JOINTS[0]
-                self.HOME_JOINTS[0] = self.START_JOINTS[0]
+                # self.HOME_JOINTS[0] = self.START_JOINTS[0]
                 target[7] = self.START_JOINTS[7]
-                self.HOME_JOINTS[7] = self.START_JOINTS[7]
+                # self.HOME_JOINTS[7] = self.START_JOINTS[7]
             self.both_arms_group.set_joint_value_target(target)
             self.execute_path()
 
@@ -125,7 +125,7 @@ class Handler:
         This function will use set_pose instead of the cartesian trajectory plan fraction is below 0.5.
 
         Args:
-            hand(string) - "left_gripper" or "right_gripper". Select which move group to execute
+            hand(string of Pose) - "left_gripper" or "right_gripper". Select which move group to execute
             waypoint(list) - desired trajectory of hand
             eef_step(float) - step size during each mini waypoint
         """
@@ -330,7 +330,7 @@ class Handler:
                             9. go to initial start position of robot 
                             10. grab and place cup_3 with right_hand
                             11. test10 using state_1
-                            12. execute cartesian path
+                            12. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
         """
         if req.choice == 0: 
             result = self.current_pose()
