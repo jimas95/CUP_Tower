@@ -223,46 +223,30 @@ class Scene():
    
 
 
-
-    def detach_box(self, timeout=4):
+    def detach_box(self, cup_name, ee_link, timeout=4):
         """Copied from tutorial
         """
-        # Copy class variables to local variables to make the web tutorials more clear.
-        # In practice, you should use the class variables directly unless you have a good
-        # reason not to.
-        box_name = self.box_name
-        scene = self.scene
-        eef_link = self.eef_link
 
-        ## BEGIN_SUB_TUTORIAL detach_object
-        ##
         ## Detaching Objects from the Robot
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         ## We can also detach and remove the object from the planning scene:
-        scene.remove_attached_object(eef_link, name=box_name)
-        ## END_SUB_TUTORIAL
+        self.scene.remove_attached_object(ee_link, name=cup_name)
+        
 
         # We wait for the planning scene to update.
-        return self.wait_for_state_update(box_is_known=True, box_is_attached=False, timeout=timeout)
+        return self.wait_for_state_update(cup_name, box_is_known=True, box_is_attached=False, timeout=timeout)
 
-    def remove_box(self, timeout=4):
+    def remove_box(self, cup_name, ee_link,timeout=4):
         """Copied from tutorial
         """
-        # Copy class variables to local variables to make the web tutorials more clear.
-        # In practice, you should use the class variables directly unless you have a good
-        # reason not to.
-        box_name = self.box_name
-        scene = self.scene
 
-        ## BEGIN_SUB_TUTORIAL remove_object
-        ##
         ## Removing Objects from the Planning Scene
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         ## We can remove the box from the world.
-        scene.remove_world_object(box_name)
+        self.scene.remove_world_object(cup_name)
 
         ## **Note:** The object must be detached before we can remove it from the world
-        ## END_SUB_TUTORIAL
+    
 
         # We wait for the planning scene to update.
         return self.wait_for_state_update(box_is_attached=False, box_is_known=False, timeout=timeout)
