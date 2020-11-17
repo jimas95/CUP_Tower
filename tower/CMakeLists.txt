@@ -15,8 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
     roscpp
     rospy
-    std_msgs
     sensor_msgs
+    std_msgs
 )
 
 
@@ -54,14 +54,13 @@ add_message_files(
   FILES
     AprilTagDetection.msg
     AprilTagDetectionArray.msg
-
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  Step.srv
   ControlTest.srv
+  Step.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -116,8 +115,8 @@ catkin_package(
     CATKIN_DEPENDS geometry_msgs
     CATKIN_DEPENDS message_runtime
     CATKIN_DEPENDS roscpp
-    CATKIN_DEPENDS std_msgs
     CATKIN_DEPENDS sensor_msgs
+    CATKIN_DEPENDS std_msgs
 )
 
 ###########

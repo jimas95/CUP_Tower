@@ -20,11 +20,13 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 1. test step service with left arm 
 2. test step service with right arm 
 3. set hands at home position
-4. set hands at grasping position
-5. set hand to grasp position
+4. set right_hand at grasping position cup_3
+5. set right_hand to grasp position cup_3
 6. grab cups
 7. restart scene
 8. print current joint values of both arms
+9. go to initial start position of robot (this will sometimes collide with table)
+10. grab and place cup_3 with right_hand
 
 # Apriltag Install
 `pip3 install apriltag`
