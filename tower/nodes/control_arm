@@ -160,7 +160,6 @@ class Handler:
                 pose_goal(Pose) - position of eef
                 hand(String) - name of gripper to use
         """
-        self.gripper_control(state=True,gripper="both")
         self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
 
     def pre_grasp_pos(self,cup_name,hand):
@@ -263,6 +262,7 @@ class Handler:
                 hand(String) - name of gripper to use
         """
         rospy.loginfo("pre grasp")
+        self.gripper_control(state=True,gripper="right_gripper")
         self.pre_grasp_pos(name, hand)
         self.execute_path()
         rospy.loginfo("grasp")
@@ -355,6 +355,7 @@ class Handler:
             # rospy.logdebug("Setting goal for cup 1 ....")
             # self.pre_grasp_pos("Cup_1","left_gripper")
             rospy.logdebug("Setting goal  for cup 3 ....")
+            self.gripper_control(state=True,gripper="right_gripper")
             self.pre_grasp_pos("Cup_3","right_gripper")
             self.execute_path()
             rospy.logdebug("Executing pre-grasp")
@@ -433,6 +434,10 @@ class Handler:
         
         rospy.logerr("Go to home position")
         self.go_home_position()
+        #Open gripper
+        rospy.logerr("Open grippes")
+        self.gripper_control(state=True,gripper="both")
+
         # Repeat until all cups are sorted
         rospy.logerr("Starting state 1")
         while(not self.myscene.cups_sorted()):
