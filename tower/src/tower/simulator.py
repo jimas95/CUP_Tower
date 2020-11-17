@@ -262,14 +262,23 @@ class Scene():
     def get_next_sorting_position(self,hand):
         """
         Return the position that we should leave cup on inLine workstation
+        return type: tuple (x,y)
         """
-        pass
+        #this is fake needs to implemented
+        pose = Pose()
+        if(hand=="left_hand"):
+            return (1,0.9)
+        elif(hand=="right_hand"):
+            return (1,-0.9)
+        else:
+            rospy.logerr("ERROR IN get_next_sorting_position")
 
-    def create_sorting_list_position(self):
+    def create_sorted_list_position(self):
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
-
+        self.sorted_list_pos_left =[] 
+        self.sorted_list_pos_right=[]
         pass
 
     

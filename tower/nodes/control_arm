@@ -152,11 +152,10 @@ class Handler:
         """
         self.gripper_control(state=True,gripper="both")
         self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
-        self.execute_path() # remove this for executing both hands together
 
 
         
-    def pick_cup_one_hand_grasp(self,name,hand, state):
+    def pick_cup_one_hand_grasp(self,name,hand):
         """ helper function for grasping cup
             
             Args: 
@@ -170,7 +169,6 @@ class Handler:
         pose_goal.position.x+=target[0]
         pose_goal.position.y+=target[1]
         pose_goal.position.z+=target[2]              
-        rospy.loginfo(f"goal for {state} = {pose_goal}")
 
         if hand=="right_gripper":
             self.right_arm_group.set_planning_time(20.0)
@@ -323,8 +321,9 @@ class Handler:
         """
         rospy.loginfo("pre grasp")
         self.pre_grasp_pos(name, hand)
+        self.execute_path()
         rospy.loginfo("grasp")
-        self.pick_cup_one_hand_grasp(name, hand, "grasp")
+        self.pick_cup_one_hand_grasp(name, hand)
 
         # self.right_gripper.close(block=True) # <-- comment this out to avoid collision
         self.myscene.attach_cup("right_hand", self.robot, name)
@@ -412,10 +411,11 @@ class Handler:
             # self.pre_grasp_pos("Cup_1","left_gripper")
             rospy.logdebug("Setting goal  for cup 3 ....")
             self.pre_grasp_pos("Cup_3","right_gripper")
+            self.execute_path()
             rospy.logdebug("Executing pre-grasp")
             return "before grasp cup_3"
         elif req.choice == 5:
-            self.pick_cup_one_hand_grasp("Cup_3", "right_gripper", "grasp")
+            self.pick_cup_one_hand_grasp("Cup_3", "right_gripper")
             return "grasp cup_3"
         elif req.choice == 6:
             self.gripper_control(state=False,gripper="both")
@@ -426,6 +426,12 @@ class Handler:
         elif req.choice == 10:
             self.grab_and_place_cup("Cup_3", "right_gripper")
             return "grab and place cup_3"
+        elif req.choice == 10:
+            rospy.logdebug("Executing state 1.....")
+            self.state_1()
+            rospy.logdebug("Executing state 1 DONE")
+            return "grab and place cup_3"
+
         
 
         return "N/A"
@@ -459,7 +465,8 @@ class Handler:
             #Assign a cup to grasp (left arm gets y>0 right arm gets y<0)
             cap_nameL = self.myscene.assing_cup_st1("left_hand")
             cap_nameR = self.myscene.assing_cup_st1("right_hand")   
-
+            cap_nameL = "Cup_1"
+            cap_nameR = "Cup_3"
             #Get position of cup
             cap_posL = self.myscene.get_cup_position(cap_nameL)
             cap_posR = self.myscene.get_cup_position(cap_nameR)
@@ -488,7 +495,7 @@ class Handler:
             #Go to leaving position
             self.place_cup(cap_posL,"left_gripper")
             self.place_cup(cap_posR,"right_gripper")
-
+            self.go_home_position() #for debuging
             #Open gripper
             self.gripper_control(state=True,gripper="both")
 
@@ -498,6 +505,7 @@ class Handler:
 
             # Go to Home position
             self.go_home_position()
+            return 1
 
 
 
