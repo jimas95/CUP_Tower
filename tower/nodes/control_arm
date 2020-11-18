@@ -411,7 +411,7 @@ class Handler:
             return "execute cartesian for right hand to current+(0.1, -0.1, 0.1)"
 
 
-        elif req.choice == 101:
+        elif req.choice == 100:
             return "information"
         elif req.choice == 101:
             rospy.logdebug("initiate go to start position")
