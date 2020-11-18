@@ -28,8 +28,9 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 9. go to initial start position of robot (this will sometimes collide with table)
 10. test10 with state_1
 12. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
-13. test gripper
-14. place cup_3 with right hand
+13. restart scene work station
+14. restart scene inline
+15. test gripper
 
 # Apriltag Install
 `pip3 install apriltag`
