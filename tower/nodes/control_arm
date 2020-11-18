@@ -100,21 +100,21 @@ class Handler:
         """
         if(gripper=="left_gripper"):
             if(state):
-                self.left_gripper.open(block=True)
+                self.left_gripper.open(block=False)
             else:
-                self.left_gripper.close(block=True)
+                self.left_gripper.close(block=False)
         elif(gripper=="right_gripper"):
             if(state):
-                self.right_gripper.open(block=True)
+                self.right_gripper.open(block=False)
             else:
-                self.right_gripper.close(block=True)   
+                self.right_gripper.close(block=False)   
         elif(gripper=="both"):
             if(state):
-                self.right_gripper.open(block=True)
-                self.left_gripper.open(block=True)
+                self.right_gripper.open(block=False)
+                self.left_gripper.open(block=False)
             else:
-                self.right_gripper.close(block=True)  
-                self.left_gripper.close(block=True)
+                self.right_gripper.close(block=False)  
+                self.left_gripper.close(block=False)
         else:
             rospy.logerr("Wrong gripper !")
 
@@ -518,7 +518,7 @@ class Handler:
             self.place_cup(cap_posL,"left_gripper")  #NOT IMPLEMENTED
             self.place_cup(cap_posR,"right_gripper") #NOT IMPLEMENTED
             self.go_home_position() #for debuging
-            
+
             #Open gripper
             rospy.logerr("Open grippes")
             self.gripper_control(state=True,gripper="both")
