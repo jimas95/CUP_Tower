@@ -278,9 +278,13 @@ class Scene():
         """
         #this is fake needs to implemented
         if(hand=="left_hand"):
-            return (1,0.9)
+            pose = Pose()
+            pose.position = Point(0.8,0.9,0.1)
+            return pose
         elif(hand=="right_hand"):
-            return (1,-0.9)
+            pose = Pose()
+            pose.position = Point(0.8,-0.9,0.1)
+            return pose
         else:
             rospy.logerr("ERROR IN get_next_sorting_position")
 

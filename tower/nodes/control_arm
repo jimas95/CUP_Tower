@@ -20,7 +20,7 @@ from tf_conversions import transformations
 from baxter_interface import Gripper
 # from tf_conversions.transformations import quaternion_from_euler
 from tower.simulator import Scene
-
+import time
 class Handler:
     """ Helper class for node control_arm.
     Setup moveit for Baxter.
@@ -55,7 +55,7 @@ class Handler:
         self.myscene.create_scene()
 
         #Go to starting position
-        self.go_start_position()
+        # self.go_start_position()
 
 
         # attach object
@@ -134,7 +134,7 @@ class Handler:
                                         0.0)         # jump_threshold
                 rospy.loginfo(f"frac = {frac}")
                 if frac <= 0.5: 
-                    rospy.loginfo("use set pose")
+                    rospy.logerr("use set pose instead of cartesian")
                     self.right_arm_group.set_pose_target(goal)
                     (result, plan, frac, errCode) = self.right_arm_group.plan()
                 self.right_arm_group.execute(plan, wait=True)
@@ -146,7 +146,7 @@ class Handler:
                                         0.0)         # jump_threshold
                 rospy.loginfo(f"frac = {frac}")
                 if frac <= 0.5: 
-                    rospy.loginfo("use set pose")
+                    rospy.logerr("use set pose instead of cartesian")
                     self.right_arm_group.set_pose_target(goal)
                     (result, plan, frac, errCode) = self.right_arm_group.plan()
                 self.left_arm_group.execute(plan, wait=True)
@@ -169,6 +169,7 @@ class Handler:
                 cup_name(String) - name of cup
                 hand(String) - name of gripper to use
         """
+        self.PRE_GRASP_POS = [-0.08, 0.0, 0.04]
         pose_goal = self.myscene.get_cup_position(cup_name)
         pose_goal = self.orientation_forward(pose_goal)
         pose_goal.position.x+=self.PRE_GRASP_POS[0]
@@ -187,12 +188,13 @@ class Handler:
                 hand(String) - name of gripper to use
                 after_grasp(String) - whether the hand has graspped the cup
         """
-        target = self.GRASP_POS
-        pose_goal = self.myscene.get_cup_position(cup_name)
+        self.GRASP_POS = [0.1, 0.0, 0.0]
+        # pose_goal = self.myscene.get_cup_position(cup_name)
+        pose_goal = self.both_arms_group.get_current_pose(end_effector_link=hand).pose
         pose_goal = self.orientation_forward(pose_goal)
-        pose_goal.position.x+=target[0]
-        pose_goal.position.y+=target[1]
-        pose_goal.position.z+=target[2]              
+        pose_goal.position.x+=self.GRASP_POS[0]
+        pose_goal.position.y+=self.GRASP_POS[1]
+        pose_goal.position.z+=self.GRASP_POS[2]              
         rospy.logdebug(cup_name)
         rospy.logdebug(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.005)
@@ -312,8 +314,14 @@ class Handler:
         pose.orientation.w = q[3]
         return pose
 
-    def place_cup(self,pos,hand):
-        pass
+    def place_cup(self,pose_goal,hand):
+        pose_goal = self.orientation_forward(pose_goal)
+        pose_goal.position.x
+        pose_goal.position.y
+        pose_goal.position.z+=self.PRE_GRASP_POS[2]
+        rospy.logdebug("Place cup at-->")
+        rospy.logdebug(pose_goal)
+        self.go_to(pose_goal,hand)
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
@@ -463,8 +471,8 @@ class Handler:
         # NEED TO HANDLE EXPECTION OF ONLY ONE CUP LEFT AND SECOND ARM HAS TO STAY NULL
         #go_home_position
         
-        rospy.logerr("Go to home position")
-        self.go_home_position()
+        # rospy.logerr("Go to home position")
+        # self.go_home_position()
         #Open gripper
         rospy.logerr("Open grippes")
         self.gripper_control(state=True,gripper="both")
@@ -500,6 +508,7 @@ class Handler:
             
             #Go to grasping position of cup (Cartesian Path)
             rospy.logerr("GO to grasping position")
+            time.sleep(5)
             self.grasp_pos(cup_nameL, "left_gripper")
             self.grasp_pos(cup_nameR, "right_gripper")
             
@@ -508,35 +517,36 @@ class Handler:
             rospy.logerr("Close Grippers")
             self.gripper_control(state=False,gripper="both")
             
-            #Attach cup at robot
+            # #Attach cup at robot
             rospy.logerr("Attach Cups")
             self.myscene.attach_cup("left_hand", self.robot,cup_nameL)
             self.myscene.attach_cup("right_hand", self.robot,cup_nameR)
 
 
             #Get leaving cup position 
-            # return tuple (x,y)
+            #returns tuple (x,y) for now
             rospy.logerr("Get Positon to leave cups ")
             cup_posL =self.myscene.get_next_sorting_position("left_hand")
             cup_posR =self.myscene.get_next_sorting_position("right_hand")
 
-            #Go to leaving position
+            # #Go to leaving position
             rospy.logerr("Go to position leaving cups")
             self.place_cup(cup_posL,"left_gripper")  #NOT IMPLEMENTED
             self.place_cup(cup_posR,"right_gripper") #NOT IMPLEMENTED
-            self.go_home_position() #for debuging
+            self.execute_path()
+            # self.go_home_position() #for debuging
 
-            #Open gripper
+            # #Open gripper
             rospy.logerr("Open grippes")
             self.gripper_control(state=True,gripper="both")
 
-            # Detach cup from robot
+            # # Detach cup from robot
             rospy.logerr("Detach cups")
             self.myscene.detach_cup(cup_nameL,"left_hand")
             self.myscene.detach_cup(cup_nameR,"right_hand")
 
-            # Go to Home position
-            self.go_home_position()
+            # # Go to Home position
+            # self.go_home_position()
             return 1
 
 
