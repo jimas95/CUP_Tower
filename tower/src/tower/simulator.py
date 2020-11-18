@@ -88,7 +88,7 @@ class Scene():
 
 
     # Functions that add objects to scene
-    def add_table(self,name,position, timeout=4):
+    def add_table(self,name,position, timeout=1):
         """Adds table object to planning scene
         """
         # add ctable surface 
@@ -103,7 +103,7 @@ class Scene():
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
-        self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
+        self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=1)
         
 
     def add_cup(self,name, position, timeout=4):
@@ -131,7 +131,7 @@ class Scene():
         """restarts gazebo scene    """
         pose = Pose()
         twist = Twist()
-        pose.position = Point(1,0.0,0.3)
+        pose.position = Point(1.2,0.0,0.1)
         
         pose.position.y = 0
         self.sms(ModelState("Cup_1",pose,twist,"base"))
@@ -172,7 +172,7 @@ class Scene():
 
 
 
-    def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
+    def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=1):
         """Copied from tutorial
         """
 
@@ -200,7 +200,7 @@ class Scene():
 
 
     # def attach_cup(self, ee_link, cup_name, robot,  timeout=4):
-    def attach_cup(self, ee_link, robot,cup_name,  timeout=4):
+    def attach_cup(self, ee_link, robot,cup_name,  timeout=1):
         """Attaches objects to the robot.
         Adds link names to touch_links array. 
         This tells the planning scene to ignore collisons between the robot and 
@@ -231,7 +231,7 @@ class Scene():
 
 
 
-    def detach_cup(self,cup_name,ee_link, timeout=4):
+    def detach_cup(self,cup_name,ee_link, timeout=1):
         """detach a cup from robot
 
         """
