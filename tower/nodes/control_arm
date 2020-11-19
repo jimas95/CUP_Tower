@@ -56,7 +56,8 @@ class Handler:
 
         # create scene 
         self.myscene = Scene(scene, True)
-        # self.myscene.create_scene()
+        self.myscene.create_scene()
+        self.myscene.create_sorted_list_position()
         self.buildTower = BuildTower()
 
         #Go to starting position
@@ -477,21 +478,24 @@ class Handler:
         placePosList, useHandList  = self.buildTower.tower_3_cups()
         rospy.loginfo(f"placePosList = {placePosList}")
         rospy.loginfo(f"useHandList = {useHandList}")
-        self.myscene = create_sorted_list_position
+
 
         i = 0
         while i < len(placePosList):
             if useHandList[i] == "right_gripper" and (i < len(placePosList)-1 and useHandList[i+1] == "left_gripper"):
-                rightPos = placePosList[i]
-                leftPos = placePosList[i+1]
+                rightPlace = placePosList[i]
+                leftPlace = placePosList[i+1]
                 i += 2
-                rospy.loginfo(f"right_gripper = {rightPos}")
-                rospy.loginfo(f"left_gripper = {leftPos}")
+                rightGrab = self.myscene.get_next_sorting_position("right_gripper")
+                leftGrab = self.myscene.get_next_sorting_position("left_gripper")
+                rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
+                rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
 
             else:
                 hand = useHandList[i]
                 placePos = placePosList[i]
-                rospy.loginfo(f"{hand} only = {placePos}")
+                grabPos = self.myscene.get_next_sorting_position(hand)
+                rospy.loginfo(f"{hand} only = {grabPos} --> {placePos}")
                 i += 1
                                 
 

@@ -267,10 +267,10 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
-    def fake_sms(ModelState):
+    def fake_sms(self, ModelState):
         pass
 
-    def fake_gms(name,base):
+    def fake_gms(self, name,base):
         pos = Pose()
         if(name=="Cup_1"):
             pos.position.x= 1.0
@@ -288,7 +288,8 @@ class Scene():
             pos.position.x= 1.0
             pos.position.y= 0.0
             pos.position.z= 0.0
-        pass
+        return ModelState(name,pos,Twist(), "base")
+
 
     def cups_sorted(self):
         """
