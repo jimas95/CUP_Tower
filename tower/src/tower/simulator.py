@@ -310,6 +310,8 @@ class Scene():
 
     def assign_cup_st1(self):
         """
+        This function sorts cups that are randomly placed in the middle
+        two quadrants of the table based on their x and y position.  
         - add hand as input later
         this function is for state 1 
         Return the name of a cup that should be grabed from hand arm
@@ -320,19 +322,21 @@ class Scene():
         left_hand_cups = []
         right_hand_cups = []
         left_xpos_dict = {}
-        left_xpos_dict = {}
-        left_hand_cups_sorted = []
+        right_xpos_dict = {}
+        left_hand_cups_sorted = [] # list of cups that should be grabbed by left arm, sorted from closest x to furthest x
+        right_hand_cups_sorted = []
         cups_list = ["Cup_1", "Cup_2", "Cup_3"]
        
         # this loop adds cups to left or right hand list based on y position
         for cup in cups_list:
             position = self.get_cup_position(cup)
             y_pos = position.position.y
-            if y_pos < 0:
+            if y_pos < 0 and y_pos > -self.table_y/4: # not sorted and on the right
                 right_hand_cups.append(cup)
-            else:
+            elif y_pos > 0 and y_pos< self.table_y/4: # not sorted and on the left
                 left_hand_cups.append(cup)
-        
+
+        # LEFT
         # add cup and x position to dictionary 
         for cup in left_hand_cups:
             position = self.get_cup_position(cup)
@@ -344,19 +348,20 @@ class Scene():
         for i in sort_left_xpos:
             left_hand_cups_sorted.append(i[0])
         
-        rospy.logerr(sort_left_xpos)
-        rospy.logerr(left_hand_cups_sorted)
+        #RIGHT
+        for cup in right_hand_cups:
+            position = self.get_cup_position(cup)
+            x_pos = position.position.x
+            right_xpos_dict[cup] = x_pos
         
-        # for cup in right_hand_cups:
+        sort_right_xpos = sorted(right_xpos_dict.items(), key=lambda x: x[1], reverse = False)
 
+        for i in sort_right_xpos:
+            right_hand_cups_sorted.append(i[0])
 
-
-        #         rospy.logerr("HI")
-        #         rospy.logerr(self.table_y/4)
-     
-       #left_hand_cups.sort() 
-        
-
+        # rospy.logerr(sort_left_xpos)
+        # rospy.logerr(left_hand_cups_sorted)
+        # rospy.logerr(right_hand_cups_sorted)
         pass
 
 
