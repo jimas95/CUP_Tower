@@ -262,13 +262,23 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
-
     def cups_sorted(self):
         """
         Returns True if all cups are inside inLine area 
         Returns False if any cup is still inside the workspace
         """
-        return False
+        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+        for cup in cups_list:
+            position = self.get_cup_position(cup)
+            y_pos = position.position.y
+            rospy.logerr(cup)
+            rospy.logerr(position.position.y)
+            # if the cup is in the middle two quadrants of the table
+            if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
+                rospy.logerr("HI")
+                rospy.logerr(self.table_y/4)
+                return False
+        return True
 
     def assing_cup_st1(self,hand):
         """
