@@ -343,7 +343,7 @@ class Scene():
                 rospy.logerr("ERROR list of sorted points is empty!")
             rospy.logerr("ERROR IN get_next_sorting_position")
 
-    def create_sorted_list_position(self):
+    def create_sorted_list_position(self,reverse):
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
@@ -370,5 +370,6 @@ class Scene():
             rospy.logerr(L_pose)
             self.sorted_list_pos_right.append(R_pose)
         
-
-        rospy.logerr(self.sorted_list_pos_right)
+        if(reverse):
+            self.sorted_list_pos_left.reverse()
+            self.sorted_list_pos_right.reverse()
