@@ -1,4 +1,10 @@
 # cup variables
-radius: 0.05
+radius: 0.0381  # m... 3/2 inches
 # radius: 0.025
 length: 0.15  # cup height 
+
+# table variables
+table_x: 0.74   #meters
+table_y: 0.91
+table_z: 0.05
+
