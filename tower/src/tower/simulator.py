@@ -71,8 +71,8 @@ class Scene():
         rospy.loginfo("INIT Scene")
         self.scene = myscene
         if(REAL_ROBOT):
-            self.gms = self.fake_gms()
-            self.sms = self.fake_sms()
+            self.gms = self.fake_gms
+            self.sms = self.fake_sms
         else:
             self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
             self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
@@ -264,6 +264,7 @@ class Scene():
 
     def fake_sms(self, ModelState):
         pass
+
 
     def fake_gms(self, name,base):
         pos = Pose()
