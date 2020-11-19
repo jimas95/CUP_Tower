@@ -178,41 +178,16 @@ class Scene():
         table = self.gms("Table","base")
         rospy.logerr(table)
         self.add_table("Table",table.pose.position)
-    
-    def set_table_pos(self):
-        """Sets table in rviz and gazebo to a specified position
-        """
-        state_msg = ModelState()
-        state_msg.model_name = 'Table'
-        state_msg.pose.position.x = self.table_posx
-        state_msg.pose.position.y = self.table_posy
-        state_msg.pose.position.z = self.table_posz
-        state_msg.reference_frame = "base"
-        # state_msg.pose.orientation.x = 0
-        # state_msg.pose.orientation.y = 0
-        # state_msg.pose.orientation.z = 0
-        # state_msg.pose.orientation.w = 1
-        rospy.logerr(state_msg.pose.position)
-        rospy.wait_for_service("/gazebo/set_model_state")
-        table = self.sms(state_msg)
-        self.add_table("Table",state_msg.pose.position)
-    
-    def set_table_posistion(self):
-        """Adds table in rviz and gazebo at a position that
-        is specifed in scene_objects.yaml
+      
+    def set_table_position(self):
+        """Adds table in rviz and gazebo at a position that is specified 
+        in the scene_objects.yaml file
         """
         pose = Pose()
         twist = Twist()
         pose.position = Point(self.table_posx,self.table_posy,self.table_posz)
         self.sms(ModelState("Table",pose,twist,"base"))
         self.add_table("Table", pose.position)
-    
-        
-    
-
-       
-
-
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
