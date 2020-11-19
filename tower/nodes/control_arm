@@ -20,6 +20,7 @@ from tf_conversions import transformations
 from baxter_interface import Gripper
 # from tf_conversions.transformations import quaternion_from_euler
 from tower.simulator import Scene
+from tower.buildTower import BuildTower
 
 class Handler:
     """ Helper class for node control_arm.
@@ -56,6 +57,7 @@ class Handler:
         # create scene 
         # self.myscene = Scene(scene)
         # self.myscene.create_scene()
+        self.buildTower = BuildTower()
 
         #Go to starting position
         # self.go_start_position()
@@ -457,7 +459,7 @@ class Handler:
             self.myscene.restart_scene_inline()
             return "Restart Scene Inline....."
         elif req.choice == 20:
-            self.grab_and_place("left_gripper", (1.0, 0.5, -0.06), (0.8, 0.1, -0.05))
+            self.grab_and_place_two_hands("left_gripper", ((1.0, 0.5, -0.06), (0.8, 0.1, -0.05)), ())
             return "left hand grab and place cup at (1.0, 0.5, -0.5)"
         elif req.choice == 21:
             self.grab_and_place("right_gripper", (1.0, -0.5, -0.05), (0.8, -0.1, -0.05))
@@ -465,8 +467,31 @@ class Handler:
         elif req.choice == 22:
             self.grab_and_place_two_hands(((1.0, 0.5, -0.06), (0.8, 0.1, -0.05)), ((1.0, -0.5, -0.06), (0.8, -0.1, -0.05)))
             return "test 21 and 22 together"
+        elif req.choice == 23:
+            self.build_tower_3_cup()
+            return "building tower"
 
         return "N/A"
+
+    def build_tower_3_cup(self):
+        placePosList, useHandList  = self.buildTower.tower_3_cups()
+        rospy.loginfo(f"placePosList = {placePosList}")
+        rospy.loginfo(f"useHandList = {useHandList}")
+
+        i = 0
+        while i < len(placePosList):
+            if useHandList[i] == "right_gripper" and (i < len(placePosList)-1 and useHandList[i+1] == "left_gripper"):
+                rightPos = placePosList[i]
+                leftPos = placePosList[i+1]
+                i += 2
+                rospy.loginfo(f"right_gripper = {rightPos}")
+                rospy.loginfo(f"left_gripper = {leftPos}")
+            else:
+                hand = useHandList[i]
+                placePos = placePosList[i]
+                rospy.loginfo(f"{hand} only = {placePos}")
+                i += 1
+                                
 
     def grab_and_place(self, hand, grabPos, placePos):
         """ grab and place a cup to another position
