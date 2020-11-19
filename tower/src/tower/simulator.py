@@ -21,6 +21,7 @@ from gazebo_msgs.msg import ModelState
 
 
 
+
 def all_close(goal, actual, tolerance):
   """
   Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
@@ -63,14 +64,18 @@ get cups that are not in order
 
 
 class Scene():
-    def __init__(self,myscene):
+    def __init__(self,myscene,REAL_ROBOT):
         ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
         ## to the world surrounding the robot:
 
         rospy.loginfo("INIT Scene")
         self.scene = myscene
-        self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
-        self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
+        if(REAL_ROBOT):
+            self.gms = self.fake_gms()
+            self.sms = self.fake_sms()
+        else:
+            self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
+            self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
 
 
         rospy.loginfo("added scene")
@@ -78,14 +83,18 @@ class Scene():
         # OBJECT VARIABLES
         self.cup_radius = rospy.get_param("radius") # cup size
         self.cup_height = rospy.get_param("length")
-        self.table_x = 1.1 # table size
-        self.table_y = 2.1
-        self.table_z = 0.05
+        self.table_x = rospy.get_param("table_x")
+        self.table_y = rospy.get_param("table_y")
+        self.table_z = rospy.get_param("table_z")
+        self.table_posx = rospy.get_param("t_x")    
+        self.table_posy = rospy.get_param("t_y")
+        self.table_posz = rospy.get_param("t_z")
+        self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
 
 
-
+        self.cup_n = 3
 
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
@@ -164,12 +173,26 @@ class Scene():
         cup1 = self.gms("Cup_1","base")
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
+
         self.add_cup("Cup_1",cup1.pose.position)
         self.add_cup("Cup_2",cup2.pose.position)
         self.add_cup("Cup_3",cup3.pose.position)
-        table = self.gms("Table","base")
-        self.add_table("Table",table.pose.position)
 
+        #table = self.sms("Table", "base")
+
+        table = self.gms("Table","base")
+        rospy.logerr(table)
+        self.add_table("Table",table.pose.position)
+      
+    def set_table_position(self):
+        """Adds table in rviz and gazebo at a position that is specified 
+        in the scene_objects.yaml file
+        """
+        pose = Pose()
+        twist = Twist()
+        pose.position = Point(self.table_posx,self.table_posy,self.table_posz)
+        self.sms(ModelState("Table",pose,twist,"base"))
+        self.add_table("Table", pose.position)
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
@@ -230,7 +253,6 @@ class Scene():
    
 
 
-
     def detach_cup(self,cup_name,ee_link, timeout=4):
         """detach a cup from robot
 
@@ -245,6 +267,11 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
+    def fake_sms(ModelState):
+        pass
+
+    def fake_gms(ModelState):
+        pass
 
     def cups_sorted(self):
         """
@@ -278,18 +305,42 @@ class Scene():
         """
         #this is fake needs to implemented
         if(hand=="left_hand"):
-            return (1,0.9)
+            if(len(self.sorted_list_pos_left)==0):
+                rospy.logerr("ERROR list of sorted points is empty!")
+            return self.sorted_list_pos_left.pop()
         elif(hand=="right_hand"):
-            return (1,-0.9)
+            return self.sorted_list_pos_right.pop()
         else:
+            if(len(self.sorted_list_pos_right)==0):
+                rospy.logerr("ERROR list of sorted points is empty!")
             rospy.logerr("ERROR IN get_next_sorting_position")
 
     def create_sorted_list_position(self):
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
-        self.sorted_list_pos_left =[(1.2,0.9),(0.8,0.9)] 
-        self.sorted_list_pos_right=[(1,-0.9)]
-        pass
+        self.sorted_list_pos_left = [] 
+        self.sorted_list_pos_right = []
 
-    
+
+        radious = 0.10 
+
+        for i in range(self.cup_n):
+
+            L_pose = Pose()
+            L_pose.position.x = 0.6
+            L_pose.position.y = 0.8
+            L_pose.position.z = 1
+            L_pose.position.x = L_pose.position.x + 2*radious*i
+            self.sorted_list_pos_left.append(L_pose)
+
+            R_pose = Pose()
+            R_pose.position.x = 0.6
+            R_pose.position.y = -0.8
+            R_pose.position.z = 1
+            R_pose.position.x = R_pose.position.x + 2*radious*i
+            rospy.logerr(L_pose)
+            self.sorted_list_pos_right.append(R_pose)
+        
+
+        rospy.logerr(self.sorted_list_pos_right)

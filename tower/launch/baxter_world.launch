@@ -68,4 +68,18 @@
 
   <!-- add cups yaml file -->
   <rosparam command="load" file="$(find tower)/config/scene_objects.yaml" />
+
+  <!-- loads the urdf into the cup parameter-->
+  <param name="cup" command="$(find xacro)/xacro $(find tower)/urdf/cups.urdf.xacro" /> 
+
+
+  <!-- "ROS Service Call" Robot Spawn Method -->
+  <!-- Spawn a robot into Gazebo -->
+  <!-- -urdf...Incoming xml is in urdf format -->
+  <!-- -model MODEL_NAME...Name of model to spawn  NO DASH BEFORE MODEL NAME -->
+  <!-- -x X...x component of initial position, meters
+  -y Y...y component of initial position, meters
+  -z Z...z component of initial position, meters -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param cup -urdf -model cup -x 1 -y 1 -z 0" />
+
 </launch>

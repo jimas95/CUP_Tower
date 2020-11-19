@@ -14,7 +14,7 @@ import sys
 import moveit_commander
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Pose, Quaternion,Point
-from tower.srv import Step, ControlTest
+from tower.srv import Step, ControlTestaf76c1f6ea4308ecd963330d6a153add82adf003
 from tf.transformations import*
 from tf_conversions import transformations
 from baxter_interface import Gripper
@@ -486,6 +486,7 @@ class Handler:
                 i += 2
                 rospy.loginfo(f"right_gripper = {rightPos}")
                 rospy.loginfo(f"left_gripper = {leftPos}")
+
             else:
                 hand = useHandList[i]
                 placePos = placePosList[i]
