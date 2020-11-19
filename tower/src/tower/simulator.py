@@ -284,6 +284,10 @@ class Scene():
             pos.position.x= 1.0
             pos.position.y= -0.4
             pos.position.z= 0.01
+        elif(name=="Table"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.0
         pass
 
     def cups_sorted(self):
