@@ -265,7 +265,6 @@ class Scene():
     def fake_sms(self, ModelState):
         pass
 
-
     def fake_gms(self, name,base):
         pos = Pose()
         if(name=="Cup_1"):
