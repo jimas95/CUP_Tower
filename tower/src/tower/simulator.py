@@ -179,6 +179,16 @@ class Scene():
         table = self.gms("Table","base")
         self.add_table("Table",table.pose.position)
 
+    
+    def set_table_posistion(self):
+        """Adds table in rviz and gazebo at a position that
+        is specifed in scene_objects.yaml
+        """
+        pose = Pose()
+        twist = Twist()
+        pose.position = Point(self.table_posx,self.table_posy,self.table_posz)
+        self.sms(ModelState("Table",pose,twist,"base"))
+        self.add_table("Table", pose.position)
 
 
     def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
