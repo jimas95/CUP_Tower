@@ -21,7 +21,8 @@ from baxter_interface import Gripper
 from tower.simulator import Scene
 from tower.buildTower import BuildTower
 
-REAL_ROBOT = False
+REAL_ROBOT = True # Real Robot
+REAL_ROBOT = False # fake Robot
 
 class Handler:
     """ Helper class for node control_arm.
@@ -50,9 +51,9 @@ class Handler:
         self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
-        # self.right_gripper.calibrate()
+        self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
-        # self.left_gripper.calibrate()
+        self.left_gripper.calibrate()
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
@@ -462,6 +463,13 @@ class Handler:
         elif req.choice == 23:
             self.build_tower_3_cup()
             return "building tower"
+        elif req.choice == 24:
+            self.gripper_control(state=False,gripper="both")
+            return "building tower"
+        elif req.choice == 25:
+            self.gripper_control(state=True,gripper="both")
+            return "building tower"
+
 
         return "N/A"
 
