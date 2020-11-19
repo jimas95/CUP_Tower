@@ -4,10 +4,18 @@
   <xacro:rethink_electric_gripper side="left"
                                   l_finger="extended_wide"
                                   l_finger_slot="3"
+<<<<<<< HEAD
                                   l_finger_tip="half_round_tip"
                                   l_finger_grasp="inner"
                                   r_finger="extended_wide"
                                   r_finger_slot="3"
                                   r_finger_tip="half_round_tip"
+=======
+                                  l_finger_tip="paddle_tip"
+                                  l_finger_grasp="inner"
+                                  r_finger="extended_wide"
+                                  r_finger_slot="3"
+                                  r_finger_tip="paddle_tip"
+>>>>>>> edited gripper urdf
                                   r_finger_grasp="inner"/>
 </robot>
