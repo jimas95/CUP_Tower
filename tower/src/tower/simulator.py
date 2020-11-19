@@ -308,14 +308,55 @@ class Scene():
                 return False
         return True
 
-    def assing_cup_st1(self,hand):
+    def assign_cup_st1(self):
         """
+        - add hand as input later
         this function is for state 1 
         Return the name of a cup that should be grabed from hand arm
         left_hand arm gets y>0 
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
+        left_hand_cups = []
+        right_hand_cups = []
+        left_xpos_dict = {}
+        left_xpos_dict = {}
+        left_hand_cups_sorted = []
+        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+       
+        # this loop adds cups to left or right hand list based on y position
+        for cup in cups_list:
+            position = self.get_cup_position(cup)
+            y_pos = position.position.y
+            if y_pos < 0:
+                right_hand_cups.append(cup)
+            else:
+                left_hand_cups.append(cup)
+        
+        # add cup and x position to dictionary 
+        for cup in left_hand_cups:
+            position = self.get_cup_position(cup)
+            x_pos = position.position.x
+            left_xpos_dict[cup] = x_pos
+        # sort dictionary from smallest to largest x
+        sort_left_xpos = sorted(left_xpos_dict.items(), key=lambda x: x[1], reverse = False)
+        # make list of cups sorted from closest to furthest in the x
+        for i in sort_left_xpos:
+            left_hand_cups_sorted.append(i[0])
+        
+        rospy.logerr(sort_left_xpos)
+        rospy.logerr(left_hand_cups_sorted)
+        
+        # for cup in right_hand_cups:
+
+
+
+        #         rospy.logerr("HI")
+        #         rospy.logerr(self.table_y/4)
+     
+       #left_hand_cups.sort() 
+        
+
         pass
 
 
