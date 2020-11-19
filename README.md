@@ -17,7 +17,7 @@ cd into `src` of your workspace
 ## control baxter and Rviz with moveit
 1. roslaunch tower baxter_world.launch
 2. roslaunch tower build_tower.launch
-3. rosrun tower control_arm joint_states:=robot/joint_states
+3. rosrun tower arm_control joint_states:=robot/joint_states
 
 note: remember to change `joint_limits.yaml` to values specified in `joint_limits_true.yaml` for real robot.
 
