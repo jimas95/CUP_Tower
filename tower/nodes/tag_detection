@@ -89,7 +89,7 @@ class TagDetect:
         world_base_tf.transform.rotation.w = 1
 
         self.static_broadcaster.sendTransform(world_base_tf)
-        print('tfwork')
+        
  
 
 # Main Function
