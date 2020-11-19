@@ -81,9 +81,9 @@ class Scene():
         self.table_x = rospy.get_param("table_x")
         self.table_y = rospy.get_param("table_y")
         self.table_z = rospy.get_param("table_z")
-        self.table_posx = 1      #WILL GET FROM YAML ADD LATER
-        self.table_posy = 0
-        self.table_posz = 0
+        self.table_posx = rospy.get_param("t_x")    
+        self.table_posy = rospy.get_param("t_y")
+        self.table_posz = rospy.get_param("t_z")
         self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
@@ -180,11 +180,14 @@ class Scene():
         self.add_table("Table",table.pose.position)
     
     def set_table_pos(self):
+        """Sets table in rviz and gazebo to a specified position
+        """
         state_msg = ModelState()
         state_msg.model_name = 'Table'
         state_msg.pose.position.x = self.table_posx
         state_msg.pose.position.y = self.table_posy
         state_msg.pose.position.z = self.table_posz
+        state_msg.reference_frame = "base"
         # state_msg.pose.orientation.x = 0
         # state_msg.pose.orientation.y = 0
         # state_msg.pose.orientation.z = 0
@@ -193,6 +196,19 @@ class Scene():
         rospy.wait_for_service("/gazebo/set_model_state")
         table = self.sms(state_msg)
         self.add_table("Table",state_msg.pose.position)
+    
+    def set_table_posistion(self):
+        """Adds table in rviz and gazebo at a position that
+        is specifed in scene_objects.yaml
+        """
+        pose = Pose()
+        twist = Twist()
+        pose.position = Point(self.table_posx,self.table_posy,self.table_posz)
+        self.sms(ModelState("Table",pose,twist,"base"))
+        self.add_table("Table", pose.position)
+    
+        
+    
 
        
 
