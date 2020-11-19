@@ -1,13 +1,11 @@
 # final-project-fast-tower
 The goal of this project is to use the robot baxter and build a **HUGE** tower from plastic cups
 
-
 # Apriltag_ROS Install
 cd into `src` of your workspace
 `git clone https://github.com/AprilRobotics/apriltag.git`      # Clone Apriltag library
 `git clone https://github.com/AprilRobotics/apriltag_ros.git`  # Clone Apriltag ROS wrapper
 `catkin build`    # Build all packages in the workspace (`catkin_make_isolated` will work also)
-
 
 # Run Baxter Simulator
 1. cd rethink_ws
