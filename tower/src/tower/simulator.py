@@ -183,10 +183,11 @@ class Scene():
         table = self.gms("Table","base")
         rospy.logerr(table)
         self.add_table("Table",table.pose.position)
-      
-    def set_table_position(self):
-        """Adds table in rviz and gazebo at a position that is specified 
-        in the scene_objects.yaml file
+
+    
+    def set_table_posistion(self):
+        """Adds table in rviz and gazebo at a position that
+        is specifed in scene_objects.yaml
         """
         pose = Pose()
         twist = Twist()
@@ -250,8 +251,6 @@ class Scene():
         #wait for planning scene to update
         return self.wait_for_state_update(cup_name, box_is_attached=True, box_is_known=False, timeout=timeout)
       
-   
-
 
     def detach_cup(self,cup_name,ee_link, timeout=4):
         """detach a cup from robot
@@ -265,6 +264,30 @@ class Scene():
 
         # We wait for the planning scene to update.
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
+
+
+    def fake_sms(self, ModelState):
+        pass
+
+    def fake_gms(self, name,base):
+        pos = Pose()
+        if(name=="Cup_1"):
+            pos.position.x= 1.0
+            pos.position.y= 0.5
+            pos.position.z= -0.06
+        elif(name=="Cup_2"):
+            pos.position.x= 1.0
+            pos.position.y= -0.5
+            pos.position.z= 0.06
+        elif(name=="Cup_3"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
+        elif(name=="Table"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.0
+        return ModelState(name,pos,Twist(), "base")
 
 
     def fake_sms(self, ModelState):
@@ -325,7 +348,6 @@ class Scene():
         """
         cup = self.gms(name,"base")
         return cup.pose
-
 
     def get_next_sorting_position(self,hand):
         """
