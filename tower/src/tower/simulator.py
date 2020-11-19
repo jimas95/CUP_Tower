@@ -85,7 +85,7 @@ class Scene():
         # rospy.logerr(self.cup_radius)
 
 
-
+        self.cup_n = 3
 
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
@@ -278,18 +278,42 @@ class Scene():
         """
         #this is fake needs to implemented
         if(hand=="left_hand"):
-            return (1,0.9)
+            if(len(self.sorted_list_pos_left)==0):
+                rospy.logerr("ERROR list of sorted points is empty!")
+            return self.sorted_list_pos_left.pop()
         elif(hand=="right_hand"):
-            return (1,-0.9)
+            return self.sorted_list_pos_right.pop()
         else:
+            if(len(self.sorted_list_pos_right)==0):
+                rospy.logerr("ERROR list of sorted points is empty!")
             rospy.logerr("ERROR IN get_next_sorting_position")
 
     def create_sorted_list_position(self):
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
-        self.sorted_list_pos_left =[(1.2,0.9),(0.8,0.9)] 
-        self.sorted_list_pos_right=[(1,-0.9)]
-        pass
+        self.sorted_list_pos_left = [] 
+        self.sorted_list_pos_right = []
 
-    
+
+        radious = 0.10 
+
+        for i in range(self.cup_n):
+
+            L_pose = Pose()
+            L_pose.position.x = 0.6
+            L_pose.position.y = 0.8
+            L_pose.position.z = 1
+            L_pose.position.x = L_pose.position.x + 2*radious*i
+            self.sorted_list_pos_left.append(L_pose)
+
+            R_pose = Pose()
+            R_pose.position.x = 0.6
+            R_pose.position.y = -0.8
+            R_pose.position.z = 1
+            R_pose.position.x = R_pose.position.x + 2*radious*i
+            rospy.logerr(L_pose)
+            self.sorted_list_pos_right.append(R_pose)
+        
+
+        rospy.logerr(self.sorted_list_pos_right)
