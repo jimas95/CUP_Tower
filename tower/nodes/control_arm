@@ -21,7 +21,8 @@ from baxter_interface import Gripper
 from tower.simulator import Scene
 from tower.buildTower import BuildTower
 
-REAL_ROBOT = False
+REAL_ROBOT = True # Real Robot
+REAL_ROBOT = False # fake Robot
 
 class Handler:
     """ Helper class for node control_arm.
@@ -462,6 +463,13 @@ class Handler:
         elif req.choice == 23:
             self.build_tower_3_cup()
             return "building tower"
+        elif req.choice == 24:
+            self.gripper_control(state=False,gripper="both")
+            return "building tower"
+        elif req.choice == 25:
+            self.gripper_control(state=True,gripper="both")
+            return "building tower"
+
 
         return "N/A"
 
