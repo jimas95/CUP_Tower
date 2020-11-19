@@ -286,6 +286,7 @@ class Scene():
             pos.position.z= 0.0
         return ModelState(name,pos,Twist(), "base")
 
+
     def cups_sorted(self):
         """
         Returns True if all cups are inside inLine area 
