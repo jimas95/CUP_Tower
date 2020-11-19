@@ -28,7 +28,7 @@ class TagDetect:
         self.image_rect_sub = rospy.Subscriber( "/image_rect", Image, self.rect_image_callback)
         self.image_rect_pub= rospy.Publisher( "/camera_rect/image_rect", Image, queue_size = 1)
 
-        # Calibration Matrix
+        # Calibration Matrix for Camera Info
         self.cal_sub = rospy.Subscriber("/cameras/right_hand_camera/camera_info_std", CameraInfo, self.cal_n_info_pub)
         self.cal_pub =  rospy.Publisher("/camera/camera_info", CameraInfo, queue_size = 1)
 
@@ -37,12 +37,8 @@ class TagDetect:
         self.caminfo_pub= rospy.Publisher("/camera_info", CameraInfo, queue_size = 1)
         self.caminfo_rect_pub= rospy.Publisher("/camera_rect/camera_info", CameraInfo, queue_size = 1)
 
-
-
-
-
-        # Subscribe to the april tag classification data stream
-        self.apriltags = rospy.Subscriber("/tag_detections", AprilTagDetectionArray, self.apriltag_callback)  
+        # Subscribe to the apriltag 
+        self.apriltag = rospy.Subscriber("/tag_detections", AprilTagDetectionArray, self.apriltag_callback)  
 
 
     def baxter_cam(self, data):
@@ -56,7 +52,9 @@ class TagDetect:
         
     def apriltag_callback(self, data):
 
-        pose = Pose()
+        Pose()
+        if ( len(data.detections) > 1):
+            print('I found something!')
    
     # Calibrate and publish Camera Info for apriltag_ros
     def cal_n_info_pub(self, data):
