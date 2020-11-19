@@ -26,15 +26,11 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 7. restart scene
 8. print current joint values of both arms
 9. go to initial start position of robot (this will sometimes collide with table)
-<<<<<<< HEAD
 10. test10 with state_1
 12. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
 13. restart scene work station
 14. restart scene inline
 15. test gripper
-=======
-10. grab and place cup_3 with right_hand
->>>>>>> fix merge error
 
 # Apriltag Install
 `pip3 install apriltag`
