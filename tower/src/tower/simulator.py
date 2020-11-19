@@ -262,6 +262,7 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
+
     def fake_sms(self, ModelState):
         pass
 
