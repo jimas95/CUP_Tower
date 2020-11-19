@@ -274,12 +274,12 @@ class Scene():
         pos = Pose()
         if(name=="Cup_1"):
             pos.position.x= 1.0
-            pos.position.y= 0.0
-            pos.position.z= 0.01
+            pos.position.y= 0.5
+            pos.position.z= -0.06
         elif(name=="Cup_2"):
             pos.position.x= 1.0
-            pos.position.y= -0.4
-            pos.position.z= 0.01
+            pos.position.y= -0.5
+            pos.position.z= 0.06
         elif(name=="Cup_3"):
             pos.position.x= 1.0
             pos.position.y= -0.4
@@ -322,11 +322,11 @@ class Scene():
         return type: tuple (x,y)
         """
         #this is fake needs to implemented
-        if(hand=="left_hand"):
+        if(hand=="left_gripper"):
             if(len(self.sorted_list_pos_left)==0):
                 rospy.logerr("ERROR list of sorted points is empty!")
             return self.sorted_list_pos_left.pop()
-        elif(hand=="right_hand"):
+        elif(hand=="right_gripper"):
             return self.sorted_list_pos_right.pop()
         else:
             if(len(self.sorted_list_pos_right)==0):
@@ -348,14 +348,14 @@ class Scene():
             L_pose = Pose()
             L_pose.position.x = 0.6
             L_pose.position.y = 0.8
-            L_pose.position.z = 1
+            L_pose.position.z = -0.05
             L_pose.position.x = L_pose.position.x + 2*radious*i
             self.sorted_list_pos_left.append(L_pose)
 
             R_pose = Pose()
             R_pose.position.x = 0.6
             R_pose.position.y = -0.8
-            R_pose.position.z = 1
+            R_pose.position.z = -0.05
             R_pose.position.x = R_pose.position.x + 2*radious*i
             rospy.logerr(L_pose)
             self.sorted_list_pos_right.append(R_pose)
