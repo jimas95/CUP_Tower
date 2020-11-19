@@ -493,17 +493,23 @@ class Handler:
                 rightPlace = placePosList[i]
                 leftPlace = placePosList[i+1]
                 i += 2
-                rightGrab = self.myscene.get_next_sorting_position("right_gripper")
-                leftGrab = self.myscene.get_next_sorting_position("left_gripper")
+                rightGrabPos = self.myscene.get_next_sorting_position("right_gripper").position
+                rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z)
+                leftGrabPos = self.myscene.get_next_sorting_position("left_gripper").position
+                leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
                 rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
                 rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
+                self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
 
             else:
                 hand = useHandList[i]
                 placePos = placePosList[i]
-                grabPos = self.myscene.get_next_sorting_position(hand)
+                grabPosition = self.myscene.get_next_sorting_position(hand).position
+                grabPos = (grabPosition.x, grabPosition.y, grabPosition.z)
                 rospy.loginfo(f"{hand} only = {grabPos} --> {placePos}")
+                self.grab_and_place(hand, grabPos, placePos)
                 i += 1
+
                                 
 
     def grab_and_place(self, hand, grabPos, placePos):
@@ -819,6 +825,7 @@ def main():
     rospy.init_node('control_arm',log_level=rospy.DEBUG)
     handler = Handler()
     rospy.spin()
+    
 
 if __name__ == '__main__':
     try:

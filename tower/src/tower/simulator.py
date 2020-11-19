@@ -327,11 +327,11 @@ class Scene():
         return type: tuple (x,y)
         """
         #this is fake needs to implemented
-        if(hand=="left_hand"):
+        if(hand=="left_gripper"):
             if(len(self.sorted_list_pos_left)==0):
                 rospy.logerr("ERROR list of sorted points is empty!")
             return self.sorted_list_pos_left.pop()
-        elif(hand=="right_hand"):
+        elif(hand=="right_gripper"):
             return self.sorted_list_pos_right.pop()
         else:
             if(len(self.sorted_list_pos_right)==0):
