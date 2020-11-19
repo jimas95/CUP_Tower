@@ -173,10 +173,15 @@ class Scene():
         cup1 = self.gms("Cup_1","base")
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
+
         self.add_cup("Cup_1",cup1.pose.position)
         self.add_cup("Cup_2",cup2.pose.position)
         self.add_cup("Cup_3",cup3.pose.position)
+
+        #table = self.sms("Table", "base")
+
         table = self.gms("Table","base")
+        rospy.logerr(table)
         self.add_table("Table",table.pose.position)
 
     
@@ -247,7 +252,6 @@ class Scene():
         return self.wait_for_state_update(cup_name, box_is_attached=True, box_is_known=False, timeout=timeout)
       
 
-
     def detach_cup(self,cup_name,ee_link, timeout=4):
         """detach a cup from robot
 
@@ -261,6 +265,29 @@ class Scene():
         # We wait for the planning scene to update.
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
+
+    def fake_sms(self, ModelState):
+        pass
+
+    def fake_gms(self, name,base):
+        pos = Pose()
+        if(name=="Cup_1"):
+            pos.position.x= 1.0
+            pos.position.y= 0.5
+            pos.position.z= -0.06
+        elif(name=="Cup_2"):
+            pos.position.x= 1.0
+            pos.position.y= -0.5
+            pos.position.z= 0.06
+        elif(name=="Cup_3"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
+        elif(name=="Table"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.0
+        return ModelState(name,pos,Twist(), "base")
 
 
     def fake_sms(self, ModelState):

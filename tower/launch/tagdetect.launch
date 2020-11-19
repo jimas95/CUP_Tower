@@ -1,0 +1,7 @@
+<!-- Start using april tag -->
+<launch>
+    <include file = "$(find apriltag_ros)/launch/continuous_detection.launch" >
+    </include>
+
+    <node name="tag_detection" pkg="tower" type="key_locate" output='screen'/>
+</launch>
