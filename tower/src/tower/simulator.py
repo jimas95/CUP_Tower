@@ -21,6 +21,7 @@ from gazebo_msgs.msg import ModelState
 
 
 
+
 def all_close(goal, actual, tolerance):
   """
   Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
@@ -63,7 +64,7 @@ get cups that are not in order
 
 
 class Scene():
-    def __init__(self,myscene):
+    def __init__(self,myscene,REAL_ROBOT):
         ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
         ## to the world surrounding the robot:
 
@@ -245,6 +246,11 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
+    def fake_sms(ModelState):
+        pass
+
+    def fake_gms(ModelState):
+        pass
 
     def cups_sorted(self):
         """
