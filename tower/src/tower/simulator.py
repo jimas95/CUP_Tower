@@ -71,8 +71,8 @@ class Scene():
         rospy.loginfo("INIT Scene")
         self.scene = myscene
         if(REAL_ROBOT):
-            self.gms = self.fake_gms()
-            self.sms = self.fake_sms()
+            self.gms = self.fake_gms
+            self.sms = self.fake_sms
         else:
             self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
             self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
@@ -270,7 +270,20 @@ class Scene():
     def fake_sms(ModelState):
         pass
 
-    def fake_gms(ModelState):
+    def fake_gms(name,base):
+        pos = Pose()
+        if(name=="Cup_1"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.01
+        elif(name=="Cup_2"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
+        elif(name=="Cup_3"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
         pass
 
     def cups_sorted(self):
