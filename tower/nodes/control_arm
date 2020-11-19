@@ -14,7 +14,7 @@ import sys
 import moveit_commander
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Pose, Quaternion,Point
-from tower.srv import Step, ControlTestaf76c1f6ea4308ecd963330d6a153add82adf003
+from tower.srv import Step, ControlTest
 from tf.transformations import*
 from tf_conversions import transformations
 from baxter_interface import Gripper
@@ -55,7 +55,7 @@ class Handler:
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
 
         # create scene 
-        # self.myscene = Scene(scene)
+        self.myscene = Scene(scene, True)
         # self.myscene.create_scene()
         self.buildTower = BuildTower()
 
@@ -477,6 +477,7 @@ class Handler:
         placePosList, useHandList  = self.buildTower.tower_3_cups()
         rospy.loginfo(f"placePosList = {placePosList}")
         rospy.loginfo(f"useHandList = {useHandList}")
+        self.myscene = create_sorted_list_position
 
         i = 0
         while i < len(placePosList):
