@@ -70,8 +70,12 @@ class Scene():
 
         rospy.loginfo("INIT Scene")
         self.scene = myscene
-        self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
-        self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
+        if(REAL_ROBOT):
+            self.gms = self.fake_gms()
+            self.sms = self.fake_sms()
+        else:
+            self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
+            self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
 
 
         rospy.loginfo("added scene")
