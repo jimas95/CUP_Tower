@@ -21,6 +21,7 @@ from gazebo_msgs.msg import ModelState
 
 
 
+
 def all_close(goal, actual, tolerance):
   """
   Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
@@ -63,14 +64,18 @@ get cups that are not in order
 
 
 class Scene():
-    def __init__(self,myscene):
+    def __init__(self,myscene,REAL_ROBOT):
         ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
         ## to the world surrounding the robot:
 
         rospy.loginfo("INIT Scene")
         self.scene = myscene
-        self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
-        self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
+        if(REAL_ROBOT):
+            self.gms = self.fake_gms
+            self.sms = self.fake_sms
+        else:
+            self.gms = rospy.ServiceProxy("/gazebo/get_model_state",GetModelState)
+            self.sms = rospy.ServiceProxy("/gazebo/set_model_state",SetModelState)
 
 
         rospy.loginfo("added scene")
@@ -262,6 +267,29 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
+    def fake_sms(ModelState):
+        pass
+
+    def fake_gms(name,base):
+        pos = Pose()
+        if(name=="Cup_1"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.01
+        elif(name=="Cup_2"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
+        elif(name=="Cup_3"):
+            pos.position.x= 1.0
+            pos.position.y= -0.4
+            pos.position.z= 0.01
+        elif(name=="Table"):
+            pos.position.x= 1.0
+            pos.position.y= 0.0
+            pos.position.z= 0.0
+        pass
+
     def cups_sorted(self):
         """
         Returns True if all cups are inside inLine area 
@@ -323,7 +351,7 @@ class Scene():
         self.sorted_list_pos_right = []
 
 
-        radious = 0.10 
+        radious = self.cup_radius
 
         for i in range(self.cup_n):
 
