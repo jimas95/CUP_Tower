@@ -3,5 +3,5 @@
     <include file = "$(find apriltag_ros)/launch/continuous_detection.launch" >
     </include>
 
-    <node name="tag_detection" pkg="tower" type="key_locate" output='screen'/>
+    <node name="tag_detection" pkg="tower" type="tag_detection" output='screen'/>
 </launch>
