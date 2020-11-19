@@ -313,7 +313,7 @@ class Scene():
         self.sorted_list_pos_right = []
 
 
-        radious = 0.10 
+        radious = self.cup_radius
 
         for i in range(self.cup_n):
 
