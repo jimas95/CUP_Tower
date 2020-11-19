@@ -86,13 +86,9 @@ class Scene():
         self.table_x = rospy.get_param("table_x")
         self.table_y = rospy.get_param("table_y")
         self.table_z = rospy.get_param("table_z")
-<<<<<<< HEAD
         self.table_posx = rospy.get_param("t_x")    
         self.table_posy = rospy.get_param("t_y")
         self.table_posz = rospy.get_param("t_z")
-=======
-
->>>>>>> cups_sorted function works, to test call /test_control service
         self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
@@ -259,7 +255,6 @@ class Scene():
     def fake_sms(self, ModelState):
         pass
 
-<<<<<<< HEAD
     def fake_gms(self, name,base):
         pos = Pose()
         if(name=="Cup_1"):
@@ -279,9 +274,6 @@ class Scene():
             pos.position.y= 0.0
             pos.position.z= 0.0
         return ModelState(name,pos,Twist(), "base")
-=======
-    
->>>>>>> cups_sorted function works, to test call /test_control service
 
     def cups_sorted(self):
         """
