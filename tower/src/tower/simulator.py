@@ -320,7 +320,6 @@ class Scene():
         cup = self.gms(name,"base")
         return cup.pose
 
-
     def get_next_sorting_position(self,hand):
         """
         Return the position that we should leave cup on inLine workstation
