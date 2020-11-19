@@ -17,20 +17,15 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 
 ## calling tests service with the following choices
 0. print current pose of left and right arm
-1. test step service with left arm 
-2. test step service with right arm 
-3. set hands at home position
-4. set right_hand at grasping position cup_3
-5. set right_hand to grasp position cup_3
-6. grab cups
-7. restart scene
-8. print current joint values of both arms
-9. go to initial start position of robot (this will sometimes collide with table)
-10. test10 with state_1
-12. execute cartesian for right hand to current+(0.1, -0.1, 0.1)
-13. restart scene work station
-14. restart scene inline
-15. test gripper
+1. set hands at home position (grab the hands above table before calling this)
+2. restart scene workstation
+3. restart scene inline
+4. left hand grab and place cup
+5. right hand grab and place cup
+6. both hands grab and place
+7. building tower (state_2)
+8. close both grippers
+9. open both grippers
 
 # Apriltag Install
 `pip3 install apriltag`
