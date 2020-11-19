@@ -4,7 +4,18 @@ radius: 0.0381  # (3/2 inches)
 length: 0.1143  # (4.5 inches) 
 
 # table variables
-table_x: 0.74   
-table_y: 0.91
+table_x: 0.74  
+table_y: 1.83
 table_z: 0.05
 
+# table position
+t_x: 1
+t_y: 0
+t_z: 0
+#t_z: 0.91
+
+# table orientation
+o_x: 0
+o_y: 0
+o_z: 0
+w: 1
