@@ -129,7 +129,7 @@ class Scene():
 
     
 
-    def restart_scene(self):
+    def restart_scene_workStation(self):
         """restarts gazebo scene    """
         pose = Pose()
         twist = Twist()
@@ -142,11 +142,25 @@ class Scene():
         pose.position.y = -0.4
         self.sms(ModelState("Cup_3",pose,twist,"base"))
 
-        self.create_scene_one_cup()
+        self.create_scene()
+
+    def restart_scene_inline(self):
+        """restarts gazebo scene    """
+        pose = Pose()
+        twist = Twist()
+        pose.position = Point(0.8,0.9,0.1)
         
+        self.sms(ModelState("Cup_1",pose,twist,"base"))
+        pose.position.x = 1.2
+        self.sms(ModelState("Cup_2",pose,twist,"base"))
+        pose.position.y = -pose.position.y
+        pose.position.x = 0.8
+        self.sms(ModelState("Cup_3",pose,twist,"base"))
+
+        self.create_scene() 
 
 
-    def create_scene_one_cup(self):
+    def create_scene(self):
         """Creates scene at moveIt with 3 cups at the table
         """
         cup1 = self.gms("Cup_1","base")
@@ -157,8 +171,6 @@ class Scene():
         self.add_cup("Cup_3",cup3.pose.position)
         table = self.gms("Table","base")
         self.add_table("Table",table.pose.position)
-
-
 
 
 
@@ -200,18 +212,17 @@ class Scene():
              cup_name (str) : cup object to attach to robot
              robot (RobotComander object): provides info about robot
         """
+        rospy.logdebug("attach : "+str(cup_name))
         # get a list of known objects in scene
         known_object_list = self.scene.get_known_object_names()
         if cup_name not in known_object_list:
             rospy.logerr("Object %s does not exist in the scene", cup_name)
             rospy.logerr(known_object_list)
 
-        # start attach object code from tutorial
         grasping_group = ee_link   # end effector group name
-        rospy.logdebug(grasping_group)
         touch_links = robot.get_link_names(group = grasping_group)
+        rospy.logerr(touch_links)
         
-        #http://docs.ros.org/en/noetic/api/moveit_commander/html/planning__scene__interface_8py_source.html
         self.scene.attach_mesh(ee_link, cup_name, touch_links = touch_links)   # attach mesh is a moveit commander function
 
 
@@ -223,52 +234,27 @@ class Scene():
 
     def detach_box(self, cup_name, ee_link, timeout=4):
 
-        """Copied from tutorial
-        """
+    def detach_cup(self,cup_name,ee_link, timeout=4):
+        """detach a cup from robot
 
-        ## Detaching Objects from the Robot
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        ## We can also detach and remove the object from the planning scene:
+        """
+        # Copy class variables to local variables to make the web tutorials more clear.
+        # In practice, you should use the class variables directly unless you have a good
+        # reason not to.
+        rospy.logdebug("detach :"+str(cup_name))
         self.scene.remove_attached_object(ee_link, name=cup_name)
-        
 
         # We wait for the planning scene to update.
-        return self.wait_for_state_update(cup_name, box_is_known=True, box_is_attached=False, timeout=timeout)
+        return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
-    def remove_box(self, cup_name, ee_link,timeout=4):
-        """Copied from tutorial
-        """
 
-        ## Removing Objects from the Planning Scene
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        ## We can remove the box from the world.
-        self.scene.remove_world_object(cup_name)
-
-        ## **Note:** The object must be detached before we can remove it from the world
-    
-
-        # We wait for the planning scene to update.
-        return self.wait_for_state_update(box_is_attached=False, box_is_known=False, timeout=timeout)
-
-    
 
     def cups_sorted(self):
         """
         Returns True if all cups are inside inLine area 
         Returns False if any cup is still inside the workspace
         """
-        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
-        for cup in cups_list:
-            position = self.get_cup_position(cup)
-            y_pos = position.position.y
-            rospy.logerr(cup)
-            rospy.logerr(position.position.y)
-            # if the cup is in the middle two quadrants of the table
-            if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
-                rospy.logerr("HI")
-                rospy.logerr(self.table_y/4)
-                return False
-        return True
+        return False
 
     def assing_cup_st1(self,hand):
         """
@@ -291,14 +277,22 @@ class Scene():
     def get_next_sorting_position(self,hand):
         """
         Return the position that we should leave cup on inLine workstation
+        return type: tuple (x,y)
         """
-        pass
+        #this is fake needs to implemented
+        if(hand=="left_hand"):
+            return (1,0.9)
+        elif(hand=="right_hand"):
+            return (1,-0.9)
+        else:
+            rospy.logerr("ERROR IN get_next_sorting_position")
 
-    def create_sorting_list_position(self):
+    def create_sorted_list_position(self):
         """
         create a list for each hand that has the position we should leave each cup at inLine workstation
         """
-
+        self.sorted_list_pos_left =[(1.2,0.9),(0.8,0.9)] 
+        self.sorted_list_pos_right=[(1,-0.9)]
         pass
 
     
