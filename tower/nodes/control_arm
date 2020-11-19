@@ -500,7 +500,7 @@ class Handler:
                 rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
                 rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
                 self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
-
+                
             else:
                 hand = useHandList[i]
                 placePos = placePosList[i]
@@ -516,8 +516,8 @@ class Handler:
         """ grab and place a cup to another position
             
             Args: 
-                hand(String) - name of gripper to use
-                cupPos(x, y, z) - position of cup
+                grabPos (x, y)
+                placePos (x,y )
         """
         rospy.loginfo("open gripper")
         self.gripper_control(state=True, gripper=hand)
@@ -569,6 +569,9 @@ class Handler:
     def grab_and_place_two_hands(self, leftPos, rightPos):
         """ grab and place a cup to another position using both hands
             
+            Args:
+                laftPose (grab, place) where grab = (x, y, z), place = (x, y, z)
+                rightPos (grab, place) where grab = (x, y, z), place = (x, y, z)
         """
         rospy.loginfo("open gripper")
         self.gripper_control(state=True, gripper="left_gripper")

@@ -31,7 +31,7 @@ class BuildTower():
         
         # third cup
         useHand.append("right_gripper")
-        x = self.centerY
+        y = self.centerY
         z = self.tableHeight + self.height
         placePos.append((self.towerX, y, z))       
 
