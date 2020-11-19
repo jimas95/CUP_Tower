@@ -50,9 +50,9 @@ class Handler:
         self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
         # self.right_hand_group = moveit_commander.MoveGroupCommander("right_hand", robot_description='robot_description')
         self.right_gripper = Gripper('right')
-        # self.right_gripper.calibrate()
+        self.right_gripper.calibrate()
         self.left_gripper = Gripper('left')
-        # self.left_gripper.calibrate()
+        self.left_gripper.calibrate()
 
         self.step = rospy.Service("step", Step, self.step_callback)
         self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
