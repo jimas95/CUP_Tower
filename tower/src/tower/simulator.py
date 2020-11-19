@@ -81,7 +81,9 @@ class Scene():
         self.table_x = rospy.get_param("table_x")
         self.table_y = rospy.get_param("table_y")
         self.table_z = rospy.get_param("table_z")
-
+        self.table_posx = 1      #WILL GET FROM YAML ADD LATER
+        self.table_posy = 0
+        self.table_posz = 0
         self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
@@ -166,11 +168,34 @@ class Scene():
         cup1 = self.gms("Cup_1","base")
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
+
         self.add_cup("Cup_1",cup1.pose.position)
         self.add_cup("Cup_2",cup2.pose.position)
         self.add_cup("Cup_3",cup3.pose.position)
+
+        #table = self.sms("Table", "base")
+
         table = self.gms("Table","base")
+        rospy.logerr(table)
         self.add_table("Table",table.pose.position)
+    
+    def set_table_pos(self):
+        state_msg = ModelState()
+        state_msg.model_name = 'Table'
+        state_msg.pose.position.x = self.table_posx
+        state_msg.pose.position.y = self.table_posy
+        state_msg.pose.position.z = self.table_posz
+        # state_msg.pose.orientation.x = 0
+        # state_msg.pose.orientation.y = 0
+        # state_msg.pose.orientation.z = 0
+        # state_msg.pose.orientation.w = 1
+        rospy.logerr(state_msg.pose.position)
+        rospy.wait_for_service("/gazebo/set_model_state")
+        table = self.sms(state_msg)
+        self.add_table("Table",state_msg.pose.position)
+
+       
+
 
 
 
@@ -231,8 +256,6 @@ class Scene():
       
    
 
-
-    def detach_box(self, cup_name, ee_link, timeout=4):
 
     def detach_cup(self,cup_name,ee_link, timeout=4):
         """detach a cup from robot
