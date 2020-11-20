@@ -53,7 +53,6 @@ class Handler:
         # create scene 
         self.myscene = Scene(scene,REAL_ROBOT)
         self.myscene.create_scene()
-        self.myscene.create_sorting_list(True, "OutWorkspace") #False for first
         self.myscene.restart_scene_workStation()
 
         # tower class 
@@ -279,12 +278,12 @@ class Handler:
                 rightPlace = placePosList[i]
                 leftPlace = placePosList[i+1]
                 i += 2
-                # rightGrabPos = self.myscene.grab_next_pos("right_gripper")
-                # rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z)
-                # leftGrabPos = self.myscene.grab_next_pos("left_gripper")
-                # leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
-                rospy.loginfo(f"left_gripper =  --> {leftPlace}")
-                rospy.loginfo(f"right_gripper =  --> {rightPlace}")
+                leftCup = self.myscene.grab_next_cup("left_gripper")
+                leftGrab = self.myscene.get_cup_position(leftCup)
+                rightCup = self.myscene.grab_next_cup("right_gripper")
+                rightGrab = self.myscene.get_cup_position(rightCup)
+                rospy.loginfo(f"left_gripper = {leftCup}  {leftGrab}--> {leftPlace}")
+                rospy.loginfo(f"right_gripper = {rightCUp} {rightGrab}--> {rightPlace}")
                 # self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
                 
             else:
