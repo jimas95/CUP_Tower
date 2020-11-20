@@ -330,12 +330,12 @@ class Scene():
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"InWorkspace")
+        dictio_left,dictio_right = self.create_dictionary(True,"InWorkspace")
         if(hand=="left_gripper"):
-            cup_name = self.get_min_of_dict(sorted_list_pos_left)
+            cup_name = self.get_min_of_dict(dictio_left)
 
         elif(hand=="right_gripper"):
-            cup_name = self.get_min_of_dict(sorted_list_pos_right)
+            cup_name = self.get_min_of_dict(dictio_right)
         else:
             rospy.logerr("ERROR in assing_cup_st1 no hand recognised!")
             return "Cup_0"
@@ -352,14 +352,14 @@ class Scene():
 
 
 
-    def create_sorting_list(self,workspace):
+    def create_dictionary(self,workspace):
         """
         creates 2 lists(sorted) for each arm that contain th cups position 
             Arg: 
                 workspace --> InWorkspace or OutWorkspace choose to populate the list with cups that are in sorted WS or not
         """
-        sorted_list_pos_left = {}
-        sorted_list_pos_right = {}
+        dictio_left = {}
+        dictio_right = {}
 
         # get only sorted cups & split  left right lists
         condition = self.table_y/4.0
@@ -369,30 +369,30 @@ class Scene():
             cup_pos = self.gms(cup_name,"base").pose.position
             if(workspace=="OutWorkspace"):
                 if(cup_pos.y>condition):
-                    sorted_list_pos_left[cup_name] = cup_pos
+                    dictio_left[cup_name] = cup_pos
                 elif(cup_pos.y<-1*condition):
-                    sorted_list_pos_right[cup_name]=cup_pos
+                    dictio_right[cup_name]=cup_pos
             elif(workspace=="InWorkspace"):
                 if cup_pos.y < condition and cup_pos.y > -1*condition:
                     if(cup_pos.y>0):
-                        sorted_list_pos_left[cup_name] = cup_pos
+                        dictio_left[cup_name] = cup_pos
                     elif(cup_pos.y<0):
-                        sorted_list_pos_right[cup_name] = cup_pos
+                        dictio_right[cup_name] = cup_pos
 
         #sort list with min(x) being the first
-        return sorted_list_pos_left,sorted_list_pos_right
+        return dictio_left,dictio_right
 
 
     def grab_next_cup(self,hand):
         """
         Return the cup_name  of the next cup that should be grabed from the sorting workspace
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list("OutWorkspace")
+        dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
         if(hand=="left_gripper"):
-            cup_name = self.get_min_of_dict(sorted_list_pos_left)
+            cup_name = self.get_min_of_dict(dictio_left)
 
         elif(hand=="right_gripper"):
-            cup_name = self.get_min_of_dict(sorted_list_pos_right)
+            cup_name = self.get_min_of_dict(dictio_right)
         else:
             rospy.logerr("ERROR in grab_next_pos no hand recognised!")
             return "Cup_0"
@@ -402,17 +402,17 @@ class Scene():
         """
         Returns the position of the next cup that will be placed at the sorting workspace
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list("OutWorkspace")
+        dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
 
         #handle expeption of first cup
-        if(hand=="left_gripper" and len(sorted_list_pos_left)==0):
+        if(hand=="left_gripper" and len(dictio_left)==0):
             pos = Pose().position
             pos.x = 0.8
             pos.y = self.table_y/4.0 +0.2
             pos.z = self.cup_height
             return pos
 
-        if(hand=="right_gripper" and len(sorted_list_pos_right)==0):
+        if(hand=="right_gripper" and len(dictio_right)==0):
             pos = Pose().position
             pos.x = 0.8
             pos.y = -1*self.table_y/4.0 - 0.2
@@ -420,10 +420,10 @@ class Scene():
             return pos
 
         if(hand=="left_gripper"):
-            diction = sorted_list_pos_left
+            diction = dictio_left
             
         elif(hand=="right_gripper"):
-            diction = sorted_list_pos_right
+            diction = dictio_right
         else:
             rospy.logerr("ERROR in place_pos no hand recognised!")
             return Pose().position
@@ -437,6 +437,6 @@ class Scene():
         """ return the maximum key from dictionary based on position.x"""
         return [k for k,v in dictio.items() if v==max(dictio.values().x)][0]
 
-    def get_min_of_dict(self,dict):
+    def get_min_of_dict(self,dictio):
         """ return the minimum key from dictionary based on position.x"""
         return [k for k,v in dictio.items() if v==min(dictio.values().x)][0]
