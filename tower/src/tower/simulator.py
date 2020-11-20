@@ -330,93 +330,95 @@ class Scene():
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"InWorkspace")
+        dictio_left,dictio_right = self.create_dictionary(True,"InWorkspace")
         if(hand=="left_gripper"):
-            pos = sorted_list_pos_left.pop()
+            cup_name = self.get_min_of_dict(dictio_left)
 
         elif(hand=="right_gripper"):
-            pos = sorted_list_pos_right.pop()
+            cup_name = self.get_min_of_dict(dictio_right)
         else:
             rospy.logerr("ERROR in assing_cup_st1 no hand recognised!")
-            return Pose()
-        return pos
+            return "Cup_0"
+        return cup_name
        
 
 
     def get_cup_position(self,name):
         """return the position of Cup
         """
+        if(name=="Cup_0"):
+            cup = Pose()
+            cup.pose.position.x = 0
+            cup.pose.position.y = 0
+            cup.pose.position.z = 0
+            return cup.pose.position
         cup = self.gms(name,"base")
-        return cup.pose
+        return cup.pose.position
 
 
-    def sortFunct(self,pos):
-        return pos.x
 
 
-    def create_sorting_list(self,order,workspace):
+    def create_dictionary(self,workspace):
         """
         creates 2 lists(sorted) for each arm that contain th cups position 
             Arg: 
-                order --> Boolean , sort order 
                 workspace --> InWorkspace or OutWorkspace choose to populate the list with cups that are in sorted WS or not
         """
-        sorted_list_pos_left = [] 
-        sorted_list_pos_right = []
+        dictio_left = {}
+        dictio_right = {}
 
         # get only sorted cups & split  left right lists
         condition = self.table_y/4.0
         for i in range(self.cup_n):
             k = i + 1
-            cup_pos = self.gms("Cup_"+str(k),"base").pose.position
+            cup_name = "Cup_"+str(k)
+            cup_pos = self.gms(cup_name,"base").pose.position
             if(workspace=="OutWorkspace"):
                 if(cup_pos.y>condition):
-                    sorted_list_pos_left.append(cup_pos)
+                    dictio_left[cup_name] = cup_pos
                 elif(cup_pos.y<-1*condition):
-                    sorted_list_pos_right.append(cup_pos)
+                    dictio_right[cup_name]=cup_pos
             elif(workspace=="InWorkspace"):
                 if cup_pos.y < condition and cup_pos.y > -1*condition:
                     if(cup_pos.y>0):
-                        sorted_list_pos_left.append(cup_pos)
+                        dictio_left[cup_name] = cup_pos
                     elif(cup_pos.y<0):
-                        sorted_list_pos_right.append(cup_pos)          
+                        dictio_right[cup_name] = cup_pos
 
         #sort list with min(x) being the first
-        sorted_list_pos_left.sort( reverse=order,key=self.sortFunct)
-        sorted_list_pos_right.sort(reverse=order,key=self.sortFunct)
-        return sorted_list_pos_left,sorted_list_pos_right
+        return dictio_left,dictio_right
 
 
-    def grab_next_pos(self,hand):
+    def grab_next_cup(self,hand):
         """
-        Return the position of the next cup that should be grabed from the sorting workspace
+        Return the cup_name  of the next cup that should be grabed from the sorting workspace
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"OutWorkspace")
+        dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
         if(hand=="left_gripper"):
-            pos = sorted_list_pos_left.pop()
+            cup_name = self.get_min_of_dict(dictio_left)
 
         elif(hand=="right_gripper"):
-            pos = sorted_list_pos_right.pop()
+            cup_name = self.get_min_of_dict(dictio_right)
         else:
             rospy.logerr("ERROR in grab_next_pos no hand recognised!")
-            return Pose().position
-        return pos
+            return "Cup_0"
+        return cup_name
 
     def place_next_pos(self,hand):
         """
         Returns the position of the next cup that will be placed at the sorting workspace
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(False,"OutWorkspace")
+        dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
 
         #handle expeption of first cup
-        if(hand=="left_gripper" and len(sorted_list_pos_left)==0):
+        if(hand=="left_gripper" and len(dictio_left)==0):
             pos = Pose().position
             pos.x = 0.8
             pos.y = self.table_y/4.0 +0.2
             pos.z = self.cup_height
             return pos
 
-        if(hand=="right_gripper" and len(sorted_list_pos_right)==0):
+        if(hand=="right_gripper" and len(dictio_right)==0):
             pos = Pose().position
             pos.x = 0.8
             pos.y = -1*self.table_y/4.0 - 0.2
@@ -424,13 +426,23 @@ class Scene():
             return pos
 
         if(hand=="left_gripper"):
-            pos = sorted_list_pos_left.pop()
-
+            diction = dictio_left
+            
         elif(hand=="right_gripper"):
-            pos = sorted_list_pos_right.pop()
+            diction = dictio_right
         else:
             rospy.logerr("ERROR in place_pos no hand recognised!")
             return Pose().position
 
+        cup_name = self.get_max_of_dict(diction)
+        pos = diction[cup_name]
         pos.x = pos.x + self.cup_radius*1.2
         return pos
+
+    def get_max_of_dict(self,dictio):
+        """ return the maximum key from dictionary based on position.x"""
+        return [k for k,v in dictio.items() if v==max(dictio.values().x)][0]
+
+    def get_min_of_dict(self,dictio):
+        """ return the minimum key from dictionary based on position.x"""
+        return [k for k,v in dictio.items() if v==min(dictio.values().x)][0]
