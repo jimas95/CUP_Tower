@@ -299,7 +299,7 @@ class Scene():
             # rospy.loginfo(f"({tagX}, {tagY}, {tagZ})")
             return (tagX, tagY, tagZ)
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            rospy.logerr("NOTHING")
+            rospy.logerr("ERROR in listen_tag no lookup_transform found!")
             return (0, 0, 0)
 
 
