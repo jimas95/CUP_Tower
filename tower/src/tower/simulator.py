@@ -368,7 +368,7 @@ class Scene():
         condition = self.table_y/4.0
         for i in range(self.cup_n):
             k = i + 1
-            cup_pos = self.gms("Cup_"+str(k),"base").pose
+            cup_pos = self.gms("Cup_"+str(k),"base").pose.position
             if(workspace=="OutWorkspace"):
                 if(cup_pos.y>condition):
                     sorted_list_pos_left.append(cup_pos)
