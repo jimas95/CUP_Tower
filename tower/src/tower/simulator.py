@@ -370,16 +370,16 @@ class Scene():
             k = i + 1
             cup_pos = self.gms("Cup_"+str(k),"base").pose
             if(workspace=="OutWorkspace"):
-                if(cup.y>condition):
-                    self.sorted_list_pos_left.append(cup_pos)
-                elif(cup.y<-1*condition):
-                    self.sorted_list_pos_right.append(cup_pos)
+                if(cup_pos.y>condition):
+                    sorted_list_pos_left.append(cup_pos)
+                elif(cup_pos.y<-1*condition):
+                    sorted_list_pos_right.append(cup_pos)
             elif(workspace=="InWorkspace"):
-                if y_pos < condition and y_pos > -1*condition:
-                    if(cup.y>0):
-                        self.sorted_list_pos_left.append(cup_pos)
-                    elif(cup.y<0):
-                        self.sorted_list_pos_right.append(cup_pos)          
+                if cup_pos.y < condition and cup_pos.y > -1*condition:
+                    if(cup_pos.y>0):
+                        sorted_list_pos_left.append(cup_pos)
+                    elif(cup_pos.y<0):
+                        sorted_list_pos_right.append(cup_pos)          
 
         #sort list with min(x) being the first
         sorted_list_pos_left.sort( reverse=order,key=self.sortFunct)
