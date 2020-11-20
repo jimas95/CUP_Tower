@@ -195,7 +195,7 @@ class Handler:
         elif req.choice == 5:
             cup1 = self.myscene.get_cup_position("Cup_1")
             rospy.loginfo(f"cup1 = {cup1}")
-            self.grab_and_place_one_hand("right_gripper", (cup1.position.x, cup1.position.y, cup1.position.z), (1.0, -0.0681, -0.02))
+            self.grab_and_place_one_hand("right_gripper", (cup1.x, cup1.y, cup1.z), (1.0, -0.0681, -0.02))
             return "right hand grab and place cup"
         elif req.choice == 6:
             self.grab_and_place_two_hands(((1.0, 0.5, 0.0), (1.0, 0.0681, 0.0)), ((1.0, -0.5, 0.0), (1.0, -0.0681, 0.0)))
@@ -451,6 +451,7 @@ class Handler:
         13 Repeat until all cups are sorted
         """
         # NEED TO HANDLE EXPECTION OF ONLY ONE CUP LEFT AND SECOND ARM HAS TO STAY NULL
+        #go_home_position
         
         # rospy.logerr("Go to home position")
         # self.go_home_position()
@@ -463,26 +464,40 @@ class Handler:
         while(not self.myscene.cups_sorted()):
 
             #Assign a cup to grasp (left arm gets y>0 right arm gets y<0)
-            rospy.logerr("Set grasping cups")
-            #Get position to pick up the cup
-            cup_posL_grab = self.myscene.assing_cup_st1("left_gripper")
-            cup_posR_grab = self.myscene.assing_cup_st1("right_gripper")
-            rospy.logdebug("cup_posL_grab")
-            rospy.logdebug(cup_posL_grab)
-            rospy.logdebug("cup_posR_grab")
-            rospy.logdebug(cup_posR_grab)
-            # Get position to place cup
-            cup_posL_place = self.myscene.place_next_pos("left_gripper")
-            cup_posR_place = self.myscene.place_next_pos("right_gripper")
-            rospy.logdebug("cup_posL_place")
-            rospy.logdebug(cup_posL_place)
-            rospy.logdebug("cup_posR_place")
-            rospy.logdebug(cup_posR_place)
+            rospy.logerr("Assing next cups to grab")
+            cup_nameL = self.myscene.assing_cup_st1("left_hand")
+            cup_nameR = self.myscene.assing_cup_st1("right_hand")   
+            rospy.logdebug(cup_nameL)
+            rospy.logdebug(cup_nameR)
 
-            #Execute grab and place
-            rospy.logerr("Execute grab and place")
-            self.grab_and_place_two_hands((cup_posL_grab,cup_posL_place),
-                                          (cup_posR_grab,cup_posR_place))
+            #Get next grab cup position
+            rospy.logerr("Get next grab cup position")
+            cup_grab_posL = self.myscene.get_cup_position(cup_nameL)
+            cup_grab_posR = self.myscene.get_cup_position(cup_nameR)
+            rospy.logdebug(cup_nameL)
+            rospy.logdebug(cup_grab_posL)
+            rospy.logdebug(cup_nameR)
+            rospy.logdebug(cup_grab_posR)
+
+
+
+
+            #Get position to leave cup
+            rospy.logerr("Get position to leave cup")
+            cup_place_posL = self.myscene.place_next_pos("left_gripper")
+            cup_place_posR = self.myscene.place_next_pos("right_gripper")
+
+
+            #CExecute Grab & place
+            rospy.logerr("Execute Grab & place")
+            hand_L = (cup_place_posL,cup_grab_posL,cup_nameL)
+            hand_R = (cup_place_posR,cup_grab_posR,cup_nameR)
+            rospy.logdebug("Grab & place input")
+            rospy.logdebug(hand_L)
+            rospy.logdebug(" ")
+            rospy.logdebug(hand_R)
+
+            self.grab_and_place_two_hands(hand_L,hand_R)
 
 
 
