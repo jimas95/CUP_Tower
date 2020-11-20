@@ -91,12 +91,11 @@ class Scene():
         self.table_posx = rospy.get_param("t_x")    
         self.table_posy = rospy.get_param("t_y")
         self.table_posz = rospy.get_param("t_z")
-        self.number_cups = 3
 
         # rospy.logerr(self.cup_radius)
 
 
-        self.cup_n = 6
+        self.cup_n = 3
         self.buffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.buffer)
 
@@ -110,7 +109,7 @@ class Scene():
         box_pose.header.frame_id = 'world'
         box_pose.pose.orientation.w = 1.0
         
-        tablePos = self.fake_gms("Table", "").pose
+        tablePos = self.gms("Table", "base").pose
         # rospy.loginfo(f"table pos = {tablePos}")
         box_pose.pose.position.x = tablePos.position.x
         box_pose.pose.position.y = tablePos.position.y
@@ -138,7 +137,7 @@ class Scene():
         cylinder_pose.pose.position.z = position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
 
         self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
-        return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
+        return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=1)
 
     
 
@@ -176,23 +175,15 @@ class Scene():
     def create_scene(self):
         """Creates scene at moveIt with 3 cups at the table
         """
-        cup1 = self.gms("Cup_1","base")
-        cup2 = self.gms("Cup_2","base")
-        cup3 = self.gms("Cup_3","base")
 
-        cupPos = self.fake_gms("Cup_1", "").pose
-        self.add_cup("Cup_1",cupPos.position)
-        cupPos = self.fake_gms("Cup_2", "").pose
-        self.add_cup("Cup_2",cupPos.position)
-        cupPos = self.fake_gms("Cup_3", "").pose
-        self.add_cup("Cup_3",cupPos.position)
-
-        #table = self.sms("Table", "base")
+        for i in range(self.cup_n):
+            cup_name = "Cup_"+str(i+1)
+            cupPos = self.gms(cup_name,"base").pose
+            self.add_cup(cup_name,cupPos.position)
 
         table = self.gms("Table","base")
-        # rospy.logerr(table)
         self.add_table("Table",table.pose.position)
-
+        ModelState("Table",table.pose,Twist(),"base")
     
     def set_table_posistion(self):
         """Adds table in rviz and gazebo at a position that
@@ -280,27 +271,19 @@ class Scene():
 
     def fake_gms(self, name,base):
         pos = Pose()
-        if(name=="Cup_1"):
-            tagPos = self.listen_tag(2)
-            pos.position.x= tagPos[0]
-            pos.position.y= tagPos[1]
-            pos.position.z= tagPos[2]
-        elif(name=="Cup_2"):
-            tagPos = self.listen_tag(3)
-            pos.position.x= tagPos[0]
-            pos.position.y= tagPos[1]
-            pos.position.z= tagPos[2]
-        elif(name=="Cup_3"):
-            tagPos = self.listen_tag(4)
-            pos.position.x= tagPos[0]
-            pos.position.y= tagPos[1]
-            pos.position.z= tagPos[2]
-        elif(name=="Table"):
+        if(name=="Table"):
             tagPos = self.listen_tag(1)
             pos.position.x= tagPos[0]
             pos.position.y= tagPos[1]
             pos.position.z= tagPos[2]
             rospy.loginfo(f"table tag = {tagPos}")
+        else:
+            id = int(name[-1])+1
+            tagPos = self.listen_tag(2)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
+
         return ModelState(name,pos,Twist(), "base")
 
     def listen_tag(self, i):
