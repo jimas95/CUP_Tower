@@ -18,6 +18,8 @@ from moveit_msgs.msg import MoveItErrorCodes
 from gazebo_msgs.srv import GetModelState,SetModelState
 from geometry_msgs.msg import Pose,Point,Twist
 from gazebo_msgs.msg import ModelState
+import tf2_ros
+
 
 
 
@@ -95,6 +97,8 @@ class Scene():
 
 
         self.cup_n = 6
+        self.buffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.buffer)
 
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
@@ -106,9 +110,11 @@ class Scene():
         box_pose.header.frame_id = 'world'
         box_pose.pose.orientation.w = 1.0
         
-        box_pose.pose.position.x = self.table_posx
-        box_pose.pose.position.y = self.table_posy
-        box_pose.pose.position.z = self.table_posz
+        tablePos = self.fake_gms("Table", "").pose
+        # rospy.loginfo(f"table pos = {tablePos}")
+        box_pose.pose.position.x = tablePos.position.x
+        box_pose.pose.position.y = tablePos.position.y
+        box_pose.pose.position.z = tablePos.position.z
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
@@ -174,14 +180,17 @@ class Scene():
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
 
-        # self.add_cup("Cup_1",cup1.pose.position)
-        # self.add_cup("Cup_2",cup2.pose.position)
-        # self.add_cup("Cup_3",cup3.pose.position)
+        cupPos = self.fake_gms("Cup_1", "").pose
+        self.add_cup("Cup_1",cupPos.position)
+        cupPos = self.fake_gms("Cup_2", "").pose
+        self.add_cup("Cup_2",cupPos.position)
+        cupPos = self.fake_gms("Cup_3", "").pose
+        self.add_cup("Cup_3",cupPos.position)
 
         #table = self.sms("Table", "base")
 
         table = self.gms("Table","base")
-        rospy.logerr(table)
+        # rospy.logerr(table)
         self.add_table("Table",table.pose.position)
 
     
@@ -272,46 +281,46 @@ class Scene():
     def fake_gms(self, name,base):
         pos = Pose()
         if(name=="Cup_1"):
-            pos.position.x= 1.0
-            pos.position.y= 0.5
-            pos.position.z= -0.06
+            tagPos = self.listen_tag(2)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
         elif(name=="Cup_2"):
-            pos.position.x= 1.0
-            pos.position.y= -0.5
-            pos.position.z= 0.06
+            tagPos = self.listen_tag(3)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
         elif(name=="Cup_3"):
-            pos.position.x= 1.0
-            pos.position.y= -0.4
-            pos.position.z= 0.01
+            tagPos = self.listen_tag(4)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
         elif(name=="Table"):
-            pos.position.x= self.table_posx
-            pos.position.y= self.table_posy
-            pos.position.z= self.table_posz
+            tagPos = self.listen_tag(1)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
+            rospy.loginfo(f"table tag = {tagPos}")
         return ModelState(name,pos,Twist(), "base")
 
+    def listen_tag(self, i):
+        """ 
+        Listens to the most recent end_effector's position with respect to the base_link. 
+        """
+        try:
+            name = "tag_" + str(i)
+            trans = self.buffer.lookup_transform('base', name, rospy.Time())
+            # rospy.loginfo(f"{trans}")
+            tagX = trans.transform.translation.x
+            tagY = trans.transform.translation.y
+            tagZ = trans.transform.translation.z
+            # rospy.loginfo(f"({tagX}, {tagY}, {tagZ})")
+            return (tagX, tagY, tagZ)
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            rospy.logerr("NOTHING")
+            return (0, 0, 0)
 
-    def fake_sms(self, ModelState):
-        pass
 
-    def fake_gms(self, name,base):
-        pos = Pose()
-        if(name=="Cup_1"):
-            pos.position.x= 1.0
-            pos.position.y= 0.5
-            pos.position.z= -0.06
-        elif(name=="Cup_2"):
-            pos.position.x= 1.0
-            pos.position.y= -0.5
-            pos.position.z= 0.06
-        elif(name=="Cup_3"):
-            pos.position.x= 1.0
-            pos.position.y= -0.4
-            pos.position.z= 0.01
-        elif(name=="Table"):
-            pos.position.x= 1.0
-            pos.position.y= 0.0
-            pos.position.z= 0.0
-        return ModelState(name,pos,Twist(), "base")
 
 
     def cups_sorted(self):
@@ -323,8 +332,8 @@ class Scene():
         for cup in cups_list:
             position = self.get_cup_position(cup)
             y_pos = position.position.y
-            rospy.logerr(cup)
-            rospy.logerr(position.position.y)
+            # rospy.logerr(cup)
+            # rospy.logerr(position.position.y)
             # if the cup is in the middle two quadrants of the table
             if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
                 rospy.logerr("HI")
@@ -390,7 +399,7 @@ class Scene():
             R_pose.position.y = -0.6
             R_pose.position.z = -0.09
             R_pose.position.x = R_pose.position.x + 2*radious*i
-            rospy.logerr(L_pose)
+            # rospy.logerr(L_pose)
             self.sorted_list_pos_right.append(R_pose)
         
         if(reverse):

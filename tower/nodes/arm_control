@@ -17,6 +17,7 @@ from tf.transformations import quaternion_from_euler, euler_from_quaternion
 from baxter_interface import Gripper
 from tower.simulator import Scene
 from tower.buildTower import BuildTower
+import time
 
 REAL_ROBOT = True # Real Robot
 # REAL_ROBOT = False # fake Robot
@@ -29,7 +30,8 @@ class Handler:
     def __init__(self):
         self.HOME_JOINTS = [0.5,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
                             -0.5, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
-        self.PRE_GRASP_POS = [-0.03, 0.0, 0.03] 
+        self.PRE_GRASP_POS = [-0.05, 0.0, 0.0]
+        self.CUP_Z_TOL = 0.02
         self.BEFORE_PLACE_POS = [0.0, 0.0, 0.1]
         
         # robot control 
@@ -50,6 +52,7 @@ class Handler:
         self.myscene = Scene(scene,REAL_ROBOT)
         self.myscene.create_scene()
         self.myscene.create_sorted_list_position(True) #False for first
+        self.myscene.restart_scene_workStation()
 
         # tower class 
         self.buildTower = BuildTower()
@@ -119,7 +122,6 @@ class Handler:
         """
         
         q = quaternion_from_euler(0, 1.5707,0)
-        pose.position.z +=0.2
         pose.orientation.x = q[0]
         pose.orientation.y = q[1]
         pose.orientation.z = q[2]
@@ -179,13 +181,15 @@ class Handler:
             self.myscene.restart_scene_inline()
             return "restart scene inline"
         elif req.choice == 4:
-            self.grab_and_place_one_hand("left_gripper", (1.0, 0.5, 0.2), (1.0, 0.0681, 0.2))
+            self.grab_and_place_one_hand("left_gripper", (1.0, 0.5, -0.02), (1.0, 0.0681, -0.02))
             return "left hand grab and place cup"
         elif req.choice == 5:
-            self.grab_and_place_one_hand("right_gripper", (1.0, -0.5, 0.2), (1.0, -0.0681, 0.2))
+            cup1 = self.myscene.get_cup_position("Cup_1")
+            rospy.loginfo(f"cup1 = {cup1}")
+            self.grab_and_place_one_hand("right_gripper", (cup1.position.x, cup1.position.y, cup1.position.z), (1.0, -0.0681, -0.02))
             return "right hand grab and place cup"
         elif req.choice == 6:
-            self.grab_and_place_two_hands(((1.0, 0.5, 0.2), (1.0, 0.0681, 0.2)), ((1.0, -0.5, 0.2), (1.0, -0.0681, 0.2)))
+            self.grab_and_place_two_hands(((1.0, 0.5, 0.0), (1.0, 0.0681, 0.0)), ((1.0, -0.5, 0.0), (1.0, -0.0681, 0.0)))
             return "both hands grab and place "
         elif req.choice == 7:
             self.state_2(3)
@@ -197,8 +201,7 @@ class Handler:
             self.gripper_control(state=True,gripper="both")
             return "open both grippers"
         elif req.choice == 10:
-            self.state_2(6)
-            return "building tower with six cups"
+            self.myscene,
 
 
         return "N/A"
@@ -230,7 +233,7 @@ class Handler:
                 leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
                 rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
                 rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
-                self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
+                # self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
                 
             else:
                 hand = useHandList[i]
@@ -238,7 +241,7 @@ class Handler:
                 grabPosition = self.myscene.get_next_sorting_position(hand).position
                 grabPos = (grabPosition.x, grabPosition.y, grabPosition.z)
                 rospy.loginfo(f"{hand} only = {grabPos} --> {placePos}")
-                self.grab_and_place_one_hand(hand, grabPos, placePos)
+                # self.grab_and_place_one_hand(hand, grabPos, placePos)
                 i += 1
 
 
@@ -250,6 +253,7 @@ class Handler:
                 grabPos (x, y) - where to grab cup
                 placePos (x, y) - where to place cup
         """
+        rospy.loginfo(f"{grabPos} --> {placePos}")
         rospy.loginfo("open gripper")
         self.gripper_control(state=True, gripper=hand)
 
@@ -257,17 +261,21 @@ class Handler:
         pose_goal = Pose()
         pose_goal.position.x = grabPos[0] + self.PRE_GRASP_POS[0]
         pose_goal.position.y = grabPos[1] + self.PRE_GRASP_POS[1]
-        pose_goal.position.z = grabPos[2] + self.PRE_GRASP_POS[2]
+        pose_goal.position.z = grabPos[2] + self.PRE_GRASP_POS[2] - self.CUP_Z_TOL
         pose_goal = self.orientation_forward(pose_goal)
+        rospy.loginfo(f"{pose_goal}")
         self.go_to(pose_goal,hand)
         self.execute_path()
 
+        time.sleep(2)
+        
         rospy.loginfo("grab")
         pose_goal = Pose()
-        pose_goal.position.x = grabPos[0]
-        pose_goal.position.y = grabPos[1]
-        pose_goal.position.z = grabPos[2]
+        pose_goal.position.x = grabPos[0] - self.PRE_GRASP_POS[0]
+        pose_goal.position.y = grabPos[1] - self.PRE_GRASP_POS[1]
+        pose_goal.position.z = grabPos[2] - self.PRE_GRASP_POS[2] - self.CUP_Z_TOL
         pose_goal = self.orientation_forward(pose_goal)
+        rospy.loginfo(f"{pose_goal}")
         self.go_to(pose_goal,hand)
         self.execute_path()
 
