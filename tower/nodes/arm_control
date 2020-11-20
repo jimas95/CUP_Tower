@@ -53,6 +53,7 @@ class Handler:
         # create scene 
         self.myscene = Scene(scene,REAL_ROBOT)
         self.myscene.create_scene()
+        self.myscene.create_sorting_list(True, "OutWorkspace") #False for first
         self.myscene.restart_scene_workStation()
 
         # tower class 
@@ -198,10 +199,11 @@ class Handler:
         elif req.choice == 5:
             cup1 = self.myscene.get_cup_position("Cup_1")
             rospy.loginfo(f"cup1 = {cup1}")
-            self.grab_and_place_one_hand("right_gripper", (cup1.position.x, cup1.position.y, cup1.position.z), (1.0, -0.0681, -0.02))
+            # self.grab_and_place_one_hand("right_gripper", (cup1.position.x, cup1.position.y, cup1.position.z), (1.0, -0.0681, -0.02))
             return "right hand grab and place cup"
         elif req.choice == 6:
-            self.grab_and_place_two_hands(((1.0, 0.5, 0.0), (1.0, 0.0681, 0.0)), ((1.0, -0.5, 0.0), (1.0, -0.0681, 0.0)))
+            self.grab_and_place_two_hands(((1.0, 0.5, 0.0), (1.0, 0.0681, 0.0), "Cup_1"), \
+                                        ((1.0, -0.5, 0.0), (1.0, -0.0681, 0.0), "Cup_2"))
             return "both hands grab and place "
         elif req.choice == 7:
             self.state_2(3)
@@ -273,27 +275,20 @@ class Handler:
 
         i = 0
         while i < len(placePosList):
-            if useHandList[i] == "right_gripper" and (i < len(placePosList)-1 and useHandList[i+1] == "left_gripper"):
+            if useHandList[i] == "left_gripper" and (i < len(placePosList)-1 and useHandList[i+1] == "right_gripper"):
                 rightPlace = placePosList[i]
                 leftPlace = placePosList[i+1]
                 i += 2
-                rightGrabPos = self.myscene.grab_next_pos("right_gripper")
-                rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z)
-                leftGrabPos = self.myscene.grab_next_pos("left_gripper")
-                leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
-                rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
-                rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
+                # rightGrabPos = self.myscene.grab_next_pos("right_gripper")
+                # rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z)
+                # leftGrabPos = self.myscene.grab_next_pos("left_gripper")
+                # leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
+                rospy.loginfo(f"left_gripper =  --> {leftPlace}")
+                rospy.loginfo(f"right_gripper =  --> {rightPlace}")
                 # self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
                 
             else:
-                hand = useHandList[i]
-                placePos = placePosList[i]
-                grabPosition = self.myscene.grab_next_pos(hand)
-                grabPos = (grabPosition.x, grabPosition.y, grabPosition.z)
-                rospy.loginfo(f"{hand} only = {grabPos} --> {placePos}")
-                # self.grab_and_place_one_hand(hand, grabPos, placePos)
-                i += 1
-
+                rospy.logerr("Wrong list of build tower")
     """
     def grab_and_place_one_hand(self, hand, grabPos, placePos):
          grab and place a cup to another position using one hand
