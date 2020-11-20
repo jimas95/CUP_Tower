@@ -116,10 +116,10 @@ class Scene():
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
-        self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
+        self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=1)
         
 
-    def add_cup(self,name, position, timeout=4):
+    def add_cup(self,name, position, timeout=1):
         """Adds a cup object at a specified position
         Args:
             name (str): name of cup to place in scene (ex. cup3)
@@ -195,7 +195,7 @@ class Scene():
         self.add_table("Table", pose.position)
 
 
-    def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
+    def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=1):
         """Copied from tutorial
         """
 
@@ -223,7 +223,7 @@ class Scene():
 
 
     # def attach_cup(self, ee_link, cup_name, robot,  timeout=4):
-    def attach_cup(self, ee_link, robot,cup_name,  timeout=4):
+    def attach_cup(self, ee_link, robot,cup_name,  timeout=1):
         """Attaches objects to the robot.
         Adds link names to touch_links array. 
         This tells the planning scene to ignore collisons between the robot and 
@@ -251,7 +251,7 @@ class Scene():
         return self.wait_for_state_update(cup_name, box_is_attached=True, box_is_known=False, timeout=timeout)
       
 
-    def detach_cup(self,cup_name,ee_link, timeout=4):
+    def detach_cup(self,cup_name,ee_link, timeout=1):
         """detach a cup from robot
 
         """
@@ -399,7 +399,7 @@ class Scene():
             pos = sorted_list_pos_right.pop()
         else:
             rospy.logerr("ERROR in grab_next_pos no hand recognised!")
-            return Pose()
+            return Pose().position
         return pos
 
     def place_next_pos(self,hand):
@@ -410,16 +410,16 @@ class Scene():
 
         #handle expeption of first cup
         if(hand=="left_gripper" and len(sorted_list_pos_left)==0):
-            pos = Pose()
+            pos = Pose().position
             pos.x = 0.8
             pos.y = self.table_y/4.0 +0.2
             pos.z = self.cup_height
             return pos
 
         if(hand=="right_gripper" and len(sorted_list_pos_right)==0):
-            pos = Pose
+            pos = Pose().position
             pos.x = 0.8
-            pos.y = -self.table_y/4.0 - 0.2
+            pos.y = -1*self.table_y/4.0 - 0.2
             pos.z = self.cup_height
             return pos
 
@@ -430,7 +430,7 @@ class Scene():
             pos = sorted_list_pos_right.pop()
         else:
             rospy.logerr("ERROR in place_pos no hand recognised!")
-            return Pose()
+            return Pose().position
 
-        pos.x = pos.x + cup_radius
+        pos.x = pos.x + self.cup_radius*1.2
         return pos
