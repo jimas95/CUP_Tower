@@ -215,10 +215,10 @@ class Handler:
             rospy.logdebug(res)
             return "check cups_sorted"
         elif req.choice == 101:
-            res = self.myscene.assing_cup_st1("left_gripper")
-            res = self.myscene.assing_cup_st1("right_gripper")
-            rospy.logdebug(res)
-            rospy.logdebug(res)
+            res1 = self.myscene.assing_cup_st1("left_gripper")
+            res2 = self.myscene.assing_cup_st1("right_gripper")
+            rospy.logdebug(res1)
+            rospy.logdebug(res2)
             return "check assing_cup_st1"
         elif req.choice == 102:
             res1,res2 = self.myscene.create_sorting_list(True,"InWorkspace")
@@ -226,16 +226,16 @@ class Handler:
             rospy.logdebug(res2)
             return "check create_sorting_list"
         elif req.choice == 103:
-            res = self.myscene.grab_next_pos("left_gripper")
-            res = self.myscene.grab_next_pos("right_gripper")
-            rospy.logdebug(res)
-            rospy.logdebug(res)
+            res1 = self.myscene.grab_next_pos("left_gripper")
+            res2 = self.myscene.grab_next_pos("right_gripper")
+            rospy.logdebug(res1)
+            rospy.logdebug(res2)
             return "check grab_next_pos"
         elif req.choice == 104:
-            res = self.myscene.place_next_pos("left_gripper")
-            res = self.myscene.place_next_pos("right_gripper")
-            rospy.logdebug(res)
-            rospy.logdebug(res)
+            res1 = self.myscene.place_next_pos("left_gripper")
+            res2 = self.myscene.place_next_pos("right_gripper")
+            rospy.logdebug(res1)
+            rospy.logdebug(res2)
             return "check place_next_pos"
 
         return "N/A"
@@ -261,9 +261,9 @@ class Handler:
                 rightPlace = placePosList[i]
                 leftPlace = placePosList[i+1]
                 i += 2
-                rightGrabPos = self.myscene.get_next_sorting_position("right_gripper").position
+                rightGrabPos = self.myscene.grab_next_pos("right_gripper")
                 rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z)
-                leftGrabPos = self.myscene.get_next_sorting_position("left_gripper").position
+                leftGrabPos = self.myscene.grab_next_pos("left_gripper")
                 leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
                 rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
                 rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
@@ -272,7 +272,7 @@ class Handler:
             else:
                 hand = useHandList[i]
                 placePos = placePosList[i]
-                grabPosition = self.myscene.get_next_sorting_position(hand).position
+                grabPosition = self.myscene.grab_next_pos(hand)
                 grabPos = (grabPosition.x, grabPosition.y, grabPosition.z)
                 rospy.loginfo(f"{hand} only = {grabPos} --> {placePos}")
                 # self.grab_and_place_one_hand(hand, grabPos, placePos)
