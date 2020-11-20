@@ -11,7 +11,7 @@ table_z: 0.05
 # table position
 t_x: 1
 t_y: 0
-t_z: 0
+t_z: -0.22
 #t_z: 0.91
 
 # table orientation

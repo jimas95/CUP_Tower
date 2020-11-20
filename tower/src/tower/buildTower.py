@@ -5,7 +5,7 @@ class BuildTower():
     def __init__(self):
         rospy.loginfo("position info of building")
         self.TOL = 0.03 # tolerance for cup
-        self.TOL_table = 0.2 # tolerance for table
+        self.TOL_table = 0.11 # tolerance for table
         #TODO: yaml
         self.radius = rospy.get_param("radius") + self.TOL # cup size
         self.height = rospy.get_param("length") + self.TOL
@@ -14,6 +14,12 @@ class BuildTower():
         self.towerX = 1.0   #34.5 cm
 
     def tower_3_cups(self):
+        """ build tower with three cups
+
+            Returns:
+                placePos (list of (x,y,z)) - places to put cups.
+                useHand (list of string) - "left_gripper" or "right_gripper". Order to place cups.
+        """
         rospy.loginfo("building tower with 3 cups")
         placePos = []
         useHand = []
@@ -34,6 +40,55 @@ class BuildTower():
         useHand.append("right_gripper")
         y = self.centerY
         z = self.tableHeight + self.height
+        placePos.append((self.towerX, y, z))       
+
+        return placePos, useHand 
+
+    def tower_6_cups(self):
+        """ build tower with six cups
+
+            Returns:
+                placePos (list of (x,y,z)) - places to put cups.
+                useHand (list of string) - "left_gripper" or "right_gripper". Order to place cups.
+        """
+        rospy.loginfo("building tower with 3 cups")
+        placePos = []
+        useHand = []
+        
+        # 1 cup
+        useHand.append("left_gripper")
+        y = self.centerY
+        z = self.tableHeight
+        placePos.append((self.towerX, y, z))   
+
+        # 2 cup
+        useHand.append("right_gripper")
+        y = self.centerY - self.radius*2
+        z = self.tableHeight
+        placePos.append((self.towerX, y, z))   
+        
+        # 3 cup
+        useHand.append("left_gripper")
+        y = self.centerY + self.radius*2
+        z = self.tableHeight 
+        placePos.append((self.towerX, y, z)) 
+        
+        # 4 cup
+        useHand.append("right_gripper")
+        y = self.centerY - self.radius
+        z = self.tableHeight + self.height
+        placePos.append((self.towerX, y, z))      
+             
+        # 5 cup
+        useHand.append("left_gripper")
+        y = self.centerY + self.radius
+        z = self.tableHeight + self.height
+        placePos.append((self.towerX, y, z))      
+
+        # 6 cup
+        useHand.append("right_gripper")
+        y = self.centerY
+        z = self.tableHeight + self.height*2
         placePos.append((self.towerX, y, z))       
 
         return placePos, useHand 

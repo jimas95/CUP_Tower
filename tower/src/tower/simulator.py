@@ -94,7 +94,7 @@ class Scene():
         # rospy.logerr(self.cup_radius)
 
 
-        self.cup_n = 3
+        self.cup_n = 6
 
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
@@ -106,9 +106,9 @@ class Scene():
         box_pose.header.frame_id = 'world'
         box_pose.pose.orientation.w = 1.0
         
-        box_pose.pose.position.x = position.x
-        box_pose.pose.position.y = position.y
-        box_pose.pose.position.z = position.z
+        box_pose.pose.position.x = self.table_posx
+        box_pose.pose.position.y = self.table_posy
+        box_pose.pose.position.z = self.table_posz
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
@@ -174,9 +174,9 @@ class Scene():
         cup2 = self.gms("Cup_2","base")
         cup3 = self.gms("Cup_3","base")
 
-        self.add_cup("Cup_1",cup1.pose.position)
-        self.add_cup("Cup_2",cup2.pose.position)
-        self.add_cup("Cup_3",cup3.pose.position)
+        # self.add_cup("Cup_1",cup1.pose.position)
+        # self.add_cup("Cup_2",cup2.pose.position)
+        # self.add_cup("Cup_3",cup3.pose.position)
 
         #table = self.sms("Table", "base")
 
@@ -284,9 +284,9 @@ class Scene():
             pos.position.y= -0.4
             pos.position.z= 0.01
         elif(name=="Table"):
-            pos.position.x= 1.0
-            pos.position.y= 0.0
-            pos.position.z= 0.0
+            pos.position.x= self.table_posx
+            pos.position.y= self.table_posy
+            pos.position.z= self.table_posz
         return ModelState(name,pos,Twist(), "base")
 
 
@@ -379,16 +379,16 @@ class Scene():
         for i in range(self.cup_n):
 
             L_pose = Pose()
-            L_pose.position.x = 0.6
-            L_pose.position.y = 0.8
-            L_pose.position.z = -0.05
+            L_pose.position.x = 0.73
+            L_pose.position.y = 0.6
+            L_pose.position.z = -0.09
             L_pose.position.x = L_pose.position.x + 2*radious*i
             self.sorted_list_pos_left.append(L_pose)
 
             R_pose = Pose()
-            R_pose.position.x = 0.6
-            R_pose.position.y = -0.8
-            R_pose.position.z = -0.05
+            R_pose.position.x = 0.73
+            R_pose.position.y = -0.6
+            R_pose.position.z = -0.09
             R_pose.position.x = R_pose.position.x + 2*radious*i
             rospy.logerr(L_pose)
             self.sorted_list_pos_right.append(R_pose)

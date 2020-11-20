@@ -16,7 +16,7 @@ Panels:
         - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 317
+    Tree Height: 271
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -378,7 +378,7 @@ Visualization Manager:
         Interactive Marker Size: 0.30000001192092896
         Joint Violation Color: 255; 0; 255
         Planning Group: both_arms
-        Query Goal State: true
+        Query Goal State: false
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -694,126 +694,10 @@ Visualization Manager:
       Value: false
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base:
-          Value: false
-        collision_head_link_1:
-          Value: false
-        collision_head_link_2:
-          Value: false
-        display:
-          Value: false
-        dummyhead1:
-          Value: false
-        head:
-          Value: false
-        head_camera:
-          Value: false
-        l_gripper_l_finger:
-          Value: false
-        l_gripper_l_finger_tip:
-          Value: false
-        l_gripper_r_finger:
-          Value: false
-        l_gripper_r_finger_tip:
-          Value: false
-        left_arm_itb:
-          Value: false
-        left_arm_mount:
-          Value: false
-        left_gripper:
-          Value: true
-        left_gripper_base:
-          Value: false
-        left_hand:
-          Value: false
-        left_hand_accelerometer:
-          Value: false
-        left_hand_camera:
-          Value: false
-        left_hand_camera_axis:
-          Value: false
-        left_hand_range:
-          Value: false
-        left_lower_elbow:
-          Value: false
-        left_lower_forearm:
-          Value: false
-        left_lower_shoulder:
-          Value: false
-        left_torso_itb:
-          Value: false
-        left_upper_elbow:
-          Value: false
-        left_upper_elbow_visual:
-          Value: false
-        left_upper_forearm:
-          Value: false
-        left_upper_forearm_visual:
-          Value: false
-        left_upper_shoulder:
-          Value: false
-        left_wrist:
-          Value: false
-        pedestal:
-          Value: false
-        r_gripper_l_finger:
-          Value: false
-        r_gripper_l_finger_tip:
-          Value: false
-        r_gripper_r_finger:
-          Value: false
-        r_gripper_r_finger_tip:
-          Value: false
-        right_arm_itb:
-          Value: false
-        right_arm_mount:
-          Value: false
-        right_gripper:
-          Value: true
-        right_gripper_base:
-          Value: false
-        right_hand:
-          Value: false
-        right_hand_accelerometer:
-          Value: false
-        right_hand_camera:
-          Value: false
-        right_hand_camera_axis:
-          Value: false
-        right_hand_range:
-          Value: false
-        right_lower_elbow:
-          Value: false
-        right_lower_forearm:
-          Value: false
-        right_lower_shoulder:
-          Value: false
-        right_torso_itb:
-          Value: false
-        right_upper_elbow:
-          Value: false
-        right_upper_elbow_visual:
-          Value: false
-        right_upper_forearm:
-          Value: false
-        right_upper_forearm_visual:
-          Value: false
-        right_upper_shoulder:
-          Value: false
-        right_wrist:
-          Value: false
-        screen:
-          Value: false
-        sonar_ring:
-          Value: false
-        torso:
-          Value: false
-        world:
-          Value: false
       Marker Alpha: 1
       Marker Scale: 1
       Name: TF
@@ -821,95 +705,9 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        world:
-          base:
-            collision_head_link_1:
-              {}
-            collision_head_link_2:
-              {}
-            torso:
-              head:
-                dummyhead1:
-                  {}
-                head_camera:
-                  {}
-                screen:
-                  display:
-                    {}
-              left_arm_mount:
-                left_upper_shoulder:
-                  left_lower_shoulder:
-                    left_upper_elbow:
-                      left_lower_elbow:
-                        left_upper_forearm:
-                          left_arm_itb:
-                            {}
-                          left_lower_forearm:
-                            left_wrist:
-                              left_hand:
-                                left_gripper_base:
-                                  l_gripper_l_finger:
-                                    l_gripper_l_finger_tip:
-                                      {}
-                                  l_gripper_r_finger:
-                                    l_gripper_r_finger_tip:
-                                      {}
-                                  left_gripper:
-                                    {}
-                                left_hand_accelerometer:
-                                  {}
-                                left_hand_camera:
-                                  {}
-                                left_hand_camera_axis:
-                                  {}
-                                left_hand_range:
-                                  {}
-                        left_upper_forearm_visual:
-                          {}
-                    left_upper_elbow_visual:
-                      {}
-              left_torso_itb:
-                {}
-              pedestal:
-                {}
-              right_arm_mount:
-                right_upper_shoulder:
-                  right_lower_shoulder:
-                    right_upper_elbow:
-                      right_lower_elbow:
-                        right_upper_forearm:
-                          right_arm_itb:
-                            {}
-                          right_lower_forearm:
-                            right_wrist:
-                              right_hand:
-                                right_gripper_base:
-                                  r_gripper_l_finger:
-                                    r_gripper_l_finger_tip:
-                                      {}
-                                  r_gripper_r_finger:
-                                    r_gripper_r_finger_tip:
-                                      {}
-                                  right_gripper:
-                                    {}
-                                right_hand_accelerometer:
-                                  {}
-                                right_hand_camera:
-                                  {}
-                                right_hand_camera_axis:
-                                  {}
-                                right_hand_range:
-                                  {}
-                        right_upper_forearm_visual:
-                          {}
-                    right_upper_elbow_visual:
-                      {}
-              right_torso_itb:
-                {}
-              sonar_ring:
-                {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -942,14 +740,14 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.49020320177078247
+      Pitch: -0.17479673027992249
       Target Frame: base
-      Yaw: 0.4985782504081726
+      Yaw: 1.5235782861709595
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1136
+  Height: 1043
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -958,9 +756,9 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002570000041afc0200000007fb000000100044006900730070006c006100790073010000003b00000202000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e0067010000022b000001d70000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003f00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000243000002120000017300ffffff000005230000041a00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd000000010000000000000257000003bdfc0200000007fb000000100044006900730070006c006100790073010000003b000001d4000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e0067010000022b000001d70000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003f00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000215000001e30000017200ffffff00000523000003bd00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1920
-  X: 0
-  Y: 27
+  X: 1920
+  Y: 0

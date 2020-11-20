@@ -4,7 +4,7 @@ This node is going to control the Baxter to grap and place cups to build a tower
 
 
 SERVICES:
-  + current_pose (Empty) ~ helper service for debugging. 
+  + test_control (ControlTest)
 """
 
 import rospy
@@ -19,7 +19,7 @@ from tower.simulator import Scene
 from tower.buildTower import BuildTower
 
 REAL_ROBOT = True # Real Robot
-REAL_ROBOT = False # fake Robot
+# REAL_ROBOT = False # fake Robot
 
 
 class Handler:
@@ -29,7 +29,7 @@ class Handler:
     def __init__(self):
         self.HOME_JOINTS = [0.5,  -0.74, -1.28, 0.97, -0.18, 0.03, -0.01, \
                             -0.5, -0.74, 1.28, 0.97, -0.18, 0.03, 0.03] 
-        self.PRE_GRASP_POS = [-0.03, 0.0, 0.0] 
+        self.PRE_GRASP_POS = [-0.03, 0.0, 0.03] 
         self.BEFORE_PLACE_POS = [0.0, 0.0, 0.1]
         
         # robot control 
@@ -189,13 +189,17 @@ class Handler:
             return "both hands grab and place "
         elif req.choice == 7:
             self.state_2(3)
-            return "building tower"
+            return "building tower with three cups"
         elif req.choice == 8:
             self.gripper_control(state=False,gripper="both")
             return "close both grippers"
         elif req.choice == 9:
             self.gripper_control(state=True,gripper="both")
             return "open both grippers"
+        elif req.choice == 10:
+            self.state_2(6)
+            return "building tower with six cups"
+
 
         return "N/A"
 
@@ -205,11 +209,11 @@ class Handler:
         BUILDS A CUP TOWER !
 
             Args:
-                num (int) - number of cups used to build the tower. Options are 3 and 5.
+                num (int) - number of cups used to build the tower. Options are 3 and 6.
         """
         if num == 3:
             placePosList, useHandList  = self.buildTower.tower_3_cups()
-        elif num == 5:
+        elif num == 6:
             pass
         rospy.loginfo(f"placePosList = {placePosList}")
         rospy.loginfo(f"useHandList = {useHandList}")
@@ -221,9 +225,9 @@ class Handler:
                 leftPlace = placePosList[i+1]
                 i += 2
                 rightGrabPos = self.myscene.get_next_sorting_position("right_gripper").position
-                rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z+0.15)
+                rightGrab = (rightGrabPos.x, rightGrabPos.y, rightGrabPos.z)
                 leftGrabPos = self.myscene.get_next_sorting_position("left_gripper").position
-                leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z+0.15)
+                leftGrab = (leftGrabPos.x, leftGrabPos.y, leftGrabPos.z)
                 rospy.loginfo(f"right_gripper = {rightGrab} --> {rightPlace}")
                 rospy.loginfo(f"left_gripper = {leftGrab} --> {leftPlace}")
                 self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
@@ -232,7 +236,7 @@ class Handler:
                 hand = useHandList[i]
                 placePos = placePosList[i]
                 grabPosition = self.myscene.get_next_sorting_position(hand).position
-                grabPos = (grabPosition.x, grabPosition.y, grabPosition.z+0.15)
+                grabPos = (grabPosition.x, grabPosition.y, grabPosition.z)
                 rospy.loginfo(f"{hand} only = {grabPos} --> {placePos}")
                 self.grab_and_place_one_hand(hand, grabPos, placePos)
                 i += 1
