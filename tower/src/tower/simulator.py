@@ -347,7 +347,7 @@ class Scene():
         """return the position of Cup
         """
         cup = self.gms(name,"base")
-        return cup.pose
+        return cup.pose.position
 
 
     def sortFunct(self,pos):
