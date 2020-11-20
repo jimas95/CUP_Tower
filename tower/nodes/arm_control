@@ -19,8 +19,8 @@ from tower.simulator import Scene
 from tower.buildTower import BuildTower
 import time
 
-# REAL_ROBOT = True # Real Robot
-REAL_ROBOT = False # fake Robot
+REAL_ROBOT = True # Real Robot
+# REAL_ROBOT = False # fake Robot
 
 
 class Handler:
@@ -198,7 +198,8 @@ class Handler:
         elif req.choice == 5:
             cup1 = self.myscene.get_cup_position("Cup_1")
             rospy.loginfo(f"cup1 = {cup1}")
-            self.grab_and_place_one_hand("right_gripper", (cup1.x, cup1.y, cup1.z), (1.0, -0.0681, -0.02))
+            self.grab_and_place_two_hands((self.LEFT_HOME, self.LEFT_HOME, ""), \
+                                        ((cup1.x, cup1.y, cup1.z), (1.0, -0.0681, -0.02), "Cup_1"))
             return "right hand grab and place cup"
         elif req.choice == 6:
             self.grab_and_place_two_hands(((1.0, 0.5, 0.0), (1.0, 0.0681, 0.0), "Cup_1"), \
@@ -284,7 +285,7 @@ class Handler:
                 rightGrab = self.myscene.get_cup_position(rightCup)
                 rospy.loginfo(f"left_gripper = {leftCup}  {leftGrab}--> {leftPlace}")
                 rospy.loginfo(f"right_gripper = {rightCUp} {rightGrab}--> {rightPlace}")
-                # self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
+                self.grab_and_place_two_hands((leftGrab, leftPlace), (rightGrab, rightPlace))
                 
             else:
                 rospy.logerr("Wrong list of build tower")
