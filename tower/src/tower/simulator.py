@@ -92,7 +92,6 @@ class Scene():
         self.table_posy = rospy.get_param("t_y")
         self.table_posz = rospy.get_param("t_z")
 
-        # rospy.logerr(self.cup_radius)
 
 
         self.cup_n = 3
@@ -358,33 +357,63 @@ class Scene():
                 rospy.logerr("ERROR list of sorted points is empty!")
             rospy.logerr("ERROR IN get_next_sorting_position")
 
-    def create_sorted_list_position(self,reverse):
-        """
-        create a list for each hand that has the position we should leave each cup at inLine workstation
-        """
-        self.sorted_list_pos_left = [] 
-        self.sorted_list_pos_right = []
+    def sortFunct(self,pos):
+        return pos.x
 
 
-        radious = self.cup_radius
 
+    def grab_pos(self):
+        sorted_list_pos_left = [] 
+        sorted_list_pos_right = []
+
+        # get only sorted cups & split  left right lists
         for i in range(self.cup_n):
+            k = i + 1
+            cup_pos = self.gms("Cup_"+str(k),"base").pose
+            if(cup.y>self.table_y/4.0):
+                self.sorted_list_pos_left.append(cup_pos)
+            elif(cup.y<-1*self.table_y/4.0):
+                self.sorted_list_pos_right.append(cup_pos)
 
-            L_pose = Pose()
-            L_pose.position.x = 0.73
-            L_pose.position.y = 0.6
-            L_pose.position.z = -0.09
-            L_pose.position.x = L_pose.position.x + 2*radious*i
-            self.sorted_list_pos_left.append(L_pose)
+        #sort list with min(x) being the first
+        sorted_list_pos_left.sort( reverse=True,key=self.sortFunct)
+        sorted_list_pos_right.sort(reverse=True,key=self.sortFunct)
 
-            R_pose = Pose()
-            R_pose.position.x = 0.73
-            R_pose.position.y = -0.6
-            R_pose.position.z = -0.09
-            R_pose.position.x = R_pose.position.x + 2*radious*i
-            # rospy.logerr(L_pose)
-            self.sorted_list_pos_right.append(R_pose)
-        
-        if(reverse):
-            self.sorted_list_pos_left.reverse()
-            self.sorted_list_pos_right.reverse()
+        if(hand=="left_gripper"):
+            pos = sorted_list_pos_left.pop()
+
+        elif(hand=="right_gripper"):
+            pos = sorted_list_pos_right.pop()
+        else:
+            rospy.logerr("ERROR in place_pos no hand recognised!")
+            return Pose()
+        return pos
+
+    def place_pos(self,hand):
+        sorted_list_pos_left = [] 
+        sorted_list_pos_right = []
+
+        # get only sorted cups & split  left right lists
+        for i in range(self.cup_n):
+            k = i + 1
+            cup_pos = self.gms("Cup_"+str(k),"base").pose
+            if(cup.y>self.table_y/4.0):
+                self.sorted_list_pos_left.append(cup_pos)
+            elif(cup.y<-1*self.table_y/4.0):
+                self.sorted_list_pos_right.append(cup_pos)
+
+        #sort list with min(x) being the first
+        sorted_list_pos_left.sort( reverse=False,key=self.sortFunct)
+        sorted_list_pos_right.sort(reverse=False,key=self.sortFunct)
+
+        if(hand=="left_gripper"):
+            pos = sorted_list_pos_left.pop()
+
+        elif(hand=="right_gripper"):
+            pos = sorted_list_pos_right.pop()
+        else:
+            rospy.logerr("ERROR in place_pos no hand recognised!")
+            return Pose()
+
+        pos.x = pos.x + cup_radius
+        return pos
