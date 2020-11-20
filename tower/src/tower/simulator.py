@@ -316,7 +316,7 @@ class Scene():
 
         for cup in cups_list:
             position = self.get_cup_position(cup)
-            y_pos = position.position.y
+            y_pos = position.y
             # if the cup is in the middle two quadrants of the table
             if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
                 return False
@@ -330,7 +330,7 @@ class Scene():
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
-        dictio_left,dictio_right = self.create_dictionary(True,"InWorkspace")
+        dictio_left,dictio_right = self.create_dictionary("InWorkspace")
         if(hand=="left_gripper"):
             cup_name = self.get_min_of_dict(dictio_left)
 
@@ -348,10 +348,10 @@ class Scene():
         """
         if(name=="Cup_0"):
             cup = Pose()
-            cup.pose.position.x = 0
-            cup.pose.position.y = 0
-            cup.pose.position.z = 0
-            return cup.pose.position
+            cup.position.x = 0
+            cup.position.y = 0
+            cup.position.z = 0
+            return cup.position
         cup = self.gms(name,"base")
         return cup.pose.position
 
@@ -441,8 +441,8 @@ class Scene():
 
     def get_max_of_dict(self,dictio):
         """ return the maximum key from dictionary based on position.x"""
-        return [k for k,v in dictio.items() if v==max(dictio.values().x)][0]
+        return [k for k,v in dictio.items() if v.x==max([val.x for val in dictio.values()])][0]
 
     def get_min_of_dict(self,dictio):
         """ return the minimum key from dictionary based on position.x"""
-        return [k for k,v in dictio.items() if v==min(dictio.values().x)][0]
+        return [k for k,v in dictio.items() if v.x==min([val.x for val in dictio.values()])][0]
