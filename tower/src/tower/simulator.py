@@ -155,7 +155,7 @@ class Scene():
         """restarts gazebo scene    """
         pose = Pose()
         twist = Twist()
-        pose.position = Point(0.8,0.9,0.1)
+        pose.position = Point(0.8,0.8,0.1)
         
         self.sms(ModelState("Cup_1",pose,twist,"base"))
         pose.position.x = 1.2
