@@ -24,19 +24,23 @@ class BuildTower():
         placePos = []
         useHand = []
         
-        # first cup
+        # 1 cup
+        useHand.append("left_gripper")
+        y = self.centerY + self.radius
+        z = self.tableHeight
+        placePos.append((self.towerX, y, z))   
+
+        # 2 cup
         useHand.append("right_gripper")
         y = self.centerY - self.radius
         z = self.tableHeight
         placePos.append((self.towerX, y, z))   
         
-        # second cup
+        # no cup
         useHand.append("left_gripper")
-        y = self.centerY + self.radius
-        z = self.tableHeight
-        placePos.append((self.towerX, y, z))   
+        placePos.append((0, 0, 0))   
         
-        # third cup
+        # 4 cup
         useHand.append("right_gripper")
         y = self.centerY
         z = self.tableHeight + self.height
