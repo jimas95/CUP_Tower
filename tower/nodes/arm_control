@@ -437,10 +437,43 @@ class Handler:
         11 Go to Home position
         13 Repeat until all cups are sorted
         """
-        #  Go to Home position
-        self.go_home_position()
+        # NEED TO HANDLE EXPECTION OF ONLY ONE CUP LEFT AND SECOND ARM HAS TO STAY NULL
+        
+        # rospy.logerr("Go to home position")
+        # self.go_home_position()
+        #Open gripper
+        rospy.logerr("Open grippes")
+        self.gripper_control(state=True,gripper="both")
 
-        # while()
+        # Repeat until all cups are sorted
+        rospy.logerr("Starting state 1")
+        while(not self.myscene.cups_sorted()):
+
+            #Assign a cup to grasp (left arm gets y>0 right arm gets y<0)
+            rospy.logerr("Set grasping cups")
+            #Get position to pick up the cup
+            cup_posL_grab = self.myscene.assing_cup_st1("left_gripper")
+            cup_posR_grab = self.myscene.assing_cup_st1("right_gripper")
+            rospy.logdebug("cup_posL_grab")
+            rospy.logdebug(cup_posL_grab)
+            rospy.logdebug("cup_posR_grab")
+            rospy.logdebug(cup_posR_grab)
+            # Get position to place cup
+            cup_posL_place = self.myscene.place_next_pos("left_gripper")
+            cup_posR_place = self.myscene.place_next_pos("right_gripper")
+            rospy.logdebug("cup_posL_place")
+            rospy.logdebug(cup_posL_place)
+            rospy.logdebug("cup_posR_place")
+            rospy.logdebug(cup_posR_place)
+
+            #Execute grab and place
+            rospy.logerr("Execute grab and place")
+            self.grab_and_place_two_hands((cup_posL_grab,cup_posL_place),
+                                          (cup_posR_grab,cup_posR_place))
+
+
+
+
 
     def current_pose(self):
         """ helper service for debugging current pose of gripper"""
