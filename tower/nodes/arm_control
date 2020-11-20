@@ -232,16 +232,16 @@ class Handler:
             rospy.logdebug(res2)
             return "check assing_cup_st1"
         elif req.choice == 102:
-            res1,res2 = self.myscene.create_sorting_list(True,"InWorkspace")
+            res1,res2 = self.myscene.create_dictionary("InWorkspace")
             rospy.logdebug(res1)
             rospy.logdebug(res2)
-            return "check create_sorting_list"
+            return "check create_dictionary"
         elif req.choice == 103:
-            res1 = self.myscene.grab_next_pos("left_gripper")
-            res2 = self.myscene.grab_next_pos("right_gripper")
+            res1 = self.myscene.grab_next_cup("left_gripper")
+            res2 = self.myscene.grab_next_cup("right_gripper")
             rospy.logdebug(res1)
             rospy.logdebug(res2)
-            return "check grab_next_pos"
+            return "check grab_next_cup"
         elif req.choice == 104:
             res1 = self.myscene.place_next_pos("left_gripper")
             res2 = self.myscene.place_next_pos("right_gripper")
@@ -491,16 +491,13 @@ class Handler:
             rospy.logdebug(cup_nameR)
             rospy.logdebug(cup_grab_posR)
 
-
-
-
             #Get position to leave cup
             rospy.logerr("Get position to leave cup")
             cup_place_posL = self.myscene.place_next_pos("left_gripper")
             cup_place_posR = self.myscene.place_next_pos("right_gripper")
 
 
-            #CExecute Grab & place
+            #Execute Grab & place
             rospy.logerr("Execute Grab & place")
             hand_L = (cup_place_posL,cup_grab_posL,cup_nameL)
             hand_R = (cup_place_posR,cup_grab_posR,cup_nameR)
