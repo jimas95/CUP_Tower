@@ -172,9 +172,9 @@ include_directories(
 catkin_install_python(PROGRAMS
     nodes/arm_control
     nodes/cam_display
-    nodes/tracker
+    nodes/enable_head_cam
     nodes/tag_detection
-    nodes/realsense_detect
+    nodes/enable_left_cam
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

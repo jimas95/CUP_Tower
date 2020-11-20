@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+import rospy
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image, CameraInfo, CompressedImage
+import cv2
+import tf2_ros
+import numpy as nps
+from geometry_msgs.msg import Pose, Point
+import geometry_msgs.msg
+
+
+class TagDetect:
+       
+    def __init__(self):
+
+        # Baxter's right hand camera
+        # self.right_camera = rospy.Subscriber("/cameras/right_hand_camera/image", Image, self.baxter_cam)
+        # Baxter's left hand camera
+        self.left_camera = rospy.Subscriber("/cameras/left_hand_camera/image", Image, self.baxter_cam)
+
+
+        # Publishes raw and color images from the Baxter
+        self.raw_image_pub = rospy.Publisher("/image_raw", Image, queue_size = 1)
+        self.color_image_pub = rospy.Publisher("/image_color", Image, queue_size = 1)
+
+
+        # Publishes image_rect that apriltag_ros will receive
+        self.image_rect_sub = rospy.Subscriber( "/cameras/left_hand_camera/image", Image, self.rect_image_callback)
+        self.image_rect_pub= rospy.Publisher( "/camera_rect/image_rect", Image, queue_size = 1)
+
+        # Calibration Matrix for Camera Info
+        self.cal_sub = rospy.Subscriber("/cameras/left_hand_camera/camera_info_std", CameraInfo, self.cal_n_info_pub)
+        self.cal_pub =  rospy.Publisher("/camera/camera_info", CameraInfo, queue_size = 1)
+
+
+        # Publishes camera_info that apriltag_ros will receive
+        self.caminfo_pub= rospy.Publisher("/camera_info", CameraInfo, queue_size = 1)
+        self.caminfo_rect_pub= rospy.Publisher("/camera_rect/camera_info", CameraInfo, queue_size = 1)
+
+        # Subscribe to the apriltag 
+        # self.apriltag = rospy.Subscriber("/detections", AprilTagDetectionArray, self.apriltag_callback)  
+
+
+        self.broadcaster = tf2_ros.TransformBroadcaster()
+        
+
+    def baxter_cam(self, data):
+        self.raw_image_pub.publish(data)
+        self.color_image_pub.publish(data)
+        self.transform()
+
+
+    def rect_image_callback(self, data):
+        self.image_rect_pub.publish(data)
+
+    
+   
+    # Calibrate and publish Camera Info for apriltag_ros
+    def cal_n_info_pub(self, data):
+
+        self.cal_pub.publish(data)
+        self.caminfo_pub.publish(data)
+        self.caminfo_rect_pub.publish(data)
+
+    def transform(self):
+            
+        # Now create the transform, noted that it must have a parent frame and a timestamp
+        # The header contains the timing information and frame id
+        world_base_tf = geometry_msgs.msg.TransformStamped()
+        world_base_tf.header.stamp = rospy.Time.now()
+        # world_base_tf.header.frame_id = "camera"
+        # world_base_tf.child_frame_id = "right_hand_camera"
+        world_base_tf.header.frame_id = "left_hand_camera"
+        world_base_tf.child_frame_id = "camera"
+
+        # The base frame will be raised in the z direction by 1 meter and be aligned with world
+        world_base_tf.transform.translation.x = 0
+        world_base_tf.transform.translation.y = 0
+        world_base_tf.transform.translation.z = 0
+        world_base_tf.transform.rotation.x = 0
+        world_base_tf.transform.rotation.y = 0
+        world_base_tf.transform.rotation.z = 0
+        world_base_tf.transform.rotation.w = 1
+
+        self.broadcaster.sendTransform(world_base_tf)
+        
+ 
+
+# Main Function
+if __name__ == "__main__":
+
+    rospy.init_node("TagDetect")
+
+    static_broadcaster = tf2_ros.StaticTransformBroadcaster()
+
+
+    # create object
+    TagDetect()
+
+    # Keep the thread alive by spinning
+    rospy.spin()
