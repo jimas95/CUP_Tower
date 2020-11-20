@@ -19,8 +19,8 @@ from tower.simulator import Scene
 from tower.buildTower import BuildTower
 import time
 
-REAL_ROBOT = True # Real Robot
-# REAL_ROBOT = False # fake Robot
+# REAL_ROBOT = True # Real Robot
+REAL_ROBOT = False # fake Robot
 
 
 class Handler:
@@ -51,7 +51,6 @@ class Handler:
         # create scene 
         self.myscene = Scene(scene,REAL_ROBOT)
         self.myscene.create_scene()
-        self.myscene.create_sorted_list_position(True) #False for first
         self.myscene.restart_scene_workStation()
 
         # tower class 
@@ -201,8 +200,43 @@ class Handler:
             self.gripper_control(state=True,gripper="both")
             return "open both grippers"
         elif req.choice == 10:
-            self.myscene,
+            # self.myscene,
+            pass
 
+
+
+
+
+
+
+        #debug 
+        elif req.choice == 100:
+            res = self.myscene.cups_sorted()
+            rospy.logdebug(res)
+            return "check cups_sorted"
+        elif req.choice == 101:
+            res = self.myscene.assing_cup_st1("left_gripper")
+            res = self.myscene.assing_cup_st1("right_gripper")
+            rospy.logdebug(res)
+            rospy.logdebug(res)
+            return "check assing_cup_st1"
+        elif req.choice == 102:
+            res1,res2 = self.myscene.create_sorting_list(True,"InWorkspace")
+            rospy.logdebug(res1)
+            rospy.logdebug(res2)
+            return "check create_sorting_list"
+        elif req.choice == 103:
+            res = self.myscene.grab_next_pos("left_gripper")
+            res = self.myscene.grab_next_pos("right_gripper")
+            rospy.logdebug(res)
+            rospy.logdebug(res)
+            return "check grab_next_pos"
+        elif req.choice == 104:
+            res = self.myscene.place_next_pos("left_gripper")
+            res = self.myscene.place_next_pos("right_gripper")
+            rospy.logdebug(res)
+            rospy.logdebug(res)
+            return "check place_next_pos"
 
         return "N/A"
 
@@ -403,7 +437,10 @@ class Handler:
         11 Go to Home position
         13 Repeat until all cups are sorted
         """
-        pass
+        #  Go to Home position
+        self.go_home_position()
+
+        # while()
 
     def current_pose(self):
         """ helper service for debugging current pose of gripper"""
