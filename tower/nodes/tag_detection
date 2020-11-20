@@ -5,9 +5,9 @@ from sensor_msgs.msg import Image, CameraInfo, CompressedImage
 import cv2
 import tf2_ros
 import numpy as np
-from apriltags_ros.msg import AprilTagDetectionArray
+from apriltag_ros.msg import AprilTagDetectionArray
 from geometry_msgs.msg import Pose, Point
-import geometry_msgs.msg
+import geometry_msgs.msgcdcd
 
 
 class TagDetect:
@@ -39,10 +39,10 @@ class TagDetect:
         self.caminfo_rect_pub= rospy.Publisher("/camera_rect/camera_info", CameraInfo, queue_size = 1)
 
         # Subscribe to the apriltag 
-        # self.apriltag = rospy.Subscriber("/tag_detections", AprilTagDetectionArray, self.apriltag_callback)  
+        # self.apriltag = rospy.Subscriber("/detections", AprilTagDetectionArray, self.apriltag_callback)  
 
 
-        self.static_broadcaster = tf2_ros.StaticTransformBroadcaster()
+        self.broadcaster = tf2_ros.TransformBroadcaster()
         
 
     def baxter_cam(self, data):
@@ -57,9 +57,10 @@ class TagDetect:
         
     # def apriltag_callback(self, data):
 
-    #     Pose()
-    #     if ( len(data.detections) > 1):
-    #         print('I found something!')
+    #     print('apriltag_callback is working')
+    #     for detectio
+
+    
    
     # Calibrate and publish Camera Info for apriltag_ros
     def cal_n_info_pub(self, data):
@@ -88,7 +89,7 @@ class TagDetect:
         world_base_tf.transform.rotation.z = 0
         world_base_tf.transform.rotation.w = 1
 
-        self.static_broadcaster.sendTransform(world_base_tf)
+        self.broadcaster.sendTransform(world_base_tf)
         
  
 
