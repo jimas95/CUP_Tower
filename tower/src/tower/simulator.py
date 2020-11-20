@@ -325,28 +325,21 @@ class Scene():
     def assing_cup_st1(self,hand):
         """
         this function is for state 1 
-        Return the name of a cup that should be grabed from hand arm
+        Return the position of a cup that should be grabed from hand arm
         left_hand arm gets y>0 
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
-        sorted_list_pos_left = [] 
-        sorted_list_pos_right = []
+        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"InWorkspace")
+        if(hand=="left_gripper"):
+            pos = sorted_list_pos_left.pop()
 
-        # get only unsorted cups & split  left right lists
-        for i in range(self.cup_n):
-            k = i + 1
-            cup_pos = self.gms("Cup_"+str(k),"base").pose
-            if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
-                if(cup.y>0):
-                    self.sorted_list_pos_left.append(cup_pos)
-                elif(cup.y<0):
-                    self.sorted_list_pos_right.append(cup_pos)
-
-        #sort list with min(x) being the first
-        sorted_list_pos_left.sort( reverse=order,key=self.sortFunct)
-        sorted_list_pos_right.sort(reverse=order,key=self.sortFunct)
-        return sorted_list_pos_left,sorted_list_pos_right
+        elif(hand=="right_gripper"):
+            pos = sorted_list_pos_right.pop()
+        else:
+            rospy.logerr("ERROR in assing_cup_st1 no hand recognised!")
+            return Pose()
+        return pos
        
 
 
@@ -366,7 +359,7 @@ class Scene():
         creates 2 lists(sorted) for each arm that contain th cups position 
             Arg: 
                 order --> Boolean , sort order 
-                workspace --> workspace or inOrderWS choose to populate the list with cups that are in sorted WS or not
+                workspace --> InWorkspace or OutWorkspace choose to populate the list with cups that are in sorted WS or not
         """
         sorted_list_pos_left = [] 
         sorted_list_pos_right = []
@@ -376,12 +369,12 @@ class Scene():
         for i in range(self.cup_n):
             k = i + 1
             cup_pos = self.gms("Cup_"+str(k),"base").pose
-            if(workspace=="inOrderWS"):
+            if(workspace=="OutWorkspace"):
                 if(cup.y>condition):
                     self.sorted_list_pos_left.append(cup_pos)
                 elif(cup.y<-1*condition):
                     self.sorted_list_pos_right.append(cup_pos)
-            elif(workspace=="workspace"):
+            elif(workspace=="InWorkspace"):
                 if y_pos < condition and y_pos > -1*condition:
                     if(cup.y>0):
                         self.sorted_list_pos_left.append(cup_pos)
@@ -398,14 +391,14 @@ class Scene():
         """
         Return the position of the next cup that should be grabed from the sorting workspace
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"inOrderWS")
+        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"OutWorkspace")
         if(hand=="left_gripper"):
             pos = sorted_list_pos_left.pop()
 
         elif(hand=="right_gripper"):
             pos = sorted_list_pos_right.pop()
         else:
-            rospy.logerr("ERROR in place_pos no hand recognised!")
+            rospy.logerr("ERROR in grab_next_pos no hand recognised!")
             return Pose()
         return pos
 
@@ -413,7 +406,7 @@ class Scene():
         """
         Returns the position of the next cup that will be placed at the sorting workspace
         """
-        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(False,"inOrderWS")
+        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(False,"OutWorkspace")
 
         #handle expeption of first cup
         if(hand=="left_gripper" and len(sorted_list_pos_left)==0):
