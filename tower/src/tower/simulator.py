@@ -307,19 +307,18 @@ class Scene():
 
     def cups_sorted(self):
         """
-        Returns True if all cups are inside inLine area 
+        Returns True if all cups are inside inLine workspace 
         Returns False if any cup is still inside the workspace
         """
-        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+        cups_list = []
+        for i in range(self.cup_n):
+            cups_list.append("Cup_"+str(i+1))
+
         for cup in cups_list:
             position = self.get_cup_position(cup)
             y_pos = position.position.y
-            # rospy.logerr(cup)
-            # rospy.logerr(position.position.y)
             # if the cup is in the middle two quadrants of the table
             if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
-                rospy.logerr("HI")
-                rospy.logerr(self.table_y/4)
                 return False
         return True
 
@@ -331,7 +330,24 @@ class Scene():
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
-        pass
+        sorted_list_pos_left = [] 
+        sorted_list_pos_right = []
+
+        # get only unsorted cups & split  left right lists
+        for i in range(self.cup_n):
+            k = i + 1
+            cup_pos = self.gms("Cup_"+str(k),"base").pose
+            if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
+                if(cup.y>0):
+                    self.sorted_list_pos_left.append(cup_pos)
+                elif(cup.y<0):
+                    self.sorted_list_pos_right.append(cup_pos)
+
+        #sort list with min(x) being the first
+        sorted_list_pos_left.sort( reverse=order,key=self.sortFunct)
+        sorted_list_pos_right.sort(reverse=order,key=self.sortFunct)
+        return sorted_list_pos_left,sorted_list_pos_right
+       
 
 
     def get_cup_position(self,name):
@@ -340,45 +356,49 @@ class Scene():
         cup = self.gms(name,"base")
         return cup.pose
 
-    def get_next_sorting_position(self,hand):
-        """
-        Return the position that we should leave cup on inLine workstation
-        return type: tuple (x,y)
-        """
-        #this is fake needs to implemented
-        if(hand=="left_gripper"):
-            if(len(self.sorted_list_pos_left)==0):
-                rospy.logerr("ERROR list of sorted points is empty!")
-            return self.sorted_list_pos_left.pop()
-        elif(hand=="right_gripper"):
-            return self.sorted_list_pos_right.pop()
-        else:
-            if(len(self.sorted_list_pos_right)==0):
-                rospy.logerr("ERROR list of sorted points is empty!")
-            rospy.logerr("ERROR IN get_next_sorting_position")
 
     def sortFunct(self,pos):
         return pos.x
 
 
-
-    def grab_pos(self):
+    def create_sorting_list(self,order,workspace):
+        """
+        creates 2 lists(sorted) for each arm that contain th cups position 
+            Arg: 
+                order --> Boolean , sort order 
+                workspace --> workspace or inOrderWS choose to populate the list with cups that are in sorted WS or not
+        """
         sorted_list_pos_left = [] 
         sorted_list_pos_right = []
 
         # get only sorted cups & split  left right lists
+        condition = self.table_y/4.0
         for i in range(self.cup_n):
             k = i + 1
             cup_pos = self.gms("Cup_"+str(k),"base").pose
-            if(cup.y>self.table_y/4.0):
-                self.sorted_list_pos_left.append(cup_pos)
-            elif(cup.y<-1*self.table_y/4.0):
-                self.sorted_list_pos_right.append(cup_pos)
+            if(workspace=="inOrderWS"):
+                if(cup.y>condition):
+                    self.sorted_list_pos_left.append(cup_pos)
+                elif(cup.y<-1*condition):
+                    self.sorted_list_pos_right.append(cup_pos)
+            elif(workspace=="workspace"):
+                if y_pos < condition and y_pos > -1*condition:
+                    if(cup.y>0):
+                        self.sorted_list_pos_left.append(cup_pos)
+                    elif(cup.y<0):
+                        self.sorted_list_pos_right.append(cup_pos)          
 
         #sort list with min(x) being the first
-        sorted_list_pos_left.sort( reverse=True,key=self.sortFunct)
-        sorted_list_pos_right.sort(reverse=True,key=self.sortFunct)
+        sorted_list_pos_left.sort( reverse=order,key=self.sortFunct)
+        sorted_list_pos_right.sort(reverse=order,key=self.sortFunct)
+        return sorted_list_pos_left,sorted_list_pos_right
 
+
+    def grab_next_pos(self,hand):
+        """
+        Return the position of the next cup that should be grabed from the sorting workspace
+        """
+        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(True,"inOrderWS")
         if(hand=="left_gripper"):
             pos = sorted_list_pos_left.pop()
 
@@ -389,22 +409,26 @@ class Scene():
             return Pose()
         return pos
 
-    def place_pos(self,hand):
-        sorted_list_pos_left = [] 
-        sorted_list_pos_right = []
+    def place_next_pos(self,hand):
+        """
+        Returns the position of the next cup that will be placed at the sorting workspace
+        """
+        sorted_list_pos_left,sorted_list_pos_right = self.create_sorting_list(False,"inOrderWS")
 
-        # get only sorted cups & split  left right lists
-        for i in range(self.cup_n):
-            k = i + 1
-            cup_pos = self.gms("Cup_"+str(k),"base").pose
-            if(cup.y>self.table_y/4.0):
-                self.sorted_list_pos_left.append(cup_pos)
-            elif(cup.y<-1*self.table_y/4.0):
-                self.sorted_list_pos_right.append(cup_pos)
+        #handle expeption of first cup
+        if(hand=="left_gripper" and len(sorted_list_pos_left)==0):
+            pos = Pose()
+            pos.x = 0.8
+            pos.y = self.table_y/4.0 +0.2
+            pos.z = self.cup_height
+            return pos
 
-        #sort list with min(x) being the first
-        sorted_list_pos_left.sort( reverse=False,key=self.sortFunct)
-        sorted_list_pos_right.sort(reverse=False,key=self.sortFunct)
+        if(hand=="right_gripper" and len(sorted_list_pos_right)==0):
+            pos = Pose
+            pos.x = 0.8
+            pos.y = -self.table_y/4.0 - 0.2
+            pos.z = self.cup_height
+            return pos
 
         if(hand=="left_gripper"):
             pos = sorted_list_pos_left.pop()
