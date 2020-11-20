@@ -346,6 +346,12 @@ class Scene():
     def get_cup_position(self,name):
         """return the position of Cup
         """
+        if(name=="Cup_0"):
+            cup = Pose()
+            cup.pose.position.x = 0
+            cup.pose.position.y = 0
+            cup.pose.position.z = 0
+            return cup.pose.position
         cup = self.gms(name,"base")
         return cup.pose.position
 
