@@ -164,8 +164,18 @@ class Handler:
                             5. right hand grab and place cup
                             6. both hands grab and place
                             7. building tower (state_2)
-                            8. close both grippers
-                            9. open both grippers
+                            8. state 1
+                            
+
+
+                            100. check cups_sorted
+                            101. check assing_cup_st1
+                            102. check create_sorting_list
+                            103. check grab_next_pos
+                            104. check place_next_pos
+                            105. close both grippers
+                            106. open both grippers
+                        
         """
         if req.choice == 0: 
             result = self.current_pose()
@@ -194,14 +204,13 @@ class Handler:
             self.state_2(3)
             return "building tower with three cups"
         elif req.choice == 8:
-            self.gripper_control(state=False,gripper="both")
-            return "close both grippers"
-        elif req.choice == 9:
-            self.gripper_control(state=True,gripper="both")
-            return "open both grippers"
-        elif req.choice == 10:
-            # self.myscene,
+            self.myscene.state_1()
+            return "Executed state 1"
             pass
+
+
+
+
 
 
 
@@ -237,6 +246,12 @@ class Handler:
             rospy.logdebug(res1)
             rospy.logdebug(res2)
             return "check place_next_pos"
+        elif req.choice == 105:
+            self.gripper_control(state=False,gripper="both")
+            return "close both grippers"
+        elif req.choice == 106:
+            self.gripper_control(state=True,gripper="both")
+            return "open both grippers"
 
         return "N/A"
 
