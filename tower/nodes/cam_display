@@ -10,7 +10,12 @@ PUBLISHERS:  'robot/xdisplay' topic which is the head screen.
 import rospy
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
-
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
+import apriltag
+from geometry_msgs.msg import Pose, Point
+# from apriltag_ros.msg import AprilTagDetectionArray
+import numpy as np
 
 class Display(object):
     """ The Display Class contains methods
@@ -27,9 +32,36 @@ class Display(object):
 
         # head screen publisher 
         self.pub = rospy.Publisher('/robot/xdisplay', Image, queue_size=15)
+        self.imagepub = rospy.Publisher('camera_rect/image_rect',Image, queue_size=1)
+        self.br = CvBridge()
 
     def callback1(self, msg):
         """Publish right hand image to screen"""
+        # rospy.loginfo(type(msg.data))
+        # rospy.loginfo(msg.width)
+        # rospy.loginfo(msg.encoding)
+        # rospy.loginfo(msg.height)
+        cv_image = self.br.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+        # cv2.imshow('window',cv_image)
+        img = cv_image
+        detector = apriltag.Detector()
+        gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        results = detector.detect(gray_scale)
+        for cur_result in results:
+            tag_id = cur_result.tag_id
+            cx = cur_result.center.astype(np.int32)
+            corners = cur_result.corners.astype(np.int32)
+            for pt in corners:
+                cv2.circle(img, tuple(pt), 3, (255, 0, 0))
+
+            cv2.circle(img, tuple(cx), 3, (0, 0, 255))
+            cv2.putText(img, str(tag_id), tuple(cx), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0, 255, 0))
+
+    
+        cv2.imshow('img', img)
+        k = cv2.waitKey(2)
+        self.imagepub.publish(msg)
         self.pub.publish(msg)
         
 

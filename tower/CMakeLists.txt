@@ -170,11 +170,11 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-    nodes/control_arm
+    nodes/arm_control
     nodes/cam_display
-    nodes/tracker
+    nodes/enable_head_cam
     nodes/tag_detection
-    nodes/realsense_detect
+    nodes/enable_left_cam
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

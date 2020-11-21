@@ -4,8 +4,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CameraInfo, CompressedImage
 import cv2
 import tf2_ros
-import numpy as np
-from apriltag_ros.msg import AprilTagDetectionArray
+import numpy as nps
 from geometry_msgs.msg import Pose, Point
 import geometry_msgs.msg
 
@@ -15,9 +14,9 @@ class TagDetect:
     def __init__(self):
 
         # Baxter's right hand camera
-        self.right_camera = rospy.Subscriber("/cameras/right_hand_camera/image", Image, self.baxter_cam)
+        # self.right_camera = rospy.Subscriber("/cameras/right_hand_camera/image", Image, self.baxter_cam)
         # Baxter's left hand camera
-        # self.right_camera = rospy.Subscriber("/cameras/left_hand_camera/image", Image, self.baxter_cam)
+        self.left_camera = rospy.Subscriber("/cameras/left_hand_camera/image", Image, self.baxter_cam)
 
 
         # Publishes raw and color images from the Baxter
@@ -26,11 +25,11 @@ class TagDetect:
 
 
         # Publishes image_rect that apriltag_ros will receive
-        self.image_rect_sub = rospy.Subscriber( "/cameras/right_hand_camera/image", Image, self.rect_image_callback)
+        self.image_rect_sub = rospy.Subscriber( "/cameras/left_hand_camera/image", Image, self.rect_image_callback)
         self.image_rect_pub= rospy.Publisher( "/camera_rect/image_rect", Image, queue_size = 1)
 
         # Calibration Matrix for Camera Info
-        self.cal_sub = rospy.Subscriber("/cameras/right_hand_camera/camera_info_std", CameraInfo, self.cal_n_info_pub)
+        self.cal_sub = rospy.Subscriber("/cameras/left_hand_camera/camera_info_std", CameraInfo, self.cal_n_info_pub)
         self.cal_pub =  rospy.Publisher("/camera/camera_info", CameraInfo, queue_size = 1)
 
 
@@ -54,12 +53,6 @@ class TagDetect:
     def rect_image_callback(self, data):
         self.image_rect_pub.publish(data)
 
-        
-    # def apriltag_callback(self, data):
-
-    #     print('apriltag_callback is working')
-    #     for detectio
-
     
    
     # Calibrate and publish Camera Info for apriltag_ros
@@ -77,7 +70,7 @@ class TagDetect:
         world_base_tf.header.stamp = rospy.Time.now()
         # world_base_tf.header.frame_id = "camera"
         # world_base_tf.child_frame_id = "right_hand_camera"
-        world_base_tf.header.frame_id = "right_hand_camera"
+        world_base_tf.header.frame_id = "left_hand_camera"
         world_base_tf.child_frame_id = "camera"
 
         # The base frame will be raised in the z direction by 1 meter and be aligned with world

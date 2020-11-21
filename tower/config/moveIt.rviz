@@ -15,8 +15,9 @@ Panels:
         - /RobotModel1
         - /TF1
         - /TF1/Frames1
+        - /TF1/Tree1
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 317
+    Tree Height: 271
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -365,7 +366,7 @@ Visualization Manager:
         Trail Step Size: 1
         Trajectory Topic: /move_group/display_planned_path
       Planning Metrics:
-        Payload: 1
+        Payload: 60000
         Show Joint Torques: false
         Show Manipulability: false
         Show Manipulability Index: false
@@ -378,7 +379,7 @@ Visualization Manager:
         Interactive Marker Size: 0.30000001192092896
         Joint Violation Color: 255; 0; 255
         Planning Group: both_arms
-        Query Goal State: true
+        Query Goal State: false
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -695,11 +696,13 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/TF
       Enabled: true
-      Frame Timeout: 15
+      Frame Timeout: 600000
       Frames:
         All Enabled: false
         base:
           Value: false
+        camera:
+          Value: true
         collision_head_link_1:
           Value: false
         collision_head_link_2:
@@ -725,8 +728,12 @@ Visualization Manager:
         left_arm_mount:
           Value: false
         left_gripper:
-          Value: true
+          Value: false
         left_gripper_base:
+          Value: false
+        left_gripper_mass:
+          Value: false
+        left_gripper_object_mass:
           Value: false
         left_hand:
           Value: false
@@ -768,13 +775,139 @@ Visualization Manager:
           Value: false
         r_gripper_r_finger_tip:
           Value: false
+        reference/base:
+          Value: false
+        reference/collision_head_link_1:
+          Value: false
+        reference/collision_head_link_2:
+          Value: false
+        reference/display:
+          Value: false
+        reference/dummyhead1:
+          Value: false
+        reference/head:
+          Value: false
+        reference/head_camera:
+          Value: false
+        reference/l_gripper_l_finger:
+          Value: false
+        reference/l_gripper_l_finger_tip:
+          Value: false
+        reference/l_gripper_r_finger:
+          Value: false
+        reference/l_gripper_r_finger_tip:
+          Value: false
+        reference/left_arm_itb:
+          Value: false
+        reference/left_arm_mount:
+          Value: false
+        reference/left_gripper:
+          Value: false
+        reference/left_gripper_base:
+          Value: false
+        reference/left_gripper_mass:
+          Value: false
+        reference/left_gripper_object_mass:
+          Value: false
+        reference/left_hand:
+          Value: false
+        reference/left_hand_accelerometer:
+          Value: false
+        reference/left_hand_camera:
+          Value: false
+        reference/left_hand_camera_axis:
+          Value: false
+        reference/left_hand_range:
+          Value: false
+        reference/left_lower_elbow:
+          Value: false
+        reference/left_lower_forearm:
+          Value: false
+        reference/left_lower_shoulder:
+          Value: false
+        reference/left_torso_itb:
+          Value: false
+        reference/left_upper_elbow:
+          Value: false
+        reference/left_upper_elbow_visual:
+          Value: false
+        reference/left_upper_forearm:
+          Value: false
+        reference/left_upper_forearm_visual:
+          Value: false
+        reference/left_upper_shoulder:
+          Value: false
+        reference/left_wrist:
+          Value: false
+        reference/pedestal:
+          Value: false
+        reference/r_gripper_l_finger:
+          Value: false
+        reference/r_gripper_l_finger_tip:
+          Value: false
+        reference/r_gripper_r_finger:
+          Value: false
+        reference/r_gripper_r_finger_tip:
+          Value: false
+        reference/right_arm_itb:
+          Value: false
+        reference/right_arm_mount:
+          Value: false
+        reference/right_gripper:
+          Value: false
+        reference/right_gripper_base:
+          Value: false
+        reference/right_gripper_mass:
+          Value: false
+        reference/right_gripper_object_mass:
+          Value: false
+        reference/right_hand:
+          Value: false
+        reference/right_hand_accelerometer:
+          Value: false
+        reference/right_hand_camera:
+          Value: false
+        reference/right_hand_camera_axis:
+          Value: false
+        reference/right_hand_range:
+          Value: false
+        reference/right_lower_elbow:
+          Value: false
+        reference/right_lower_forearm:
+          Value: false
+        reference/right_lower_shoulder:
+          Value: false
+        reference/right_torso_itb:
+          Value: false
+        reference/right_upper_elbow:
+          Value: false
+        reference/right_upper_elbow_visual:
+          Value: false
+        reference/right_upper_forearm:
+          Value: false
+        reference/right_upper_forearm_visual:
+          Value: false
+        reference/right_upper_shoulder:
+          Value: false
+        reference/right_wrist:
+          Value: false
+        reference/screen:
+          Value: false
+        reference/sonar_ring:
+          Value: false
+        reference/torso:
+          Value: false
         right_arm_itb:
           Value: false
         right_arm_mount:
           Value: false
         right_gripper:
-          Value: true
+          Value: false
         right_gripper_base:
+          Value: false
+        right_gripper_mass:
+          Value: false
+        right_gripper_object_mass:
           Value: false
         right_hand:
           Value: false
@@ -810,6 +943,12 @@ Visualization Manager:
           Value: false
         sonar_ring:
           Value: false
+        tag_1:
+          Value: true
+        tag_2:
+          Value: true
+        tag_3:
+          Value: true
         torso:
           Value: false
         world:
@@ -856,6 +995,9 @@ Visualization Manager:
                                       {}
                                   left_gripper:
                                     {}
+                                left_gripper_mass:
+                                  left_gripper_object_mass:
+                                    {}
                                 left_hand_accelerometer:
                                   {}
                                 left_hand_camera:
@@ -892,10 +1034,19 @@ Visualization Manager:
                                       {}
                                   right_gripper:
                                     {}
+                                right_gripper_mass:
+                                  right_gripper_object_mass:
+                                    {}
                                 right_hand_accelerometer:
                                   {}
                                 right_hand_camera:
-                                  {}
+                                  camera:
+                                    tag_1:
+                                      {}
+                                    tag_2:
+                                      {}
+                                    tag_3:
+                                      {}
                                 right_hand_camera_axis:
                                   {}
                                 right_hand_range:
@@ -907,6 +1058,98 @@ Visualization Manager:
               right_torso_itb:
                 {}
               sonar_ring:
+                {}
+          reference/base:
+            reference/collision_head_link_1:
+              {}
+            reference/collision_head_link_2:
+              {}
+            reference/torso:
+              reference/head:
+                reference/dummyhead1:
+                  {}
+                reference/head_camera:
+                  {}
+                reference/screen:
+                  reference/display:
+                    {}
+              reference/left_arm_mount:
+                reference/left_upper_shoulder:
+                  reference/left_lower_shoulder:
+                    reference/left_upper_elbow:
+                      reference/left_lower_elbow:
+                        reference/left_upper_forearm:
+                          reference/left_arm_itb:
+                            {}
+                          reference/left_lower_forearm:
+                            reference/left_wrist:
+                              reference/left_hand:
+                                reference/left_gripper_base:
+                                  reference/l_gripper_l_finger:
+                                    reference/l_gripper_l_finger_tip:
+                                      {}
+                                  reference/l_gripper_r_finger:
+                                    reference/l_gripper_r_finger_tip:
+                                      {}
+                                  reference/left_gripper:
+                                    {}
+                                reference/left_gripper_mass:
+                                  reference/left_gripper_object_mass:
+                                    {}
+                                reference/left_hand_accelerometer:
+                                  {}
+                                reference/left_hand_camera:
+                                  {}
+                                reference/left_hand_camera_axis:
+                                  {}
+                                reference/left_hand_range:
+                                  {}
+                        reference/left_upper_forearm_visual:
+                          {}
+                    reference/left_upper_elbow_visual:
+                      {}
+              reference/left_torso_itb:
+                {}
+              reference/pedestal:
+                {}
+              reference/right_arm_mount:
+                reference/right_upper_shoulder:
+                  reference/right_lower_shoulder:
+                    reference/right_upper_elbow:
+                      reference/right_lower_elbow:
+                        reference/right_upper_forearm:
+                          reference/right_arm_itb:
+                            {}
+                          reference/right_lower_forearm:
+                            reference/right_wrist:
+                              reference/right_hand:
+                                reference/right_gripper_base:
+                                  reference/r_gripper_l_finger:
+                                    reference/r_gripper_l_finger_tip:
+                                      {}
+                                  reference/r_gripper_r_finger:
+                                    reference/r_gripper_r_finger_tip:
+                                      {}
+                                  reference/right_gripper:
+                                    {}
+                                reference/right_gripper_mass:
+                                  reference/right_gripper_object_mass:
+                                    {}
+                                reference/right_hand_accelerometer:
+                                  {}
+                                reference/right_hand_camera:
+                                  {}
+                                reference/right_hand_camera_axis:
+                                  {}
+                                reference/right_hand_range:
+                                  {}
+                        reference/right_upper_forearm_visual:
+                          {}
+                    reference/right_upper_elbow_visual:
+                      {}
+              reference/right_torso_itb:
+                {}
+              reference/sonar_ring:
                 {}
       Update Interval: 0
       Value: true
@@ -942,14 +1185,14 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.49020320177078247
+      Pitch: 0.5002031326293945
       Target Frame: base
-      Yaw: 0.4985782504081726
+      Yaw: 0.15857826173305511
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1136
+  Height: 1043
   Help:
     collapsed: false
   Hide Left Dock: false
@@ -958,9 +1201,9 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002570000041afc0200000007fb000000100044006900730070006c006100790073010000003b00000202000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e0067010000022b000001d70000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003f00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000243000002120000017300ffffff000005230000041a00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd000000010000000000000257000003bdfc0200000007fb000000100044006900730070006c006100790073010000003b000001d4000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a0056006900650077007300000003b0000000b0000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e0067010000022b000001d70000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003f00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000215000001e30000017200ffffff00000523000003bd00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1920
-  X: 0
-  Y: 27
+  X: 1920
+  Y: 0

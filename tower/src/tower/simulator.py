@@ -18,6 +18,8 @@ from moveit_msgs.msg import MoveItErrorCodes
 from gazebo_msgs.srv import GetModelState,SetModelState
 from geometry_msgs.msg import Pose,Point,Twist
 from gazebo_msgs.msg import ModelState
+import tf2_ros
+
 
 
 
@@ -89,12 +91,12 @@ class Scene():
         self.table_posx = rospy.get_param("t_x")    
         self.table_posy = rospy.get_param("t_y")
         self.table_posz = rospy.get_param("t_z")
-        self.number_cups = 3
 
-        # rospy.logerr(self.cup_radius)
 
 
         self.cup_n = 3
+        self.buffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.buffer)
 
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
@@ -106,16 +108,18 @@ class Scene():
         box_pose.header.frame_id = 'world'
         box_pose.pose.orientation.w = 1.0
         
-        box_pose.pose.position.x = position.x
-        box_pose.pose.position.y = position.y
-        box_pose.pose.position.z = position.z
+        tablePos = self.gms("Table", "base").pose
+        # rospy.loginfo(f"table pos = {tablePos}")
+        box_pose.pose.position.x = tablePos.position.x
+        box_pose.pose.position.y = tablePos.position.y
+        box_pose.pose.position.z = tablePos.position.z
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
-        self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=5)
+        self.wait_for_state_update(object_name= "table", box_is_known=True, timeout=1)
         
 
-    def add_cup(self,name, position, timeout=4):
+    def add_cup(self,name, position, timeout=1):
         """Adds a cup object at a specified position
         Args:
             name (str): name of cup to place in scene (ex. cup3)
@@ -132,7 +136,7 @@ class Scene():
         cylinder_pose.pose.position.z = position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
 
         self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
-        return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=5)
+        return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=1)
 
     
 
@@ -155,7 +159,7 @@ class Scene():
         """restarts gazebo scene    """
         pose = Pose()
         twist = Twist()
-        pose.position = Point(0.8,0.9,0.1)
+        pose.position = Point(0.8,0.8,0.1)
         
         self.sms(ModelState("Cup_1",pose,twist,"base"))
         pose.position.x = 1.2
@@ -170,23 +174,19 @@ class Scene():
     def create_scene(self):
         """Creates scene at moveIt with 3 cups at the table
         """
-        cup1 = self.gms("Cup_1","base")
-        cup2 = self.gms("Cup_2","base")
-        cup3 = self.gms("Cup_3","base")
 
-        self.add_cup("Cup_1",cup1.pose.position)
-        self.add_cup("Cup_2",cup2.pose.position)
-        self.add_cup("Cup_3",cup3.pose.position)
-
-        #table = self.sms("Table", "base")
+        for i in range(self.cup_n):
+            cup_name = "Cup_"+str(i+1)
+            cupPos = self.gms(cup_name,"base").pose
+            self.add_cup(cup_name,cupPos.position)
 
         table = self.gms("Table","base")
-        rospy.logerr(table)
         self.add_table("Table",table.pose.position)
-      
-    def set_table_position(self):
-        """Adds table in rviz and gazebo at a position that is specified 
-        in the scene_objects.yaml file
+        ModelState("Table",table.pose,Twist(),"base")
+    
+    def set_table_posistion(self):
+        """Adds table in rviz and gazebo at a position that
+        is specifed in scene_objects.yaml
         """
         pose = Pose()
         twist = Twist()
@@ -195,7 +195,7 @@ class Scene():
         self.add_table("Table", pose.position)
 
 
-    def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=4):
+    def wait_for_state_update(self, object_name ,box_is_known=False, box_is_attached=False, timeout=1):
         """Copied from tutorial
         """
 
@@ -223,7 +223,7 @@ class Scene():
 
 
     # def attach_cup(self, ee_link, cup_name, robot,  timeout=4):
-    def attach_cup(self, ee_link, robot,cup_name,  timeout=4):
+    def attach_cup(self, ee_link, robot,cup_name,  timeout=1):
         """Attaches objects to the robot.
         Adds link names to touch_links array. 
         This tells the planning scene to ignore collisons between the robot and 
@@ -250,10 +250,8 @@ class Scene():
         #wait for planning scene to update
         return self.wait_for_state_update(cup_name, box_is_attached=True, box_is_known=False, timeout=timeout)
       
-   
 
-
-    def detach_cup(self,cup_name,ee_link, timeout=4):
+    def detach_cup(self,cup_name,ee_link, timeout=1):
         """detach a cup from robot
 
         """
@@ -267,44 +265,60 @@ class Scene():
         return self.wait_for_state_update(cup_name,box_is_known=True, box_is_attached=False, timeout=timeout)
 
 
-    def fake_sms(ModelState):
+    def fake_sms(self, ModelState):
         pass
 
-    def fake_gms(name,base):
+    def fake_gms(self, name,base):
         pos = Pose()
-        if(name=="Cup_1"):
-            pos.position.x= 1.0
-            pos.position.y= 0.0
-            pos.position.z= 0.01
-        elif(name=="Cup_2"):
-            pos.position.x= 1.0
-            pos.position.y= -0.4
-            pos.position.z= 0.01
-        elif(name=="Cup_3"):
-            pos.position.x= 1.0
-            pos.position.y= -0.4
-            pos.position.z= 0.01
-        elif(name=="Table"):
-            pos.position.x= 1.0
-            pos.position.y= 0.0
-            pos.position.z= 0.0
-        pass
+        if(name=="Table"):
+            tagPos = self.listen_tag(1)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
+            rospy.loginfo(f"table tag = {tagPos}")
+        else:
+            id = int(name[-1])+1
+            tagPos = self.listen_tag(id)
+            pos.position.x= tagPos[0]
+            pos.position.y= tagPos[1]
+            pos.position.z= tagPos[2]
+
+        return ModelState(name,pos,Twist(), "base")
+
+    def listen_tag(self, i):
+        """ 
+        Listens to the most recent end_effector's position with respect to the base_link. 
+        """
+        try:
+            name = "tag_" + str(i)
+            trans = self.buffer.lookup_transform('base', name, rospy.Time())
+            # rospy.loginfo(f"{trans}")
+            tagX = trans.transform.translation.x
+            tagY = trans.transform.translation.y
+            tagZ = trans.transform.translation.z
+            # rospy.loginfo(f"({tagX}, {tagY}, {tagZ})")
+            return (tagX, tagY, tagZ)
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            rospy.logerr(f"ERROR in listen_tag no lookup_transform found for {i}! ")
+            return (0, 0, 0)
+
+
+
 
     def cups_sorted(self):
         """
-        Returns True if all cups are inside inLine area 
+        Returns True if all cups are inside inLine workspace 
         Returns False if any cup is still inside the workspace
         """
-        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+        cups_list = []
+        for i in range(self.cup_n):
+            cups_list.append("Cup_"+str(i+1))
+
         for cup in cups_list:
             position = self.get_cup_position(cup)
-            y_pos = position.position.y
-            rospy.logerr(cup)
-            rospy.logerr(position.position.y)
+            y_pos = position.y
             # if the cup is in the middle two quadrants of the table
             if y_pos < self.table_y/4 and y_pos > -1*self.table_y/4:
-                rospy.logerr("HI")
-                rospy.logerr(self.table_y/4)
                 return False
         return True
 
@@ -314,108 +328,124 @@ class Scene():
         two quadrants of the table based on their x and y position.  
         - add hand as input later
         this function is for state 1 
-        Return the name of a cup that should be grabed from hand arm
+        Return the position of a cup that should be grabed from hand arm
         left_hand arm gets y>0 
         right_hand arm gets y<0
         priority is given to cup with min(x)
         """
-        left_hand_cups = []
-        right_hand_cups = []
-        left_xpos_dict = {}
-        right_xpos_dict = {}
-        left_hand_cups_sorted = [] # list of cups that should be grabbed by left arm, sorted from closest x to furthest x
-        right_hand_cups_sorted = []
-        cups_list = ["Cup_1", "Cup_2", "Cup_3"]
+        dictio_left,dictio_right = self.create_dictionary("InWorkspace")
+        if(hand=="left_gripper") and not len(dictio_left) == 0:
+            cup_name = self.get_min_of_dict(dictio_left)
+
+        elif(hand=="right_gripper") and not len(dictio_right) == 0:
+            cup_name = self.get_min_of_dict(dictio_right)
+        else:
+            rospy.logerr("ERROR in assing_cup_st1 no hand recognised!")
+            return "Cup_0"
+        return cup_name
        
-        # this loop adds cups to left or right hand list based on y position
-        for cup in cups_list:
-            position = self.get_cup_position(cup)
-            y_pos = position.position.y
-            if y_pos < 0 and y_pos > -self.table_y/4: # not sorted and on the right
-                right_hand_cups.append(cup)
-            elif y_pos > 0 and y_pos< self.table_y/4: # not sorted and on the left
-                left_hand_cups.append(cup)
-
-        # LEFT
-        # add cup and x position to dictionary 
-        for cup in left_hand_cups:
-            position = self.get_cup_position(cup)
-            x_pos = position.position.x
-            left_xpos_dict[cup] = x_pos
-        # sort dictionary from smallest to largest x
-        sort_left_xpos = sorted(left_xpos_dict.items(), key=lambda x: x[1], reverse = False)
-        # make list of cups sorted from closest to furthest in the x
-        for i in sort_left_xpos:
-            left_hand_cups_sorted.append(i[0])
-        
-        #RIGHT
-        for cup in right_hand_cups:
-            position = self.get_cup_position(cup)
-            x_pos = position.position.x
-            right_xpos_dict[cup] = x_pos
-        
-        sort_right_xpos = sorted(right_xpos_dict.items(), key=lambda x: x[1], reverse = False)
-
-        for i in sort_right_xpos:
-            right_hand_cups_sorted.append(i[0])
-
-        # rospy.logerr(sort_left_xpos)
-        # rospy.logerr(left_hand_cups_sorted)
-        # rospy.logerr(right_hand_cups_sorted)
-        pass
 
 
     def get_cup_position(self,name):
         """return the position of Cup
         """
+        if(name=="Cup_0"):
+            cup = Pose()
+            cup.position.x = 0
+            cup.position.y = 0
+            cup.position.z = 0
+            return cup.position
         cup = self.gms(name,"base")
-        return cup.pose
+        return cup.pose.position
 
 
-    def get_next_sorting_position(self,hand):
+
+
+    def create_dictionary(self,workspace):
         """
-        Return the position that we should leave cup on inLine workstation
-        return type: tuple (x,y)
+        creates 2 lists(sorted) for each arm that contain th cups position 
+            Arg: 
+                workspace --> InWorkspace or OutWorkspace choose to populate the list with cups that are in sorted WS or not
         """
-        #this is fake needs to implemented
-        if(hand=="left_hand"):
-            if(len(self.sorted_list_pos_left)==0):
-                rospy.logerr("ERROR list of sorted points is empty!")
-            return self.sorted_list_pos_left.pop()
-        elif(hand=="right_hand"):
-            return self.sorted_list_pos_right.pop()
-        else:
-            if(len(self.sorted_list_pos_right)==0):
-                rospy.logerr("ERROR list of sorted points is empty!")
-            rospy.logerr("ERROR IN get_next_sorting_position")
+        dictio_left = {}
+        dictio_right = {}
 
-    def create_sorted_list_position(self,reverse):
-        """
-        create a list for each hand that has the position we should leave each cup at inLine workstation
-        """
-        self.sorted_list_pos_left = [] 
-        self.sorted_list_pos_right = []
-
-
-        radious = self.cup_radius
-
+        # get only sorted cups & split  left right lists
+        condition = self.table_y/4.0
         for i in range(self.cup_n):
+            k = i + 1
+            cup_name = "Cup_"+str(k)
+            cup_pos = self.gms(cup_name,"base").pose.position
+            if(workspace=="OutWorkspace"):
+                if(cup_pos.y>condition):
+                    dictio_left[cup_name] = cup_pos
+                elif(cup_pos.y<-1*condition):
+                    dictio_right[cup_name]=cup_pos
+            elif(workspace=="InWorkspace"):
+                if cup_pos.y < condition and cup_pos.y > -1*condition:
+                    if(cup_pos.y>0):
+                        dictio_left[cup_name] = cup_pos
+                    elif(cup_pos.y<0):
+                        dictio_right[cup_name] = cup_pos
 
-            L_pose = Pose()
-            L_pose.position.x = 0.6
-            L_pose.position.y = 0.8
-            L_pose.position.z = 1
-            L_pose.position.x = L_pose.position.x + 2*radious*i
-            self.sorted_list_pos_left.append(L_pose)
+        #sort list with min(x) being the first
+        return dictio_left,dictio_right
 
-            R_pose = Pose()
-            R_pose.position.x = 0.6
-            R_pose.position.y = -0.8
-            R_pose.position.z = 1
-            R_pose.position.x = R_pose.position.x + 2*radious*i
-            rospy.logerr(L_pose)
-            self.sorted_list_pos_right.append(R_pose)
-        
-        if(reverse):
-            self.sorted_list_pos_left.reverse()
-            self.sorted_list_pos_right.reverse()
+
+    def grab_next_cup(self,hand):
+        """
+        Return the cup_name  of the next cup that should be grabed from the sorting workspace
+        """
+        dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
+        if hand=="left_gripper" and not len(dictio_left)==0:
+            cup_name = self.get_min_of_dict(dictio_left)
+
+        elif hand=="right_gripper" and not len(dictio_right)==0:
+            cup_name = self.get_min_of_dict(dictio_right)
+        else:
+            rospy.logerr("ERROR in grab_next_pos no hand recognised!")
+            return "Cup_0"
+        return cup_name
+
+    def place_next_pos(self,hand):
+        """
+        Returns the position of the next cup that will be placed at the sorting workspace
+        """
+        dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
+
+        #handle expeption of first cup
+        if(hand=="left_gripper" and len(dictio_left)==0):
+            pos = Pose().position
+            pos.x = 1.0
+            pos.y = self.table_y/4.0 +0.2
+            pos.z = self.table_posz + self.cup_height*2
+            return pos
+
+        if(hand=="right_gripper" and len(dictio_right)==0):
+            pos = Pose().position
+            pos.x = 1.0
+            pos.y = -1*self.table_y/4.0 - 0.2
+            pos.z = self.table_posz + self.cup_height*2
+            return pos
+
+        if(hand=="left_gripper"):
+            diction = dictio_left
+            
+        elif(hand=="right_gripper"):
+            diction = dictio_right
+        else:
+            rospy.logerr("ERROR in place_pos no hand recognised!")
+            return Pose().position
+
+        cup_name = self.get_min_of_dict(diction)
+        pos = diction[cup_name]
+        pos.x = pos.x - self.cup_radius*1.2
+        return pos
+
+    def get_max_of_dict(self,dictio):
+        """ return the maximum key from dictionary based on position.x"""
+        return [k for k,v in dictio.items() if v.x==max([val.x for val in dictio.values()])][0]
+
+    def get_min_of_dict(self,dictio):
+        """ return the minimum key from dictionary based on position.x"""
+        return [k for k,v in dictio.items() if v.x==min([val.x for val in dictio.values()])][0]
