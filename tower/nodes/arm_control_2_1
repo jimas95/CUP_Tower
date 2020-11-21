@@ -211,7 +211,6 @@ class Handler:
             self.state_2_hack()
             return "Execute Hack"
         elif req.choice == 7:
-            self.state_2(3)
             return "building tower with three cups"
         elif req.choice == 8:
             self.state_1()
@@ -531,7 +530,8 @@ class Handler:
             rospy.logdebug(" ")
             rospy.logdebug(hand_R)
 
-            self.grab_and_place_two_hands(hand_L,hand_R, True)
+            # deletete this !
+            # self.grab_and_place_two_hands(hand_L,hand_R, True)
 
 
 
