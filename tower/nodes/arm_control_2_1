@@ -19,8 +19,8 @@ from tower.simulator import Scene
 from tower.buildTower import BuildTower
 import time
 
-REAL_ROBOT = True # Real Robot
-# REAL_ROBOT = False # fake Robot
+# REAL_ROBOT = True # Real Robot
+REAL_ROBOT = False # fake Robot
 
 
 class Handler:
