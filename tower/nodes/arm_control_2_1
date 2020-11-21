@@ -19,8 +19,8 @@ from tower.simulator import Scene
 from tower.buildTower import BuildTower
 import time
 
-# REAL_ROBOT = True # Real Robot
-REAL_ROBOT = False # fake Robot
+REAL_ROBOT = True # Real Robot
+# REAL_ROBOT = False # fake Robot
 
 
 class Handler:
@@ -337,8 +337,8 @@ class Handler:
         # got to graspiping position
         position = (0.8,0.5,self.POS_Z)
         position = (0.75,0.25,0.1)
-        # self.grab(position,self.RIGHT_HOME)
-        self.grab_above(position,self.RIGHT_HOME)
+        self.grab(position,self.RIGHT_HOME)
+        # self.grab_above(position,self.RIGHT_HOME)
 
 
         #Close gripper
@@ -349,8 +349,8 @@ class Handler:
         # got at place position
         position = placePosList[self.hack_id]
         
-        # self.grab(position,self.RIGHT_HOME)
-        self.grab_above(position,self.RIGHT_HOME)
+        self.grab(position,self.RIGHT_HOME)
+        # self.grab_above(position,self.RIGHT_HOME)
 
         time.sleep(3)
         #Open gripper
