@@ -158,29 +158,7 @@ class Handler:
         pose.orientation.w = q[3]
         return pose
 
-    def orientation_sideway(self, pose, hand, sorting):
-        """ helper function for setting the orientation sideway at given pose 
 
-            Args:
-                pose (Pose) - pose to orient
-                hand (string) - "left_gripper" or "right_gripper"
-                sorting (bool) - whether the cups are being sorted. 
-                                If yes, gripper should point outward, otherwise, point intward
-            Return:
-                pose (Pose) - pose after oriented 
-        """
-        rpy = [0, 0, 0]
-        if (hand == "right_gripper" and not sorting) or (hand == "left_gripper" and sorting):
-            rpy = [-0.785, 1.5707, 0]
-        elif (hand == "left_gripper" and not sorting) or (hand == "right_gripper" and sorting):
-            rpy = [0.785, 1.5707, 0]
-
-        q = quaternion_from_euler(rpy[0], rpy[1], rpy[2])
-        pose.orientation.x = q[0]
-        pose.orientation.y = q[1]
-        pose.orientation.z = q[2]
-        pose.orientation.w = q[3]
-        return pose
 
     def test_control_callback(self, req):
         """ helper service for testing other services or functions.
@@ -285,41 +263,6 @@ class Handler:
 
         return "N/A"
 
-    def state_2(self, num):
-        """
-        from a sorted cup enviroment 
-        BUILDS A CUP TOWER !
-
-            Args:
-                num (int) - number of cups used to build the tower. Options are 3 and 6.
-        """
-        if num == 3:
-            placePosList, useHandList  = self.buildTower.tower_3_cups()
-        elif num == 6:
-            pass
-        rospy.loginfo(f"placePosList = {placePosList}")
-        rospy.loginfo(f"useHandList = {useHandList}")
-
-        i = 0
-        while i < len(placePosList):
-            if useHandList[i] == "left_gripper" and (i < len(placePosList)-1 and useHandList[i+1] == "right_gripper"):
-                leftPlace = placePosList[i]
-                rightPlace = placePosList[i+1]
-                i += 2
-                leftCup = self.myscene.grab_next_cup("left_gripper")
-                cup_grab_posL = self.myscene.get_cup_position(leftCup)
-                rightCup = self.myscene.grab_next_cup("right_gripper")
-                cup_grab_posR = self.myscene.get_cup_position(rightCup)
-
-                leftGrab = (cup_grab_posL.x, cup_grab_posL.y, self.POS_Z)
-                rightGrab = (cup_grab_posR.x, cup_grab_posR.y, self.POS_Z)
-
-                rospy.loginfo(f"left_gripper = {leftCup}  {leftGrab}--> {leftPlace}")
-                rospy.loginfo(f"right_gripper = {rightCup} {rightGrab}--> {rightPlace}")
-                self.grab_and_place_two_hands((leftGrab, leftPlace, leftCup), (rightGrab, rightPlace, rightCup), False)
-                
-            else:
-                rospy.logerr("Wrong list of build tower")
 
     def state_2_hack(self):
         """
@@ -422,59 +365,7 @@ class Handler:
                 self.left_arm_group.stop()
                 self.left_arm_group.clear_pose_targets()   
 
-    def grab_and_place_two_hands(self, leftPos, rightPos, sorting):
-        """ grab and place a cup to another position using both hands
-            
-            Args:
-                leftPos (tuple of two tuples in form of (grab, place) where grab = (x, y, z), place = (x, y, z)
-                    - traj of left hand
-                rightPos (tuple of two tuples in form of (grab, place) where grab = (x, y, z), place = (x, y, z)
-                    - traj of right hand
-        """
-        rospy.loginfo("open gripper")
-        self.gripper_control(state=True, gripper="both")
-
-        leftGrab = leftPos[0]
-        leftPlace = leftPos[1]
-        leftName = leftPos[2]
-        rightGrab = rightPos[0]
-        rightPlace = rightPos[1]
-        rightName = rightPos[2]
-
-        if leftName == "Cup_0":
-            leftPlace = self.LEFT_HOME
-            leftGrab = self.LEFT_HOME
-        if rightName == "Cup_0":
-            rightPlace = self.RIGHT_HOME
-            rightGrab = self.RIGHT_HOME
-
-        #Go and grab a Cup !
-        self.grab(leftGrab,rightGrab)
-        # self.grab_above(leftGrab,rightGrab)
-
-        # Close grippers
-        rospy.loginfo("close gripper")
-        self.gripper_control(state=False, gripper="both")
-        
-        # Attach cups 
-        rospy.loginfo("attach cup")
-        self.myscene.attach_cup("left_hand", self.robot, leftName)
-        self.myscene.attach_cup("right_hand", self.robot, rightName)
-
-
-        # Place Cup
-        self.place(leftPlace,rightPlace)
-
-        # Open Grippers
-        rospy.loginfo("open gripper")
-        self.gripper_control(state=True, gripper="both")
-
-        # Detach cups
-        rospy.loginfo("detach cup")
-        self.myscene.detach_cup(leftName, "left_hand")
-        self.myscene.detach_cup(rightName, "right_hand")
-
-
+    
     def grab(self,cup_posL,cup_posR):
 
         #Go to pregrasping position
@@ -506,17 +397,18 @@ class Handler:
 
     def grab_place(self,cup_posL,current_state):
 
-        
-        pose_goal = self.set_pose_goal(current_state,(0,0,0.05)) 
+        # from current position go up 
+        pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
     
-      
-        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.05)) 
+        #  move to goal position but on z keep +0.1
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
 
-        pose_goal = self.set_pose_goal(cup_posL,(0,0,0)) 
+        #move down 
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.0)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
     
@@ -561,33 +453,6 @@ class Handler:
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
 
 
-
-
-    def place(self,cup_posL,cup_posR):
-        rospy.logdebug("Set goal for Cup placement") 
-        rospy.logdebug("Set pre goal for left_gripper ")  
-        pose_goal = self.set_pose_goal(cup_posL,self.BEFORE_PLACE_POS)
-        pose_goal = self.orientation_sideway(pose_goal, "left_gripper",True)
-        # rospy.loginfo(f"{pose_goal}")
-        self.go_to(pose_goal,"left_gripper")
-        rospy.logdebug("Set pre goal for left_gripper ")  
-        pose_goal = self.set_pose_goal(cup_posR,self.BEFORE_PLACE_POS)
-        pose_goal = self.orientation_sideway(pose_goal, "right_gripper", True)
-        # rospy.loginfo(f"{pose_goal}")
-        self.go_to(pose_goal,"right_gripper")
-        self.execute_path()
-
-        rospy.logdebug("Set goal for left_gripper ")  
-        pose_goal = self.set_pose_goal(cup_posL)
-        pose_goal = self.orientation_sideway(pose_goal, "left_gripper", True)
-        self.go_to(pose_goal,"left_gripper")
-    
-        rospy.logdebug("Set goal for right_gripper ")  
-        pose_goal = self.set_pose_goal(cup_posR)
-        pose_goal = self.orientation_sideway(pose_goal, "right_gripper", True)
-        self.go_to(pose_goal,"right_gripper")
-
-        self.execute_path()
 
     def set_pose_goal(self,pos=(0,0,0),offset=(0,0,0)):
         """
