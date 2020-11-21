@@ -175,6 +175,7 @@ catkin_install_python(PROGRAMS
     nodes/enable_head_cam
     nodes/tag_detection
     nodes/enable_left_cam
+    nodes/arm_control_2_1.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
