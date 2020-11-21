@@ -244,7 +244,7 @@ class Scene():
 
         grasping_group = ee_link   # end effector group name
         touch_links = robot.get_link_names(group = grasping_group)
-        rospy.logerr(touch_links)
+        # rospy.logerr(touch_links)
         
         self.scene.attach_mesh(ee_link, cup_name, touch_links = touch_links)   # attach mesh is a moveit commander function
 
