@@ -171,11 +171,11 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
     nodes/arm_control
+    nodes/arm_control_2_1
     nodes/cam_display
     nodes/enable_head_cam
     nodes/tag_detection
     nodes/enable_left_cam
-    nodes/arm_control_2_1.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
