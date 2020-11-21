@@ -5,13 +5,14 @@ class BuildTower():
     def __init__(self):
         rospy.loginfo("position info of building")
         self.TOL = 0.03 # tolerance for cup
-        self.TOL_table = 0.11 # tolerance for table
+        self.TOL_table = 0.25 # tolerance for table
         #TODO: yaml
         self.radius = rospy.get_param("radius") + self.TOL # cup size
         self.height = rospy.get_param("length") + self.TOL
         self.tableHeight =  rospy.get_param("t_z") + self.TOL_table # or the minimum height that the gripper should be allowed to go
         self.centerY = 0.0
         self.towerX = 1.0   #34.5 cm
+        self.POS_Z = -0.04
 
     def tower_3_cups(self):
         """ build tower with three cups
@@ -27,13 +28,13 @@ class BuildTower():
         # 1 cup
         useHand.append("left_gripper")
         y = self.centerY + self.radius
-        z = self.tableHeight
+        z = self.POS_Z
         placePos.append((self.towerX, y, z))   
 
         # 2 cup
         useHand.append("right_gripper")
         y = self.centerY - self.radius
-        z = self.tableHeight
+        z = self.POS_Z
         placePos.append((self.towerX, y, z))   
         
         # no cup
@@ -43,7 +44,7 @@ class BuildTower():
         # 4 cup
         useHand.append("right_gripper")
         y = self.centerY
-        z = self.tableHeight + self.height
+        z = self.POS_Z + self.height
         placePos.append((self.towerX, y, z))       
 
         return placePos, useHand 

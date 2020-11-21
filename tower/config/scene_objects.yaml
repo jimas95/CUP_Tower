@@ -1,6 +1,6 @@
 # all dimension inits in meters
 # cup variables
-radius: 0.0381  # (3/2 inches)
+radius: 0.03  # (3/2 inches)
 length: 0.1143  # (4.5 inches) 
 
 # table variables
@@ -19,3 +19,8 @@ o_x: 0
 o_y: 0
 o_z: 0
 w: 1
+
+# cup grab tolerance
+CUP_Z_TOL: 0.02
+CUP_X_TOL: 0.03
+

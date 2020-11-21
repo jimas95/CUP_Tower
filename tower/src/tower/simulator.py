@@ -278,7 +278,7 @@ class Scene():
             rospy.loginfo(f"table tag = {tagPos}")
         else:
             id = int(name[-1])+1
-            tagPos = self.listen_tag(2)
+            tagPos = self.listen_tag(id)
             pos.position.x= tagPos[0]
             pos.position.y= tagPos[1]
             pos.position.z= tagPos[2]
@@ -331,10 +331,10 @@ class Scene():
         priority is given to cup with min(x)
         """
         dictio_left,dictio_right = self.create_dictionary("InWorkspace")
-        if(hand=="left_gripper"):
+        if(hand=="left_gripper") and not len(dictio_left) == 0:
             cup_name = self.get_min_of_dict(dictio_left)
 
-        elif(hand=="right_gripper"):
+        elif(hand=="right_gripper") and not len(dictio_right) == 0:
             cup_name = self.get_min_of_dict(dictio_right)
         else:
             rospy.logerr("ERROR in assing_cup_st1 no hand recognised!")
@@ -394,10 +394,10 @@ class Scene():
         Return the cup_name  of the next cup that should be grabed from the sorting workspace
         """
         dictio_left,dictio_right = self.create_dictionary("OutWorkspace")
-        if(hand=="left_gripper"):
+        if hand=="left_gripper" and not len(dictio_left)==0:
             cup_name = self.get_min_of_dict(dictio_left)
 
-        elif(hand=="right_gripper"):
+        elif hand=="right_gripper" and not len(dictio_right)==0:
             cup_name = self.get_min_of_dict(dictio_right)
         else:
             rospy.logerr("ERROR in grab_next_pos no hand recognised!")
@@ -413,16 +413,16 @@ class Scene():
         #handle expeption of first cup
         if(hand=="left_gripper" and len(dictio_left)==0):
             pos = Pose().position
-            pos.x = 0.8
+            pos.x = 1.0
             pos.y = self.table_y/4.0 +0.2
-            pos.z = self.cup_height
+            pos.z = self.table_posz + self.cup_height*2
             return pos
 
         if(hand=="right_gripper" and len(dictio_right)==0):
             pos = Pose().position
-            pos.x = 0.8
+            pos.x = 1.0
             pos.y = -1*self.table_y/4.0 - 0.2
-            pos.z = self.cup_height
+            pos.z = self.table_posz + self.cup_height*2
             return pos
 
         if(hand=="left_gripper"):
@@ -434,9 +434,9 @@ class Scene():
             rospy.logerr("ERROR in place_pos no hand recognised!")
             return Pose().position
 
-        cup_name = self.get_max_of_dict(diction)
+        cup_name = self.get_min_of_dict(diction)
         pos = diction[cup_name]
-        pos.x = pos.x + self.cup_radius*1.2
+        pos.x = pos.x - self.cup_radius*1.2
         return pos
 
     def get_max_of_dict(self,dictio):

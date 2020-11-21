@@ -366,7 +366,7 @@ Visualization Manager:
         Trail Step Size: 1
         Trajectory Topic: /move_group/display_planned_path
       Planning Metrics:
-        Payload: 1
+        Payload: 60000
         Show Joint Torques: false
         Show Manipulability: false
         Show Manipulability Index: false
@@ -696,11 +696,13 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/TF
       Enabled: true
-      Frame Timeout: 60
+      Frame Timeout: 600000
       Frames:
         All Enabled: false
         base:
           Value: false
+        camera:
+          Value: true
         collision_head_link_1:
           Value: false
         collision_head_link_2:
@@ -941,6 +943,12 @@ Visualization Manager:
           Value: false
         sonar_ring:
           Value: false
+        tag_1:
+          Value: true
+        tag_2:
+          Value: true
+        tag_3:
+          Value: true
         torso:
           Value: false
         world:
@@ -1032,7 +1040,13 @@ Visualization Manager:
                                 right_hand_accelerometer:
                                   {}
                                 right_hand_camera:
-                                  {}
+                                  camera:
+                                    tag_1:
+                                      {}
+                                    tag_2:
+                                      {}
+                                    tag_3:
+                                      {}
                                 right_hand_camera_axis:
                                   {}
                                 right_hand_range:
