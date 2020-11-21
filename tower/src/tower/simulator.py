@@ -98,6 +98,10 @@ class Scene():
         self.buffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.buffer)
 
+        self.cup_positions = []
+        for i in range(self.cup_n):
+            self.cup_positions.append(Pose())
+
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
         """Adds table object to planning scene
@@ -287,7 +291,18 @@ class Scene():
             pos.position.y= tagPos[1]
             pos.position.z= tagPos[2]
 
-        return ModelState(name,pos,Twist(), "base")
+        if(name=="Table"):
+            list_id = 0
+        else:
+            list_id = int(name[-1])
+
+                
+        if(pos.x !=0 and pos.y !=0 and pos.z !=0 ):
+            cup_positions[list_id].position.x = pos.position.x
+            cup_positions[list_id].position.y = pos.position.y
+            cup_positions[list_id].position.z = pos.position.z
+
+        return ModelState(name,cup_positions[list_id],Twist(), "base")
 
     def listen_tag(self, i):
         """ 
