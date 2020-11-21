@@ -69,12 +69,20 @@ class Handler:
 
         rospy.loginfo("SET UP READY")
 
+
+    def go_start_position(self):
+        """ go to START position for easier grasping """
+        self.both_arms_group.set_joint_value_target(self.START_JOINTS)
+        self.execute_path()
+
     def go_home_position(self):
         """ go to HOME position for easier grasping """
 
         target = self.HOME_JOINTS
         self.both_arms_group.set_joint_value_target(target)
         self.execute_path()
+
+    
 
 
     def gripper_control(self,state,gripper):
@@ -282,6 +290,10 @@ class Handler:
         elif req.choice == 106:
             self.gripper_control(state=True,gripper="both")
             return "open both grippers"
+        elif req.choice == 107:
+            self.go_home_position()
+            self.go_start_position()
+            return "home and start position"
 
         return "N/A"
 
