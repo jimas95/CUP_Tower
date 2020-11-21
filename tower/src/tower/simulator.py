@@ -233,6 +233,8 @@ class Scene():
              cup_name (str) : cup object to attach to robot
              robot (RobotComander object): provides info about robot
         """
+        if(cup_name=="Cup_0"):
+            return 0
         rospy.logdebug("attach : "+str(cup_name))
         # get a list of known objects in scene
         known_object_list = self.scene.get_known_object_names()
@@ -242,7 +244,7 @@ class Scene():
 
         grasping_group = ee_link   # end effector group name
         touch_links = robot.get_link_names(group = grasping_group)
-        rospy.logerr(touch_links)
+        # rospy.logerr(touch_links)
         
         self.scene.attach_mesh(ee_link, cup_name, touch_links = touch_links)   # attach mesh is a moveit commander function
 
@@ -258,6 +260,8 @@ class Scene():
         # Copy class variables to local variables to make the web tutorials more clear.
         # In practice, you should use the class variables directly unless you have a good
         # reason not to.
+        if(cup_name=="Cup_0"):
+            return 0
         rospy.logdebug("detach :"+str(cup_name))
         self.scene.remove_attached_object(ee_link, name=cup_name)
 
