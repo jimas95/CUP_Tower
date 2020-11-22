@@ -2,6 +2,13 @@
 <launch>
     <include file = "$(find apriltag_ros)/launch/continuous_detection.launch" >
     </include>
+    <!-- <include file = "$(find apriltag_ros)/launch/continuous_detection2.launch" >
+    </include>
+   <include file = "$(find apriltag_ros)/launch/single_image_server.launch" >
+    </include>
+    <include file = "$(find apriltag_ros)/launch/single_image_server2.launch" >
+    </include> -->
+
 
     <node name="tag_detection" pkg="tower" type="tag_detection" output='screen'/>
     <!-- <node name="enable_left_cam" pkg="tower" type="enable_left_cam" output='screen'/> -->
