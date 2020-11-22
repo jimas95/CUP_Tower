@@ -949,6 +949,8 @@ Visualization Manager:
           Value: true
         tag_3:
           Value: true
+        tag_4:
+          Value: true
         torso:
           Value: false
         world:
@@ -957,7 +959,7 @@ Visualization Manager:
       Marker Scale: 1
       Name: TF
       Show Arrows: true
-      Show Axes: true
+      Show Axes: false
       Show Names: true
       Tree:
         world:
@@ -1046,6 +1048,8 @@ Visualization Manager:
                                     tag_2:
                                       {}
                                     tag_3:
+                                      {}
+                                    tag_4:
                                       {}
                                 right_hand_camera_axis:
                                   {}
@@ -1169,7 +1173,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 4.886597156524658
+      Distance: 11.778040885925293
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -1185,9 +1189,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5002031326293945
+      Pitch: 0.3702034056186676
       Target Frame: base
-      Yaw: 0.15857826173305511
+      Yaw: 0.12357810884714127
     Saved: ~
 Window Geometry:
   Displays:
