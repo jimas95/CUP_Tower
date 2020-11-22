@@ -94,7 +94,7 @@ class Scene():
 
 
 
-        self.cup_n = 6
+        self.cup_n = 10
         self.buffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.buffer)
 
@@ -118,6 +118,9 @@ class Scene():
         box_pose.pose.position.x = tablePos.position.x
         box_pose.pose.position.y = tablePos.position.y
         box_pose.pose.position.z = tablePos.position.z
+        box_pose.pose.position.x =  0.7
+        box_pose.pose.position.y =  0.0
+        box_pose.pose.position.z = -0.2
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 

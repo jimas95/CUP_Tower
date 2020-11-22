@@ -15,9 +15,9 @@ class TagDetect:
     def __init__(self):
 
         # Baxter's right hand camera
-        self.right_camera = rospy.Subscriber("/cameras/right_hand_camera/image", Image, self.baxter_cam)
+        # self.right_camera = rospy.Subscriber("/cameras/right_hand_camera/image", Image, self.baxter_cam)
         # Baxter's left hand camera
-        # self.right_camera = rospy.Subscriber("/cameras/left_hand_camera/image", Image, self.baxter_cam)
+        self.left_camera = rospy.Subscriber("/cameras/left_hand_camera/image", Image, self.baxter_cam)
 
 
         # Publishes raw and color images from the Baxter
@@ -26,17 +26,17 @@ class TagDetect:
 
 
         # Publishes image_rect that apriltag_ros will receive
-        self.image_rect_sub = rospy.Subscriber( "/cameras/right_hand_camera/image", Image, self.rect_image_callback)
+        self.image_rect_sub = rospy.Subscriber( "/cameras/left_hand_camera/image", Image, self.rect_image_callback)
         self.image_rect_pub= rospy.Publisher( "/camera_rect/image_rect", Image, queue_size = 1)
 
         # Calibration Matrix for Camera Info
-        self.cal_sub = rospy.Subscriber("/cameras/right_hand_camera/camera_info_std", CameraInfo, self.cal_n_info_pub)
+        self.cal_sub = rospy.Subscriber("/cameras/left_hand_camera/camera_info_std", CameraInfo, self.cal_n_info_pub)
         self.cal_pub =  rospy.Publisher("/camera/camera_info", CameraInfo, queue_size = 1)
 
 
         # Publishes camera_info that apriltag_ros will receive
         self.caminfo_pub= rospy.Publisher("/camera_info", CameraInfo, queue_size = 1)
-        self.caminfo_rect_pub= rospy.Publisher("/camera_rect/camera_info", CameraInfo, queue_size = 1)
+        self.cam_info_rect_pub= rospy.Publisher("/camera_rect/camera_info", CameraInfo, queue_size = 1)
 
         # Subscribe to the apriltag 
         # self.apriltag = rospy.Subscriber("/detections", AprilTagDetectionArray, self.apriltag_callback)  
@@ -67,7 +67,7 @@ class TagDetect:
 
         self.cal_pub.publish(data)
         self.caminfo_pub.publish(data)
-        self.caminfo_rect_pub.publish(data)
+        self.cam_info_rect_pub.publish(data)
 
     def transform(self):
             
@@ -77,7 +77,7 @@ class TagDetect:
         world_base_tf.header.stamp = rospy.Time.now()
         # world_base_tf.header.frame_id = "camera"
         # world_base_tf.child_frame_id = "right_hand_camera"
-        world_base_tf.header.frame_id = "right_hand_camera"
+        world_base_tf.header.frame_id = "left_hand_camera"
         world_base_tf.child_frame_id = "camera"
 
         # The base frame will be raised in the z direction by 1 meter and be aligned with world
@@ -97,9 +97,6 @@ class TagDetect:
 if __name__ == "__main__":
 
     rospy.init_node("TagDetect")
-
-    static_broadcaster = tf2_ros.StaticTransformBroadcaster()
-
 
     # create object
     TagDetect()
