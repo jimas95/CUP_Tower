@@ -1,7 +1,7 @@
 # all dimension inits in meters
 # cup variables
-radius: 0.03  # (3/2 inches)
-length: 0.1143  # (4.5 inches) 
+radius: 0.02  # (3/2 inches)
+length: 0.05  # (4.5 inches) 
 
 # table variables
 table_x: 0.74  
