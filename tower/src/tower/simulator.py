@@ -94,7 +94,7 @@ class Scene():
 
 
 
-        self.cup_n = 3
+        self.cup_n = 6
         self.buffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.buffer)
 

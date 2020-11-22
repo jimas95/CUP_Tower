@@ -159,10 +159,8 @@ class Handler:
             self.hack_id = self.hack_id -1
             return "hack_id--> "+str(self.hack_id)
         elif req.choice == 4:
-            self.hack_id = self.hack_id +1
-            return "hack_id--> "+str(self.hack_id)
-        elif req.choice == 5:
             self.state_2_hack()
+            self.hack_id = self.hack_id + 1 
             return "Execute Hack"
         return "N/A"
 
@@ -176,15 +174,27 @@ class Handler:
         cup3_pos = self.myscene.get_cup_position("Cup_3")
         
         #picking cups position
-        cv_tolr = 0.02
-        pickPosList = [ (cup1_pos.x+cv_tolr,cup1_pos.y,-0.04),
-                        (cup2_pos.x+cv_tolr,cup2_pos.y,-0.04),
-                        (cup3_pos.x+cv_tolr,cup3_pos.y,-0.04)]
+        # cv_tolr = 0.02
+        # pickPosList = [ (cup1_pos.x+cv_tolr,cup1_pos.y,-0.04),
+        #                 (cup2_pos.x+cv_tolr,cup2_pos.y,-0.04),
+        #                 (cup3_pos.x+cv_tolr,cup3_pos.y,-0.04)]
+
+
+        pickPosList = [ (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04)]
+
 
         # placing cup location
         placePosList = [(0.75, -0.05 ,-0.04),
                         (0.75,  0.05 ,-0.04),
-                        (0.74,  0.0  , 0.12 )]
+                        (0.75,  0.15 ,-0.04),
+                        (0.74,  0.0  , 0.12 ),
+                        (0.74,  0.1  , 0.12 ),
+                        (0.735,  0.05  , 0.25 ),]
 
         cup_name = "Cup_" + str(self.hack_id+1) # set cup to pick and place
 
