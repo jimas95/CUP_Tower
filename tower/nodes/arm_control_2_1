@@ -19,8 +19,8 @@ from tower.simulator import Scene
 from tower.buildTower import BuildTower
 import time
 
-# REAL_ROBOT = True # Real Robot
-REAL_ROBOT = False # fake Robot
+REAL_ROBOT = True # Real Robot
+# REAL_ROBOT = False # fake Robot
 
 
 class Handler:
@@ -282,13 +282,10 @@ class Handler:
 
         #ppicking cups 
         pickPosList = [ (0.8,0.5,-0.04),
-                        (1.0,0.5,-0.04),
-                        (1.2,0.5,-0.04)]
+                        (0.9,0.5,-0.04),
+                        (1.0,0.5,-0.04)]
 
-        # pick from above
-        # pickPosList = [ (0.75,0.5 ,-0.01),
-        #                 (0.8 ,0.5,-0.10),
-        #                 (0.8 ,0.5,-0.00)]    
+  
 
         # set cup location 
         # if(self.hack_id==0):
@@ -302,9 +299,10 @@ class Handler:
         #         self.myscene.add_cup(cup_name,pos)
 
         # placing cup location
-        placePosList = [(0.75, -0.05 ,-0.01),
-                        (0.75,  0.05 ,-0.01),
-                        (0.75,  0.0  , 0.12 )]
+        placePosList = [ (0.9,0,-0.04),
+                         (0.895,0,0.1),
+                         (0.895,0,0.17)
+                        ]
 
         cup_name = "Cup_" + str(self.hack_id+1)
 
@@ -314,14 +312,9 @@ class Handler:
 
 
         # got to graspiping position
-
-        self.grab(pickPosList[self.hack_id],self.RIGHT_HOME)
-        # self.grab_above(pickPosList[self.hack_id],self.RIGHT_HOME)
+        self.grab(pickPosList[self.hack_id])
 
 
-        #Close gripper
-        rospy.logerr("Close grippes")
-        self.gripper_control(state=False,gripper="both")
         # self.myscene.attach_cup("left_hand", self.robot, cup_name)
 
 
@@ -333,7 +326,7 @@ class Handler:
         self.grab_place(placePosList[self.hack_id],cuurt_pose)
         # self.grab_above(placePosList[self.hack_id],self.RIGHT_HOME)
 
-        time.sleep(3)
+        time.sleep(1)
         #Open gripper
         rospy.logerr("Open grippes")
         self.gripper_control(state=True,gripper="both")
@@ -377,34 +370,22 @@ class Handler:
                 self.left_arm_group.clear_pose_targets()   
 
     
-    def grab(self,cup_posL,cup_posR):
-
-        #Go to pregrasping position
-        rospy.loginfo("Go to pregrasping position")
-        pose_goal = self.set_pose_goal(cup_posL,self.PRE_GRASP_POS)
-        pose_goal = self.orientation_forward(pose_goal)
-        self.go_to(pose_goal,"left_gripper")
-
-        # pose_goal = self.set_pose_goal(cup_posR,self.PRE_GRASP_POS)
-        # pose_goal = self.orientation_forward(pose_goal)
-        # self.go_to(pose_goal,"right_gripper")
-        self.execute_path()
-
-        #wait for thing to settle
-        time.sleep(3)
-
-        # Grasp the cup ! USES CARTISIAN
-        rospy.loginfo("Grab Cup")
-        pose_goal = self.set_pose_goal(cup_posL,self.CUP_X_TOL) 
+    def grab(self,cup_posL):
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
-        # self.go_to(pose_goal,"left_gripper")
+        time.sleep(1)
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
 
-        # pose_goal = self.set_pose_goal(cup_posR,self.CUP_X_TOL)
-        # pose_goal = self.orientation_forward(pose_goal)
-        # self.execute_cartesian("right_gripper", [pose_goal], 0.01)
-        # self.go_to(pose_goal,"right_gripper")
-        # self.execute_path()
+        self.gripper_control(state=False,gripper="both")
+
+
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+
 
     def grab_place(self,cup_posL,current_state):
 
@@ -419,11 +400,17 @@ class Handler:
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
 
         #move down 
+        time.sleep(1)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.0)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
-    
-    
+        time.sleep(1)
+        self.gripper_control(state=True,gripper="both")
+
+        #  move to goal position but on z keep +0.1
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
 
     def placeSideWay(self,cup_posL,cup_posR):
         rospy.loginfo("Go to placing position")
