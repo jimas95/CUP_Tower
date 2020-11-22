@@ -99,8 +99,9 @@ class Scene():
         self.listener = tf2_ros.TransformListener(self.buffer)
 
         self.cup_positions = []
-        for i in range(self.cup_n):
+        for i in range(self.cup_n+1):
             self.cup_positions.append(Pose())
+
 
     # Functions that add objects to scene
     def add_table(self,name,position, timeout=4):
@@ -291,19 +292,19 @@ class Scene():
             pos.position.y= tagPos[1]
             pos.position.z= tagPos[2]
 
-        # if(name=="Table"):
-        #     list_id = 0
-        # else:
-        #     list_id = int(name[-1])
+        if(name=="Table"):
+            list_id = 0
+        else:
+            list_id = int(name[-1])
 
                 
-        # if(pos.x !=0 and pos.y !=0 and pos.z !=0 ):
-        #     cup_positions[list_id].position.x = pos.position.x
-        #     cup_positions[list_id].position.y = pos.position.y
-        #     cup_positions[list_id].position.z = pos.position.z
+        if(pos.position.x !=0 and pos.position.y !=0 and pos.position.z !=0 ):
+            self.cup_positions[list_id].position.x = pos.position.x
+            self.cup_positions[list_id].position.y = pos.position.y
+            self.cup_positions[list_id].position.z = pos.position.z
 
-        # return ModelState(name,cup_positions[list_id],Twist(), "base")
-        return ModelState(name,pos,Twist(), "base")
+        return ModelState(name,self.cup_positions[list_id],Twist(), "base")
+        # return ModelState(name,pos,Twist(), "base")
 
     def listen_tag(self, i):
         """ 
@@ -342,7 +343,7 @@ class Scene():
                 return False
         return True
 
-    def assign_cup_st1(self):
+    def assign_cup_st1(self,hand):
         """
         This function sorts cups that are randomly placed in the middle
         two quadrants of the table based on their x and y position.  
