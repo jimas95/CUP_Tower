@@ -291,18 +291,19 @@ class Scene():
             pos.position.y= tagPos[1]
             pos.position.z= tagPos[2]
 
-        if(name=="Table"):
-            list_id = 0
-        else:
-            list_id = int(name[-1])
+        # if(name=="Table"):
+        #     list_id = 0
+        # else:
+        #     list_id = int(name[-1])
 
                 
-        if(pos.x !=0 and pos.y !=0 and pos.z !=0 ):
-            cup_positions[list_id].position.x = pos.position.x
-            cup_positions[list_id].position.y = pos.position.y
-            cup_positions[list_id].position.z = pos.position.z
+        # if(pos.x !=0 and pos.y !=0 and pos.z !=0 ):
+        #     cup_positions[list_id].position.x = pos.position.x
+        #     cup_positions[list_id].position.y = pos.position.y
+        #     cup_positions[list_id].position.z = pos.position.z
 
-        return ModelState(name,cup_positions[list_id],Twist(), "base")
+        # return ModelState(name,cup_positions[list_id],Twist(), "base")
+        return ModelState(name,pos,Twist(), "base")
 
     def listen_tag(self, i):
         """ 
