@@ -180,21 +180,21 @@ class Handler:
 
         
         #picking cups position
-        # cv_tolr = 0.02
-        # pickPosList = [ (cup1_pos.x+cv_tolr,cup1_pos.y,-0.04),
-        #                 (cup2_pos.x+cv_tolr,cup2_pos.y,-0.04),
-        #                 (cup3_pos.x+cv_tolr,cup3_pos.y,-0.04),
-        #                 (cup4_pos.x+cv_tolr,cup4_pos.y,-0.04),
-        #                 (cup5_pos.x+cv_tolr,cup5_pos.y,-0.04),
-        #                 (cup6_pos.x+cv_tolr,cup6_pos.y,-0.04)]
+        cv_tolr = 0.02
+        pickPosList = [ (cup1_pos.x+cv_tolr,cup1_pos.y,-0.04),
+                        (cup2_pos.x+cv_tolr,cup2_pos.y,-0.04),
+                        (cup3_pos.x+cv_tolr,cup3_pos.y,-0.04),
+                        (cup4_pos.x+cv_tolr,cup4_pos.y,-0.04),
+                        (cup5_pos.x+cv_tolr,cup5_pos.y,-0.04),
+                        (cup6_pos.x+cv_tolr,cup6_pos.y,-0.04)]
 
 
-        pickPosList = [ (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04)]
+        # pickPosList = [ (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04)]
 
 
         # placing cup location
