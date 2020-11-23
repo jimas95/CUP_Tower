@@ -2,12 +2,6 @@
 
 import rospy
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
-import cv2
-from cv_bridge import CvBridge, CvBridgeError
-import apriltag
-from geometry_msgs.msg import Pose, Point
-# from apriltag_ros.msg import AprilTagDetectionArray
 import numpy as np
 
 class Display():
@@ -15,10 +9,11 @@ class Display():
     This node publishes tag_detection_image to the head display of the Baxter
     """
     def __init__(self):
-        # Initialise arm message
 
+        # right hand camera image subscriber
+        # self.right_image_sub = rospy.Subscriber('/cameras/right_hand_camera/image', Image,self.callback,queue_size=1)
         # detection image subscriber
-        self.detection_image_sub = rospy.Subscriber('/tag_detections_image', Image, self.callback, queue_size=1)
+        # self.detection_image_sub = rospy.Subscriber('/tag_detections_image', Image, self.callback, queue_size=1)
 
         # head screen publisher 
         self.pub = rospy.Publisher('/robot/xdisplay', Image, queue_size=1)
