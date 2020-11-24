@@ -156,10 +156,10 @@ class Handler:
             self.myscene.restart_scene_workStation()
             return "restart scene workstation"
         elif req.choice == 3:
-            self.hack_id = self.hack_id - 2
+            self.hack_id = self.hack_id - 1
             return "hack_id--> "+str(self.hack_id)
         elif req.choice == 4:
-            self.hack_id = self.hack_id + 2
+            self.hack_id = self.hack_id + 1
             return  "hack_id--> "+str(self.hack_id)
         elif req.choice == 5:
             self.state_2_hack()
@@ -175,12 +175,7 @@ class Handler:
         odd hack_id --> left gripper (y>0)
         """
 
-        # pickPosList = [ (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04)]
+
 
         pickPosList = [ (0.8,-0.5,-0.04),
                         (0.8,0.5,-0.04),
@@ -198,42 +193,48 @@ class Handler:
                         (0.74,  0.1  , 0.12 ),
                         (0.735,  0.05  , 0.25 ),]
 
-        cup_name = "Cup_" + str(self.hack_id+1) # set cup to pick and place
-
         #Open gripper
         # rospy.logerr("Open grippes")
         # self.gripper_control(state=True,gripper="both")
+        cup_pos = Pose()
+        cup_pos.position.x = pickPosList[self.hack_id][0]
+        cup_pos.position.y = pickPosList[self.hack_id][1]
+        cup_pos.position.z = pickPosList[self.hack_id][2]
+        self.myscene.add_cup(f"Cup_{self.hack_id+1}", cup_pos.position, timeout=1)
 
-        # left place --- right grab
-        left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
-        pos = left_current.pose.position
-        cuurt_pose = (pos.x,pos.y,pos.z)
-        if not self.hack_id == 0:
-            rospy.loginfo(f"left place {placePosList[self.hack_id-1]}")
-            self.place("left_gripper", placePosList[self.hack_id-1],cuurt_pose)
-            rospy.loginfo("left ready")
-            
-        if self.hack_id < 6:
-            rospy.loginfo(f"right grab {pickPosList[self.hack_id]}")
-            self.grab("right_gripper", pickPosList[self.hack_id])
-        # self.myscene.attach_cup("left_hand", self.robot, cup_name)
-
-
-        # right place --- left grab 
-        if self.hack_id < 6:
-            right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
-            pos = right_current.pose.position
+        if self.hack_id%2 == 0:
+            # left place --- right grab
+            left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
+            pos = left_current.pose.position
             cuurt_pose = (pos.x,pos.y,pos.z)
-            rospy.loginfo(f"right place {placePosList[self.hack_id]}")
-            self.place("right_gripper", placePosList[self.hack_id], cuurt_pose)
-            rospy.loginfo("right ready")
+            if not self.hack_id == 0:
+                rospy.loginfo(f"left place {placePosList[self.hack_id-1]}")
+                self.place("left_gripper", placePosList[self.hack_id-1],cuurt_pose, f"Cup_{self.hack_id}")
+                rospy.loginfo("left ready")
+                self.ready("left_gripper")
 
-            rospy.loginfo(f"left grab {pickPosList[self.hack_id+1]}")
-            self.grab("left_gripper", pickPosList[self.hack_id+1])
+                
+            if self.hack_id < 6:
+                rospy.loginfo(f"right grab {pickPosList[self.hack_id]}")
+                self.grab("right_gripper", pickPosList[self.hack_id], f"Cup_{self.hack_id+1}")
+            # self.myscene.attach_cup("left_hand", self.robot, cup_name)
+
+        if self.hack_id%2 == 1:
+            # right place --- left grab 
+            if self.hack_id < 6:
+                right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
+                pos = right_current.pose.position
+                cuurt_pose = (pos.x,pos.y,pos.z)
+                rospy.loginfo(f"right place {placePosList[self.hack_id-1]}")
+                self.place("right_gripper", placePosList[self.hack_id-1], cuurt_pose, f"Cup_{self.hack_id}")
+                rospy.loginfo("right ready")
+                self.ready("right_gripper")
+
+                rospy.loginfo(f"left grab {pickPosList[self.hack_id]}")
+                self.grab("left_gripper", pickPosList[self.hack_id], f"Cup_{self.hack_id+1}")
         
 
         time.sleep(1)
-        # self.myscene.detach_cup(cup_name, "left_hand")
 
 
 
@@ -268,7 +269,7 @@ class Handler:
                 self.left_arm_group.clear_pose_targets()   
 
     
-    def grab(self,hand, cup_posL):
+    def grab(self,hand, cup_posL, cup_name):
         # Go above Cup
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
@@ -285,13 +286,18 @@ class Handler:
         # Close gripper
         self.gripper_control(state=False,gripper="left_gripper")
 
+        link_name = hand.split('_')[0] + "_hand"
+        rospy.loginfo(f"{link_name} attach {cup_name}")
+        self.myscene.attach_cup(link_name, self.robot, cup_name)
+
+
         # Move up 
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
 
-    def place(self,hand, cup_posL,current_state):
+    def place(self,hand, cup_posL,current_state, cup_name):
 
         # from current position go up 
         pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
@@ -311,12 +317,48 @@ class Handler:
         time.sleep(1)
         self.gripper_control(state=True,gripper=hand)
 
+        link_name = hand.split('_')[0] + "_hand"
+        rospy.loginfo(f"{link_name} detach {cup_name}")
+        self.myscene.detach_cup(cup_name, link_name)
+
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
+    def ready(self,hand):
+        """
+        This function gives space to the other hand to prevent collision upon placing the cup at the desired position
+        """
+        time.sleep(0.5)
 
+        current_pose = self.both_arms_group.get_current_pose(end_effector_link = hand)
+        pos = current_pose.pose.position
+        current_pos = (pos.x,pos.y,pos.z)
+
+        # Move the hand up a little bit
+        pose_goal = self.set_pose_goal((current_pos),(0,0,0.15))
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand,[pose_goal],0.01)
+        current_pos = (pose_goal.position.x, pose_goal.position.y, pose_goal.position.z)
+        time.sleep(0.5)
+
+        # pos(0.6,0.0,0.25)
+
+        if hand=="left_gripper":
+
+            pose_goal = self.set_pose_goal((current_pos),(0,0.5,0))
+            pose_goal = self.orientation_forward(pose_goal)
+            self.execute_cartesian(hand,[pose_goal],0.01)
+            time.sleep(0.5)
+        
+        if hand=="right_gripper":
+
+            pose_goal = self.set_pose_goal((current_pos),(0,-0.5,0))
+            pose_goal = self.orientation_forward(pose_goal)
+            self.execute_cartesian(hand,[pose_goal],0.01)
+            time.sleep(0.5)
+        
 
 
 
