@@ -54,43 +54,41 @@ Enable    :`<rosrun baxter_tools enable_robot.py -e>`
 Disable   :`<rosrun baxter_tools enable_robot.py -d>`
 Show state:`<rosrun baxter_tools enable_robot.py -e>`
 ```
-
-## Packages
-
-# Nodes
-1. arm_control 
-2. control_arm 
-3. 
-arm_control_2_1
-arm_control_2_2
-arm_control_2_3
-arm_control_3_1
-arm_control_3_2
-arm_control_3_3
-cam_display
-enable_head_cam
-tag_detection
-enable_left_cam
+7. Simulation (skip steps 5 and 6 above)
+```
+roslaunch tower baxter_world.launch
+roslaunch tower build_tower.launch
+rosrun tower arm_control joint_states:=robot/joint_states
+```
 
 
-# Launch Files
-
-
-
-
-
-# System Architecture
-    ├── CMakeLists.txt
-
-
-## control baxter and Rviz with moveit
-1. roslaunch tower baxter_world.launch
-2. roslaunch tower build_tower.launch
-3. rosrun tower arm_control joint_states:=robot/joint_states
-
-note: remember to change `joint_limits.yaml` to values specified in `joint_limits_true.yaml` for real robot.
-
-## calling tests service with the following choices
+# Packages
+## 1. tower
+The tower package is the primary package used to control the robot and create the planning scene. 
+### Nodes
+1. arm_control_2_1
+    stacks cups
+2. arm_control_2_2
+    takes cups from middle puts on side- cleans the robot worspace
+3. arm_control_2_3
+    builds 3 cup tower
+4. arm_control_3_1
+    computer vision 3 cup
+5. arm_control_3_2
+    6 cup tower
+6. arm_control_3_3
+    6 cup tower with cv
+7. tag_detection
+### Launch Files
+1. baxter_world.launch
+2. build_tower.launch
+3. empty_world.launch
+4. tagdetect.launch
+### Service Usage
+1. test_control
+```
+`<rosservice call /test_control>` TAB
+#### calling tests service with the following choices
 0. print current pose of left and right arm
 1. set hands at home position (grab the hands above table before calling this)
 2. restart scene workstation
@@ -101,6 +99,27 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 7. building tower (state_2)
 8. close both grippers
 9. open both grippers
+```
+
+
+## 2. apriltag
+This package 
+### Nodes
+ 
+
+
+
+
+
+
+
+# System Architecture
+    ├── CMakeLists.txt
+
+
+
+
+
 
 
 # kill gazebo
@@ -111,16 +130,15 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 
 
 # References
-## ME 495 course notes
+### ME 495 course notes
 [final project guidelines](https://nu-msr.github.io/me495_site/final_project2020.html)
 [rethink workspace](https://nu-msr.github.io/me495_site/lecture13_rethink.html)
-## google doc link
+### google doc link
 [google doc](https://docs.google.com/document/d/1DyX0WEIv16zhfOnIXlYJH8nFUndHB3Xdr9HTS7mL4ks/edit?usp=sharing)
-## Baxter 
+### Baxter 
 [rethinkrobotics] (https://sdk.rethinkrobotics.com/wiki/Home)
 [git] (https://github.com/RethinkRobotics/)
-
-## moveIT
+### moveIT
 [moveIt](https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial)
 [planning](https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config)
 
