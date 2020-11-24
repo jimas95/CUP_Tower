@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-This node is going to control the Baxter to grap and place cups to build a tower.
+This node is going to control the Baxter to grap 3 cups from the left side of the table
+and place the cups in orger to build a tower(NO CV is USED).
 
 
 SERVICES:
