@@ -156,28 +156,39 @@ class Handler:
             self.myscene.restart_scene_workStation()
             return "restart scene workstation"
         elif req.choice == 3:
-            self.hack_id = self.hack_id -1
+            self.hack_id = self.hack_id - 2
             return "hack_id--> "+str(self.hack_id)
         elif req.choice == 4:
             self.state_2_hack()
-            self.hack_id = self.hack_id + 1 
-            return "Execute Hack"
+            self.hack_id = self.hack_id + 2
+            return  "hack_id--> "+str(self.hack_id)
+        elif req.choice == 5:
+            self.state_2_hack()
+            return "Execute state_2_hack"
         return "N/A"
 
 
     def state_2_hack(self):
         """
         use only one hand, go at the same position(NO CV), close gripper, got to place position, open gripper
+
+        even hack_id --> right gripper (y<0)
+        odd hack_id --> left gripper (y>0)
         """
 
-        
-        #picking cups position
-        pickPosList = [ (0.8,0.5,-0.04),
+        # pickPosList = [ (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04),
+        #                 (0.8,0.5,-0.04)]
+
+        pickPosList = [ (0.8,-0.5,-0.04),
                         (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.8,0.5,-0.04)]
+                        (0.9,-0.5,-0.04),
+                        (0.9,0.5,-0.04),
+                        (1.0,-0.5,-0.04),
+                        (1.0,0.5,-0.04)]
 
 
         # placing cup location
@@ -194,14 +205,20 @@ class Handler:
         rospy.logerr("Open grippes")
         self.gripper_control(state=True,gripper="both")
 
-        # got to graspiping position
-        self.grab(pickPosList[self.hack_id])
+        # right grab --- left place
+        self.grab("right_gripper", pickPosList[self.hack_id])
+        left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
+        pos = left_current.pose.position
+        cuurt_pose = (pos.x,pos.y,pos.z)
+        if not self.hack_id == 0:
+            self.place(placePosList[self.hack_id-1],cuurt_pose)
         # self.myscene.attach_cup("left_hand", self.robot, cup_name)
 
 
-        # got at place position
-        left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
-        pos = left_current.pose.position
+        # left grab --- right place
+        self.grab("left_gripper", pickPosList[self.hack_id+1])
+        right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
+        pos = right_current.pose.position
         cuurt_pose = (pos.x,pos.y,pos.z)
         self.place(placePosList[self.hack_id],cuurt_pose)
 
@@ -228,14 +245,24 @@ class Handler:
                 self.right_arm_group.clear_pose_targets()   
                 self.left_arm_group.execute(plan, wait=True)
                 self.left_arm_group.stop()
+                self.left_arm_group.clear_pose_targets()  
+
+            if hand=="right_gripper":
+                plan, frac = self.right_arm_group.compute_cartesian_path([goal],   # waypoints to follow
+                                        eef_step,        # eef_step
+                                        0.0)         # jump_threshold
+                rospy.loginfo(f"frac = {frac}")
+                self.right_arm_group.clear_pose_targets()   
+                self.left_arm_group.execute(plan, wait=True)
+                self.left_arm_group.stop()
                 self.left_arm_group.clear_pose_targets()   
 
     
-    def grab(self,cup_posL):
+    def grab(self,hand, cup_posL):
         # Go above Cup
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
         
         # Let things settle
         time.sleep(1)
@@ -243,7 +270,7 @@ class Handler:
         # move at Cup position (go down on z)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
 
         # Close gripper
         self.gripper_control(state=False,gripper="left_gripper")
@@ -251,33 +278,33 @@ class Handler:
         # Move up 
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
 
 
-    def place(self,cup_posL,current_state):
+    def place(self,hand, cup_posL,current_state):
 
         # from current position go up 
         pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
     
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
 
         #move down 
         time.sleep(1)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.0)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
         time.sleep(1)
-        self.gripper_control(state=True,gripper="left_gripper")
+        self.gripper_control(state=True,gripper=hand)
 
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
-        self.execute_cartesian("left_gripper", [pose_goal], 0.01)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
 
 
 
