@@ -1,9 +1,6 @@
 """ 
 Uses the MoveIt Python API to create a planning scene and perform some path planning tasks
-SERVICES:
-  + <reset> (<Empty>) ~ adds the realsense box to the scene and moves robot to the Home position
-  + <step> (<Step>) ~ moves the robot to a user-speciified position
-  + <follow> (<Empty>) ~ has the robot move to a specified set of waypoints 
+
 """
 import sys
 import copy
@@ -46,30 +43,12 @@ def all_close(goal, actual, tolerance):
 
   return True
 
-
-"""
-add function add_all_cups() --> uses add one cup 
-    how many cups 
-    random position
-    inline position 
-
-create_scene_random_cups
-create_scene_inline_cups
-attach_box/detach should take name(cup#) input 
-function moves one cups
-remove stuff like scene = self.scene
-
-get cups that are not in order 
-
-
-"""
-
-
 class Scene():
     def __init__(self,myscene,REAL_ROBOT):
-        ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
-        ## to the world surrounding the robot:
-
+        """ Initiates a `PlanningSceneInterface`_ object.  This object is an interface
+        to the world surrounding the robot. Object geometry variables are assigned from yaml file
+        and the object postions are assigned from gazebo or computer vision (april tag locations)
+        """
         rospy.loginfo("INIT Scene")
         self.scene = myscene
         if(REAL_ROBOT):
@@ -146,7 +125,7 @@ class Scene():
     
 
     def restart_scene_workStation(self):
-        """restarts gazebo scene    """
+        """Restarts gazebo scene """
         pose = Pose()
         twist = Twist()
         pose.position = Point(1,0.0,0.3)
@@ -161,7 +140,7 @@ class Scene():
         self.create_scene()
 
     def restart_scene_inline(self):
-        """restarts gazebo scene    """
+        """restarts gazebo scene """
         pose = Pose()
         twist = Twist()
         pose.position = Point(0.8,0.8,0.1)
