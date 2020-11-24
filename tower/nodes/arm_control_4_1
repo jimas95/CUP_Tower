@@ -150,7 +150,7 @@ class Handler:
             return result.replace('\n', ' ')
         elif req.choice == 1:
             self.go_home_position()
-            self.myscene.restart_scene_inline()
+            # self.myscene.restart_scene_inline()
             return "HOME"
         elif req.choice == 2:
             self.myscene.restart_scene_workStation()
@@ -159,12 +159,11 @@ class Handler:
             self.hack_id = self.hack_id - 2
             return "hack_id--> "+str(self.hack_id)
         elif req.choice == 4:
-            self.state_2_hack()
             self.hack_id = self.hack_id + 2
             return  "hack_id--> "+str(self.hack_id)
         elif req.choice == 5:
             self.state_2_hack()
-            return "Execute state_2_hack"
+            return f"Execute state_2_hack at {self.hack_id}"
         return "N/A"
 
 
@@ -202,25 +201,36 @@ class Handler:
         cup_name = "Cup_" + str(self.hack_id+1) # set cup to pick and place
 
         #Open gripper
-        rospy.logerr("Open grippes")
-        self.gripper_control(state=True,gripper="both")
+        # rospy.logerr("Open grippes")
+        # self.gripper_control(state=True,gripper="both")
 
-        # right grab --- left place
-        self.grab("right_gripper", pickPosList[self.hack_id])
+        # left place --- right grab
         left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
         pos = left_current.pose.position
         cuurt_pose = (pos.x,pos.y,pos.z)
         if not self.hack_id == 0:
-            self.place(placePosList[self.hack_id-1],cuurt_pose)
+            rospy.loginfo(f"left place {placePosList[self.hack_id-1]}")
+            self.place("left_gripper", placePosList[self.hack_id-1],cuurt_pose)
+            rospy.loginfo("left ready")
+            
+        if self.hack_id < 6:
+            rospy.loginfo(f"right grab {pickPosList[self.hack_id]}")
+            self.grab("right_gripper", pickPosList[self.hack_id])
         # self.myscene.attach_cup("left_hand", self.robot, cup_name)
 
 
-        # left grab --- right place
-        self.grab("left_gripper", pickPosList[self.hack_id+1])
-        right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
-        pos = right_current.pose.position
-        cuurt_pose = (pos.x,pos.y,pos.z)
-        self.place(placePosList[self.hack_id],cuurt_pose)
+        # right place --- left grab 
+        if self.hack_id < 6:
+            right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
+            pos = right_current.pose.position
+            cuurt_pose = (pos.x,pos.y,pos.z)
+            rospy.loginfo(f"right place {placePosList[self.hack_id]}")
+            self.place("right_gripper", placePosList[self.hack_id], cuurt_pose)
+            rospy.loginfo("right ready")
+
+            rospy.loginfo(f"left grab {pickPosList[self.hack_id+1]}")
+            self.grab("left_gripper", pickPosList[self.hack_id+1])
+        
 
         time.sleep(1)
         # self.myscene.detach_cup(cup_name, "left_hand")
