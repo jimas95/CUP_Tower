@@ -1,18 +1,87 @@
-# final-project-fast-tower
+# About
+A ROS project developed as part of ME495 - Embedded Systems in Robotics course at Northwestern University.
+
+# Project Description
 The goal of this project is to use the robot baxter and build a **HUGE** tower from plastic cups
 
-# Apriltag_ROS Install
-cd into `src` of your workspace
-`git clone https://github.com/AprilRobotics/apriltag.git`      # Clone Apriltag library
-`git clone https://github.com/AprilRobotics/apriltag_ros.git`  # Clone Apriltag ROS wrapper
-`catkin build`    # Build all packages in the workspace (`catkin_make_isolated` will work also)
 
-# Run Baxter Simulator
-1. cd rethink_ws
-2. source devel/setup.bash 
-3. cd our project 
-4. source devel/setup.bash 
-2. roslaunch tower baxter_world.launch
+
+# Quickstart Usage Instructions
+1. Set up workspace and clone repo
+```
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone https://github.com/ME495-EmbeddedSystems/final-project-fast-tower 
+```
+2. Set up rethink workspace
+```
+mkdir -p rethink_ws/src
+cd rethink_ws/src
+vcs import --input https://nu-msr.github.io/me495_site/rethink.rosinstall
+cd ..
+# Install dependencies, but ignore any errors
+rosdep install --from-paths src --ignore-src -r -y 
+```
+3. catkin and source
+```
+cd rethink_ws
+catkin_make
+source devel/setup.bash
+cd ~/catkin_ws
+catkin_make
+source devel/setup.bash
+```
+4. Apriltag_ROS Install
+```
+cd ~/catkin_ws
+git clone https://github.com/AprilRobotics/apriltag.git      # Clone Apriltag library
+git clone https://github.com/AprilRobotics/apriltag_ros.git  # Clone Apriltag ROS wrapper
+catkin_make_isolated  
+```
+5. Setup Baxter Robot
+```
+`<nmcli con up Rethink>`
+`<ping baxter.local>`  does ping ? 
+`<export ROS_MASTER_URI=http://10.42.0.2:11311>`
+`<export ROS_IP=10.42.0.1>`
+`<unset ROS_HOSTNAME>`
+`<rosnode list>` should show stuff
+`<rostopic echo /robot/joint_states >`
+```
+6. Enable the robot
+```
+Enable    :`<rosrun baxter_tools enable_robot.py -e>`
+Disable   :`<rosrun baxter_tools enable_robot.py -d>`
+Show state:`<rosrun baxter_tools enable_robot.py -e>`
+```
+
+## Packages
+
+# Nodes
+1. arm_control 
+2. control_arm 
+3. 
+arm_control_2_1
+arm_control_2_2
+arm_control_2_3
+arm_control_3_1
+arm_control_3_2
+arm_control_3_3
+cam_display
+enable_head_cam
+tag_detection
+enable_left_cam
+
+
+# Launch Files
+
+
+
+
+
+# System Architecture
+    ├── CMakeLists.txt
+
 
 ## control baxter and Rviz with moveit
 1. roslaunch tower baxter_world.launch
@@ -38,33 +107,29 @@ note: remember to change `joint_limits.yaml` to values specified in `joint_limit
 1. killall gzclient
 2. killall rosmaster
 
-# Usefull links 
-## from matt
-[final project](https://nu-msr.github.io/me495_site/final_project2020.html)
-[rethink](https://nu-msr.github.io/me495_site/lecture13_rethink.html)
+
+
+
+# References
+## ME 495 course notes
+[final project guidelines](https://nu-msr.github.io/me495_site/final_project2020.html)
+[rethink workspace](https://nu-msr.github.io/me495_site/lecture13_rethink.html)
 ## google doc link
 [google doc](https://docs.google.com/document/d/1DyX0WEIv16zhfOnIXlYJH8nFUndHB3Xdr9HTS7mL4ks/edit?usp=sharing)
-
 ## Baxter 
-1. official page: https://sdk.rethinkrobotics.com/wiki/Home
-2. git : https://github.com/RethinkRobotics/
+[rethinkrobotics] (https://sdk.rethinkrobotics.com/wiki/Home)
+[git] (https://github.com/RethinkRobotics/)
 
 ## moveIT
-https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial
-https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config
+[moveIt](https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial)
+[planning](https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config)
 
 
-# Real Robot 
+# Team
+Dimitrios Chamzas 
+Dong Ho Kang
+Yuxiao Lai
+Gabrielle Wink
 
-1. `<nmcli con up Rethink>`
-2. `<ping baxter.local>`  does ping ? 
-3. `<export ROS_MASTER_URI=http://10.42.0.2:11311>`
-4. `<export ROS_IP=10.42.0.1>`
-5. `<unset ROS_HOSTNAME>`
-6. `<rosnode list>` should show stuff
-7. `<rostopic echo /robot/joint_states >`
 
-## Enable robot 
-1. Enable    :`<rosrun baxter_tools enable_robot.py -e>`
-2. Disable   :`<rosrun baxter_tools enable_robot.py -d>`
-3. Show state:`<rosrun baxter_tools enable_robot.py -e>`
+
