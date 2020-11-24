@@ -73,7 +73,7 @@ class Scene():
 
 
 
-        self.cup_n = 3
+        self.cup_n = 9
         self.buffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.buffer)
 
@@ -97,6 +97,9 @@ class Scene():
         box_pose.pose.position.x = tablePos.position.x
         box_pose.pose.position.y = tablePos.position.y
         box_pose.pose.position.z = tablePos.position.z
+        box_pose.pose.position.x =  0.7
+        box_pose.pose.position.y =  0.0
+        box_pose.pose.position.z = -0.2
         self.scene.add_box(box_name, box_pose, size=(self.table_x, self.table_y, self.table_z))
 
 
@@ -117,7 +120,7 @@ class Scene():
         cylinder_pose.pose.orientation.w = 1.0
         cylinder_pose.pose.position.x = position.x
         cylinder_pose.pose.position.y = position.y
-        cylinder_pose.pose.position.z = position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
+        cylinder_pose.pose.position.z = -0.15 #position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
 
         self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=1)

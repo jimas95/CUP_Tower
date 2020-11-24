@@ -180,30 +180,27 @@ class Handler:
 
         
         #picking cups position
-        cv_tolr = 0.02
-        pickPosList = [ (cup1_pos.x+cv_tolr,cup1_pos.y,-0.04),
-                        (cup2_pos.x+cv_tolr,cup2_pos.y,-0.04),
-                        (cup3_pos.x+cv_tolr,cup3_pos.y,-0.04),
-                        (cup4_pos.x+cv_tolr,cup4_pos.y,-0.04),
-                        (cup5_pos.x+cv_tolr,cup5_pos.y,-0.04),
-                        (cup6_pos.x+cv_tolr,cup6_pos.y,-0.04)]
-
-
-        # pickPosList = [ (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04)]
+        cv_tolr_x =  0.02
+        cv_tolr_y = -0.002
+        pickPosList = [ (cup1_pos.x+cv_tolr_x,cup1_pos.y+cv_tolr_y ,-0.04),
+                        (cup2_pos.x+cv_tolr_x,cup2_pos.y+cv_tolr_y ,-0.04),
+                        (cup3_pos.x+cv_tolr_x,cup3_pos.y+cv_tolr_y ,-0.04),
+                        (cup4_pos.x+cv_tolr_x,cup4_pos.y+cv_tolr_y ,-0.04),
+                        (cup5_pos.x+cv_tolr_x,cup5_pos.y+cv_tolr_y ,-0.04),
+                        (cup6_pos.x+cv_tolr_x,cup6_pos.y+cv_tolr_y ,-0.04)]
 
 
         # placing cup location
-        placePosList = [(0.75, -0.05 ,-0.04),
-                        (0.75,  0.05 ,-0.04),
-                        (0.75,  0.15 ,-0.04),
-                        (0.74,  0.0  , 0.12 ),
-                        (0.74,  0.1  , 0.12 ),
-                        (0.735,  0.05  , 0.25 ),]
+        # placePosList = [(0.75, -0.05 ,-0.04),
+        #                 (0.75,  0.05 ,-0.04),
+        #                 (0.75,  0.15 ,-0.04),
+        #                 (0.74,  0.0  , 0.12 ),
+        #                 (0.74,  0.1  , 0.12 ),
+        #                 (0.735,  0.05  , 0.25 ),]
+
+        placePosList = [ (1.0,0.5,-0.04),
+                        (0.9,0.5,-0.04),
+                        (0.8,0.5,-0.04)]
 
         cup_name = "Cup_" + str(self.hack_id+1) # set cup to pick and place
 
@@ -216,11 +213,11 @@ class Handler:
         # self.myscene.attach_cup("left_hand", self.robot, cup_name)
 
 
-        # got at place position
-        left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
-        pos = left_current.pose.position
-        cuurt_pose = (pos.x,pos.y,pos.z)
-        self.place(placePosList[self.hack_id],cuurt_pose)
+        # # got at place position
+        # left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
+        # pos = left_current.pose.position
+        # cuurt_pose = (pos.x,pos.y,pos.z)
+        # self.place(placePosList[self.hack_id],cuurt_pose)
 
         time.sleep(1)
         # self.myscene.detach_cup(cup_name, "left_hand")
@@ -263,7 +260,7 @@ class Handler:
         self.execute_cartesian("left_gripper", [pose_goal], 0.01)
 
         # Close gripper
-        self.gripper_control(state=False,gripper="left_gripper")
+        # self.gripper_control(state=False,gripper="left_gripper")
 
         # Move up 
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
