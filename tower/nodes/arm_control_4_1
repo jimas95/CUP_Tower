@@ -176,12 +176,7 @@ class Handler:
         odd hack_id --> left gripper (y>0)
         """
 
-        # pickPosList = [ (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04)]
+
 
         pickPosList = [ (0.8,-0.5,-0.04),
                         (0.8,0.5,-0.04),
@@ -199,7 +194,8 @@ class Handler:
                         (0.74,  0.1  , 0.12 ),
                         (0.735,  0.05  , 0.25 ),]
 
-        cup_name = "Cup_" + str(self.hack_id+1) # set cup to pick and place
+        
+
 
         #Open gripper
         rospy.logerr("Open grippes")
@@ -212,7 +208,6 @@ class Handler:
         cuurt_pose = (pos.x,pos.y,pos.z)
         if not self.hack_id == 0:
             self.place(placePosList[self.hack_id-1],cuurt_pose)
-        # self.myscene.attach_cup("left_hand", self.robot, cup_name)
 
 
         # left grab --- right place
@@ -223,7 +218,6 @@ class Handler:
         self.place(placePosList[self.hack_id],cuurt_pose)
 
         time.sleep(1)
-        # self.myscene.detach_cup(cup_name, "left_hand")
 
 
 
@@ -306,7 +300,39 @@ class Handler:
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
+    def ready(self,hand):
+        """
+        This function gives space to the other hand to prevent collision upon placing the cup at the desired position
+        """
+        time.sleep(0.5)
 
+        current_pose = self.both_arms_group.get_current_pose(end_effector_link = hand)
+        pos = current_pose.pose.position
+        current_pos = (pos.x,pos.y,pos.z)
+
+        # Move the hand up a little bit
+        pose_goal = self.set_pose_goal((current_pos),(0,0,0.15))
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand,[pose_goal],0.01)
+        current_pos = pose_goal
+        time.sleep(0.5)
+
+        pos(0.6,0.0,0.25)
+
+        if hand=="left_gripper":
+
+            pose_goal = self.set_pose_goal((current_pos),(0,0.5,0))
+            pose_goal = self.orientation_forward(pose_goal)
+            self.execute_cartesian(hand,[pose_goal],0.01)
+            time.sleep(0.5)
+        
+        if hand=="right_gripper":
+
+            pose_goal = self.set_pose_goal((current_pos),(0,-0.5,0))
+            pose_goal = self.orientation_forward(pose_goal)
+            self.execute_cartesian(hand,[pose_goal],0.01)
+            time.sleep(0.5)
+        
 
 
 
