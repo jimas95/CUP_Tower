@@ -169,32 +169,15 @@ class Handler:
         """
         use only one hand, go at the same position(NO CV), close gripper, got to place position, open gripper
         """
-        cup1_pos = self.myscene.get_cup_position("Cup_1") #tag2
-        cup2_pos = self.myscene.get_cup_position("Cup_2") #tag3
-        cup3_pos = self.myscene.get_cup_position("Cup_7") #tag8
-        cup4_pos = self.myscene.get_cup_position("Cup_3") #tag4
-        cup5_pos = self.myscene.get_cup_position("Cup_4") #tag5
-        cup6_pos = self.myscene.get_cup_position("Cup_5") #tag6
-        # cup7_pos = self.myscene.get_cup_position("Cup_7")
-        # cup8_pos = self.myscene.get_cup_position("Cup_8")
 
         
         #picking cups position
-        cv_tolr = 0.02
-        pickPosList = [ (cup1_pos.x+cv_tolr,cup1_pos.y,-0.04),
-                        (cup2_pos.x+cv_tolr,cup2_pos.y,-0.04),
-                        (cup3_pos.x+cv_tolr,cup3_pos.y,-0.04),
-                        (cup4_pos.x+cv_tolr,cup4_pos.y,-0.04),
-                        (cup5_pos.x+cv_tolr,cup5_pos.y,-0.04),
-                        (cup6_pos.x+cv_tolr,cup6_pos.y,-0.04)]
-
-
-        # pickPosList = [ (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04),
-        #                 (0.8,0.5,-0.04)]
+        pickPosList = [ (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04),
+                        (0.8,0.5,-0.04)]
 
 
         # placing cup location
