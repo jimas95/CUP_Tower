@@ -1,0 +1,406 @@
+#!/usr/bin/env python3
+"""
+This node is going to control the Baxter to grap and place cups to build a tower.
+
+
+SERVICES:
+  + test_control (ControlTest)
+"""
+
+import rospy
+import sys
+import moveit_commander
+from geometry_msgs.msg import Pose, Quaternion
+from std_srvs.srv import Empty
+from tower.srv import Step, ControlTest
+from tf.transformations import quaternion_from_euler, euler_from_quaternion
+from baxter_interface import Gripper
+from tower.simulator import Scene
+from tower.buildTower import BuildTower
+import time
+
+REAL_ROBOT = True # Real Robot
+# REAL_ROBOT = False # fake Robot
+
+
+class Handler:
+    """ Helper class for node arm_control.
+    Will sort cups then build tower by grabbing and placing cups using either one hand or both hands.
+    """
+    def __init__(self):
+
+        self.HOME_JOINTS = [-0.72, -1.06, 0.11, 1.36, -0.43, 0.98, -0.12, \
+                            0.78, -0.98, -0.0023, 1.46, 0.34, 0.71, 0.11] 
+
+        
+        # robot control 
+        self.robot = moveit_commander.RobotCommander(robot_description='robot_description')
+        scene = moveit_commander.PlanningSceneInterface()
+        self.both_arms_group = moveit_commander.MoveGroupCommander("both_arms", robot_description='robot_description')
+        self.left_arm_group = moveit_commander.MoveGroupCommander("left_arm", robot_description='robot_description')
+        self.right_arm_group = moveit_commander.MoveGroupCommander("right_arm", robot_description='robot_description')
+        self.right_gripper = Gripper('right')
+        self.right_gripper.calibrate(timeout=1.0)
+        self.left_gripper = Gripper('left')
+        self.left_gripper.calibrate(timeout=1.0)
+
+        # service
+        self.test_control = rospy.Service("test_control", ControlTest, self.test_control_callback)
+
+        # create scene 
+        self.myscene = Scene(scene,REAL_ROBOT)
+        # self.myscene.restart_scene_workStation()
+
+        # tower class 
+        self.buildTower = BuildTower()
+        self.hack_id = 0
+
+        rospy.loginfo("SET UP READY")
+
+
+    def go_home_position(self):
+        """ go to HOME position for easier grasping """
+
+        target = self.HOME_JOINTS
+        self.both_arms_group.set_joint_value_target(target)
+        self.execute_path()
+
+
+    def gripper_control(self,state,gripper):
+        """Control Of grippers
+        Arg
+            state --> True  open  gripper
+            state --> False close gripper
+            gripper --> left_gripper or right_gripper or both
+        """
+        if(gripper=="left_gripper"):
+            if(state):
+                self.left_gripper.open(block=True)
+            else:
+                self.left_gripper.close(block=True)
+        elif(gripper=="right_gripper"):
+            if(state):
+                self.right_gripper.open(block=True)
+            else:
+                self.right_gripper.close(block=True)   
+        elif(gripper=="both"):
+            if(state):
+                self.right_gripper.open(block=True)
+                self.left_gripper.open(block=True)
+            else:
+                self.right_gripper.close(block=True)  
+                self.left_gripper.close(block=True)
+        else:
+            rospy.logerr("Wrong gripper !")
+   
+    def go_to(self,pose_goal,hand):
+        """ helper function for planning to pose_goal
+            
+            Args: 
+                pose_goal(Pose) - position of eef
+                hand(String) - name of gripper to use
+        """
+        self.both_arms_group.set_pose_target(pose_goal, end_effector_link = hand)
+    
+    def execute_path(self):
+        """ helper function for executing planned path in both_arms_group """ 
+        rospy.logdebug("Execute plan")
+        (result, plan, frac, errCode) = self.both_arms_group.plan()
+        
+        rospy.loginfo(f"err code = {errCode}")
+        result = self.both_arms_group.execute(plan, wait=True)
+        self.both_arms_group.stop()
+        self.both_arms_group.clear_pose_target(end_effector_link = "left_gripper")
+        self.both_arms_group.clear_pose_target(end_effector_link = "right_gripper")
+
+    def orientation_forward(self,pose):
+        """ helper function for setting the orientation sideway at given pose 
+
+            Args:
+                pose (Pose) - pose to orient
+
+            Return:
+                pose (Pose) - pose after oriented 
+        """
+        
+        q = quaternion_from_euler(0, 1.5707,0)
+        pose.orientation.x = q[0]
+        pose.orientation.y = q[1]
+        pose.orientation.z = q[2]
+        pose.orientation.w = q[3]
+        return pose
+
+
+    def test_control_callback(self, req):
+        """ helper service for testing other services or functions.
+            Edit the inputs for service to test different cases.
+            Args:
+                req.choice - choose which test to execute
+                            0. print current pose of left and right arm
+                            1. set hands at home position (grab the hands above table before calling this)
+                            2. restart scene workstation
+                            3. decrease step move 
+                            4. increase step move 
+                            5. execute step                     
+        """
+        if req.choice == 0: 
+            result = self.current_pose()
+            current_joints = self.both_arms_group.get_current_joint_values()
+            rospy.loginfo(f"current joints = {current_joints}")
+            return result.replace('\n', ' ')
+        elif req.choice == 1:
+            self.go_home_position()
+            # self.myscene.restart_scene_inline()
+            return "HOME"
+        elif req.choice == 2:
+            self.myscene.restart_scene_workStation()
+            return "restart scene workstation"
+        elif req.choice == 3:
+            self.hack_id = self.hack_id - 1
+            return "hack_id--> "+str(self.hack_id)
+        elif req.choice == 4:
+            self.hack_id = self.hack_id + 1
+            return  "hack_id--> "+str(self.hack_id)
+        elif req.choice == 5:
+            self.state_2_hack()
+            return f"Execute state_2_hack at {self.hack_id}"
+        return "N/A"
+
+
+    def state_2_hack(self):
+        """
+        use only one hand, go at the same position(NO CV), close gripper, got to place position, open gripper
+
+        even hack_id --> right gripper (y<0)
+        odd hack_id --> left gripper (y>0)
+        """
+
+
+
+       pickPosList = [ (0.8,-0.1,-0.04),
+                        (0.8,0.1,-0.04),
+                        (0.9,-0.1,-0.04),
+                        (0.9,0.1,-0.04),
+                        (0.8,0.0,-0.04),
+                        (0.8,0.0,-0.04)]
+        
+        placePosList = [ (1.0,-0.5,-0.04),
+                        (1.0,0.5,-0.04),
+                        (0.9,-0.5,-0.04),
+                        (0.9,0.5,-0.04),
+                        (0.8,-0.5,-0.04),
+                        (0.8,0.5,-0.04)]
+
+        # for i in range(6):
+        #     cup_pos = Pose()
+        #     cup_pos.position.x = placePosList[i][0]
+        #     cup_pos.position.y = placePosList[i][1]
+        #     cup_pos.position.z = placePosList[i][2]
+        #     rospy.loginfo(f"adding tower cup {i}")
+        #     self.myscene.add_cup(f"Cup_{i+1}", cup_pos.position, timeout=1)
+
+
+        if self.hack_id < 6:
+            cup_pos = Pose()
+            cup_pos.position.x = pickPosList[self.hack_id][0]
+            cup_pos.position.y = pickPosList[self.hack_id][1]
+            cup_pos.position.z = 0
+            self.myscene.add_cup(f"Cup_{self.hack_id+1}", cup_pos.position, timeout=1)
+        
+
+        if self.hack_id%2 == 0:
+            # left place --- right grab
+            left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
+            pos = left_current.pose.position
+            cuurt_pose = (pos.x,pos.y,pos.z)
+            if not self.hack_id == 0:
+                rospy.loginfo(f"left place {placePosList[self.hack_id-1]}")
+                self.place("left_gripper", placePosList[self.hack_id-1],cuurt_pose, f"Cup_{self.hack_id}")
+                rospy.loginfo("left ready")
+                self.ready("left_gripper")
+
+                
+            if self.hack_id < 6:
+                rospy.loginfo(f"right grab {pickPosList[self.hack_id]}")
+                self.grab("right_gripper", pickPosList[self.hack_id], f"Cup_{self.hack_id+1}")
+            # self.myscene.attach_cup("left_hand", self.robot, cup_name)
+
+        if self.hack_id%2 == 1:
+            # right place --- left grab 
+            if self.hack_id <= 6:
+                right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
+                pos = right_current.pose.position
+                cuurt_pose = (pos.x,pos.y,pos.z)
+                rospy.loginfo(f"right place {placePosList[self.hack_id-1]}")
+                self.place("right_gripper", placePosList[self.hack_id-1], cuurt_pose, f"Cup_{self.hack_id}")
+                rospy.loginfo("right ready")
+                self.ready("right_gripper")
+
+                rospy.loginfo(f"left grab {pickPosList[self.hack_id]}")
+                self.grab("left_gripper", pickPosList[self.hack_id], f"Cup_{self.hack_id+1}")
+        
+
+        time.sleep(1)
+
+
+
+    def execute_cartesian(self,hand, waypoints, eef_step):
+        """ Helper function for compute and execute cartesian path.
+        This function will use set_pose instead of the cartesian trajectory plan fraction is below 0.5.
+
+        Args:
+            hand(string of Pose) - "left_gripper" or "right_gripper". Select which move group to execute
+            waypoint(list) - desired trajectory of hand
+            eef_step(float) - step size during each mini waypoint
+        """
+        for goal in waypoints:
+            if hand=="left_gripper":
+                plan, frac = self.left_arm_group.compute_cartesian_path([goal],   # waypoints to follow
+                                        eef_step,        # eef_step
+                                        0.0)         # jump_threshold
+                rospy.loginfo(f"frac = {frac}")
+                self.right_arm_group.clear_pose_targets()   
+                self.left_arm_group.execute(plan, wait=True)
+                self.left_arm_group.stop()
+                self.left_arm_group.clear_pose_targets()  
+
+            if hand=="right_gripper":
+                plan, frac = self.right_arm_group.compute_cartesian_path([goal],   # waypoints to follow
+                                        eef_step,        # eef_step
+                                        0.0)         # jump_threshold
+                rospy.loginfo(f"frac = {frac}")
+                self.right_arm_group.clear_pose_targets()   
+                self.left_arm_group.execute(plan, wait=True)
+                self.left_arm_group.stop()
+                self.left_arm_group.clear_pose_targets()   
+
+    
+    def grab(self,hand, cup_posL, cup_name):
+        # Go above Cup
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+        
+        # Let things settle
+        time.sleep(1)
+        
+        # move at Cup position (go down on z)
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+
+        # Close gripper
+        self.gripper_control(state=False,gripper="left_gripper")
+
+        link_name = hand.split('_')[0] + "_hand"
+        rospy.loginfo(f"{link_name} attach {cup_name}")
+        self.myscene.attach_cup(link_name, self.robot, cup_name)
+
+
+        # Move up 
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+
+
+    def place(self,hand, cup_posL,current_state, cup_name):
+
+        # from current position go up 
+        pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+    
+        #  move to goal position but on z keep +0.1
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+
+        #move down 
+        time.sleep(1)
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.0)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+        time.sleep(1)
+        self.gripper_control(state=True,gripper=hand)
+
+        link_name = hand.split('_')[0] + "_hand"
+        rospy.loginfo(f"{link_name} detach {cup_name}")
+        self.myscene.detach_cup(cup_name, link_name)
+
+        #  move to goal position but on z keep +0.1
+        pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand, [pose_goal], 0.01)
+
+    def ready(self,hand):
+        """
+        This function gives space to the other hand to prevent collision upon placing the cup at the desired position
+        """
+        time.sleep(0.5)
+
+        current_pose = self.both_arms_group.get_current_pose(end_effector_link = hand)
+        pos = current_pose.pose.position
+        current_pos = (pos.x,pos.y,pos.z)
+
+        # Move the hand up a little bit
+        pose_goal = self.set_pose_goal((current_pos),(0,0,0.15))
+        pose_goal = self.orientation_forward(pose_goal)
+        self.execute_cartesian(hand,[pose_goal],0.01)
+        current_pos = (pose_goal.position.x, pose_goal.position.y, pose_goal.position.z)
+        time.sleep(0.5)
+
+        # pos(0.6,0.0,0.25)
+
+        if hand=="left_gripper":
+
+            pose_goal = self.set_pose_goal((current_pos),(0,0.5,0))
+            pose_goal = self.orientation_forward(pose_goal)
+            self.execute_cartesian(hand,[pose_goal],0.01)
+            time.sleep(0.5)
+        
+        if hand=="right_gripper":
+
+            pose_goal = self.set_pose_goal((current_pos),(0,-0.5,0))
+            pose_goal = self.orientation_forward(pose_goal)
+            self.execute_cartesian(hand,[pose_goal],0.01)
+            time.sleep(0.5)
+        
+
+
+
+    def set_pose_goal(self,pos=(0,0,0),offset=(0,0,0)):
+        """
+        return Pose() with position set to pos+offset
+        """
+        pose_goal = Pose()
+        pose_goal.position.x = pos[0] + offset[0]
+        pose_goal.position.y = pos[1] + offset[1]
+        pose_goal.position.z = pos[2] + offset[2]
+        return pose_goal
+
+
+    def current_pose(self):
+        """ helper service for debugging current pose of gripper"""
+        left_current = self.both_arms_group.get_current_pose(end_effector_link = "left_gripper")
+        q = left_current.pose.orientation
+        left_angles = euler_from_quaternion([q.x, q.y, q.z, q.w])
+
+        right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
+        q = left_current.pose.orientation
+        right_angles = euler_from_quaternion([q.x, q.y, q.z, q.w])
+        return f"left pos = {left_current.pose.position}, left euler = {left_angles}; right pos = {right_current.pose.position}, right euler = {right_angles}"
+
+
+def main():
+    """ The main() function. """
+    moveit_commander.roscpp_initialize(sys.argv)
+    rospy.loginfo(sys.argv)
+    rospy.init_node('arm_control',log_level=rospy.DEBUG)
+    handler = Handler()
+    rospy.spin()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
