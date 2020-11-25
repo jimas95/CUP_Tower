@@ -177,30 +177,31 @@ class Handler:
 
 
 
-        pickPosList = [ (0.8,-0.5,-0.04),
-                        (0.8,0.5,-0.04),
-                        (0.9,-0.5,-0.04),
-                        (0.9,0.5,-0.04),
-                        (1.0,-0.5,-0.04),
-                        (1.0,0.5,-0.04)]
+        pickPosList = [ (0.8,-0.5,-0.044),
+                        (0.8,0.5,-0.044),
+                        (0.9,-0.5,-0.044),
+                        (0.9,0.5,-0.044),
+                        (1.0,-0.5,-0.044),
+                        (1.0,0.5,-0.044)]
 
 
         # placing cup location
-        placePosList = [(0.75, -0.05 ,-0.04),
-                        (0.75,  0.05 ,-0.04),
-                        (0.75,  0.15 ,-0.04),
-                        (0.74,  0.0  , 0.12 ),
-                        (0.74,  0.1  , 0.12 ),
-                        (0.735,  0.05  , 0.25 ),]
+        placePosList = [(0.85, 0.05 ,-0.04),
+                        (0.85,  0.145 ,-0.04),
+                        (0.85,  -0.05 ,-0.04),
+                        (0.84,  0.095  , 0.12 ),
+                        (0.84,  0.0  , 0.12 ),
+                        (0.835,  0.045  , 0.25 ),]
 
         #Open gripper
         # rospy.logerr("Open grippes")
         # self.gripper_control(state=True,gripper="both")
-        cup_pos = Pose()
-        cup_pos.position.x = pickPosList[self.hack_id][0]
-        cup_pos.position.y = pickPosList[self.hack_id][1]
-        cup_pos.position.z = pickPosList[self.hack_id][2]
-        self.myscene.add_cup(f"Cup_{self.hack_id+1}", cup_pos.position, timeout=1)
+        if self.hack_id < 6:
+            cup_pos = Pose()
+            cup_pos.position.x = pickPosList[self.hack_id][0]
+            cup_pos.position.y = pickPosList[self.hack_id][1]
+            cup_pos.position.z = pickPosList[self.hack_id][2]
+            # self.myscene.add_cup(f"Cup_{self.hack_id+1}", cup_pos.position, timeout=1)
 
         if self.hack_id%2 == 0:
             # left place --- right grab
@@ -270,27 +271,30 @@ class Handler:
 
     
     def grab(self,hand, cup_posL, cup_name):
+        self.gripper_control(state=True,gripper=hand)
         # Go above Cup
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
         
         # Let things settle
-        time.sleep(1)
+        time.sleep(2)
         
         # move at Cup position (go down on z)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
+
         # Close gripper
-        self.gripper_control(state=False,gripper="left_gripper")
+        time.sleep(0.5)
+        self.gripper_control(state=False,gripper=hand)
 
         link_name = hand.split('_')[0] + "_hand"
         rospy.loginfo(f"{link_name} attach {cup_name}")
-        self.myscene.attach_cup(link_name, self.robot, cup_name)
+        # self.myscene.attach_cup(link_name, self.robot, cup_name)
 
-
+        time.sleep(0.5)
         # Move up 
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
@@ -303,6 +307,7 @@ class Handler:
         pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
+        time.sleep(0.5)
     
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
@@ -310,7 +315,7 @@ class Handler:
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
         #move down 
-        time.sleep(1)
+        time.sleep(2)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.0)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
@@ -319,12 +324,13 @@ class Handler:
 
         link_name = hand.split('_')[0] + "_hand"
         rospy.loginfo(f"{link_name} detach {cup_name}")
-        self.myscene.detach_cup(cup_name, link_name)
+        # self.myscene.detach_cup(cup_name, link_name)
 
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
+        time.sleep(0.5)
 
     def ready(self,hand):
         """

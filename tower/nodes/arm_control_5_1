@@ -163,6 +163,13 @@ class Handler:
             return  "hack_id--> "+str(self.hack_id)
         elif req.choice == 5:
             self.state_2_hack()
+            self.hack_id = self.hack_id + 1
+            return f"Execute state_2_hack at {self.hack_id}"
+        elif req.choice == 6:
+            for i in range(6):
+                rospy.logdebug(f"Executing state 2 step:{self.hack_id}")
+                self.state_2_hack()
+                self.hack_id = self.hack_id + 1
             return f"Execute state_2_hack at {self.hack_id}"
         return "N/A"
 
@@ -177,47 +184,40 @@ class Handler:
 
 
 
-        pickPosList = [ (0.8,-0.4,-0.06),
-                        (0.8,0.4,-0.06),
-                        (0.9,-0.4,-0.06),
-                        (0.9,0.4,-0.06),
-                        (0.8,-0.5,-0.06),
-                        (0.8,0.5,-0.06),
-                        (0.9,-0.5,-0.06),
-                        (0.9,0.5,-0.06),
-                        (1.0,-0.5,-0.06),
-                        (1.0,0.5,-0.06)]
+        pickPosList = [ (0.8,-0.37,-0.07),
+                        (0.8,0.37,-0.07),
+                        (0.9,-0.37,-0.07),
+                        (0.9,0.37,-0.07),
+                        (0.8,-0.5,-0.07),
+                        (0.8,0.5,-0.07),
+                        (0.9,-0.5,-0.07),
+                        (0.9,0.5,-0.07),
+                        (1.0,-0.5,-0.07),
+                        (1.0,0.5,-0.07)]
 
-        placePosList = [(0.75, -0.05 ,-0.06),
-                        (0.75,  0.05 ,-0.06),
-                        (0.75,  -0.15 ,-0.06),
-                        (0.75,  0.15  , -0.06 ),
+        placePosList = [(0.85, -0.045 ,-0.07),
+                        (0.85,  0.045-0.005 ,-0.07),
+                        (0.85,  -0.145 ,-0.07),
+                        (0.85,  0.145-0.005  , -0.07 ),
 
-                        (0.74,  0.0  , 0.10 ),
-                        (0.74,  0.1  , 0.10 ),
-                        (0.74,  -0.1  , 0.10 ),
+                        (0.84,  0.0  , 0.04 ),
+                        (0.84,  0.08-0.005 , 0.04 ),
+                        (0.84,  -0.08  , 0.04 ),
 
-                        (0.735,  0.05  , 0.21),
-                        (0.735,  -0.05  , 0.21),
+                        (0.825,  0.04-0.005  , 0.14),
+                        (0.825,  -0.04  , 0.14),
 
-                        (0.73,  0.0  , 0.32)]
+                        (0.81,  0.0-0.005  , 0.27)]
 
-        for i in range(10):
+        #Open gripper
+        # rospy.logerr("Open grippes")
+        # self.gripper_control(state=True,gripper="both")
+        if self.hack_id < 10:
             cup_pos = Pose()
-            cup_pos.position.x = placePosList[i][0]
-            cup_pos.position.y = placePosList[i][1]
-            cup_pos.position.z = placePosList[i][2]
-            rospy.loginfo(f"adding tower cup {i}")
-            self.myscene.add_cup(f"Cup_{i+1}", cup_pos.position, timeout=1)
-
-
-        # if self.hack_id < 10:
-        #     cup_pos = Pose()
-        #     cup_pos.position.x = pickPosList[self.hack_id][0]
-        #     cup_pos.position.y = pickPosList[self.hack_id][1]
-        #     cup_pos.position.z = 0
-        #     self.myscene.add_cup(f"Cup_{self.hack_id+1}", cup_pos.position, timeout=1)
-        
+            cup_pos.position.x = pickPosList[self.hack_id][0]
+            cup_pos.position.y = pickPosList[self.hack_id][1]
+            cup_pos.position.z = pickPosList[self.hack_id][2]
+            # self.myscene.add_cup(f"Cup_{self.hack_id+1}", cup_pos.position, timeout=1)
 
         if self.hack_id%2 == 0:
             # left place --- right grab
@@ -238,7 +238,7 @@ class Handler:
 
         if self.hack_id%2 == 1:
             # right place --- left grab 
-            if self.hack_id <= 10:
+            if self.hack_id < 10:
                 right_current = self.both_arms_group.get_current_pose(end_effector_link = "right_gripper")
                 pos = right_current.pose.position
                 cuurt_pose = (pos.x,pos.y,pos.z)
@@ -287,27 +287,30 @@ class Handler:
 
     
     def grab(self,hand, cup_posL, cup_name):
+        self.gripper_control(state=True,gripper=hand)
         # Go above Cup
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
         
         # Let things settle
-        time.sleep(1)
+        time.sleep(2)
         
         # move at Cup position (go down on z)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
+
         # Close gripper
-        self.gripper_control(state=False,gripper="left_gripper")
+        time.sleep(0.5)
+        self.gripper_control(state=False,gripper=hand)
 
         link_name = hand.split('_')[0] + "_hand"
         rospy.loginfo(f"{link_name} attach {cup_name}")
-        self.myscene.attach_cup(link_name, self.robot, cup_name)
+        # self.myscene.attach_cup(link_name, self.robot, cup_name)
 
-
+        time.sleep(0.5)
         # Move up 
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
@@ -320,6 +323,7 @@ class Handler:
         pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
+        time.sleep(0.5)
     
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
@@ -327,21 +331,28 @@ class Handler:
         self.execute_cartesian(hand, [pose_goal], 0.01)
 
         #move down 
-        time.sleep(1)
+        time.sleep(2)
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.0)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
         time.sleep(1)
-        self.gripper_control(state=True,gripper=hand)
+        if hand == "left_gripper":
+            self.left_gripper.command_position(55, block=True)
+        elif hand == "right_gripper":
+            self.right_gripper.command_position(55, block=True)
+
 
         link_name = hand.split('_')[0] + "_hand"
         rospy.loginfo(f"{link_name} detach {cup_name}")
-        self.myscene.detach_cup(cup_name, link_name)
+        # self.myscene.detach_cup(cup_name, link_name)
 
         #  move to goal position but on z keep +0.1
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
         self.execute_cartesian(hand, [pose_goal], 0.01)
+        time.sleep(0.5)
+        self.gripper_control(state=True,gripper=hand)
+
 
     def ready(self,hand):
         """
@@ -361,20 +372,27 @@ class Handler:
         time.sleep(0.5)
 
         # pos(0.6,0.0,0.25)
-
-        if hand=="left_gripper":
-
-            pose_goal = self.set_pose_goal((current_pos),(0,0.5,0))
-            pose_goal = self.orientation_forward(pose_goal)
-            self.execute_cartesian(hand,[pose_goal],0.01)
-            time.sleep(0.5)
+        home_joints = [-0.43, -0.48, 0.09, 1.56, 0.22, -1.01, 0.02, \
+                    -0.01, -0.76, 0.45, 1.90, -0.66, -0.60, 0.18]
         
-        if hand=="right_gripper":
+        self.both_arms_group.set_joint_value_target(home_joints)
+        self.execute_path()
+        time.sleep(0.5)
 
-            pose_goal = self.set_pose_goal((current_pos),(0,-0.5,0))
-            pose_goal = self.orientation_forward(pose_goal)
-            self.execute_cartesian(hand,[pose_goal],0.01)
-            time.sleep(0.5)
+        # if hand=="left_gripper":
+
+        # #     pose_goal = self.set_pose_goal((current_pos),(0,0.5,0))
+        # #     pose_goal = self.orientation_forward(pose_goal)
+        # #     self.execute_cartesian(hand,[pose_goal],0.01)
+        
+        # if hand=="right_gripper":
+
+        # #     pose_goal = self.set_pose_goal((current_pos),(0,-0.5,0))
+        # #     pose_goal = self.orientation_forward(pose_goal)
+        # #     self.execute_cartesian(hand,[pose_goal],0.01)
+        #     self.right_arm_group.set_joint_value_target(home_joints[7:14])
+        #     self.execute_path()
+        #     time.sleep(0.5)
         
 
 
