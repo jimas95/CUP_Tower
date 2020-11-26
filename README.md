@@ -103,7 +103,7 @@ The tower package is the primary package used to control the robot and create th
 
 
 ## 2. apriltag
-This package 
+This package scan the april tags and publishes the corresponding tf locations.
 ### Nodes
  
 
@@ -145,8 +145,11 @@ This package
 
 # Team
 Dimitrios Chamzas 
+
 Dong Ho Kang
+
 Yuxiao Lai
+
 Gabrielle Wink
 
 
