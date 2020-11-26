@@ -177,6 +177,8 @@ catkin_install_python(PROGRAMS
     nodes/arm_control_3_1
     nodes/arm_control_3_2
     nodes/arm_control_3_3
+    nodes/arm_control_4_1
+    nodes/arm_control_4_2
     nodes/cam_display
     nodes/enable_head_cam
     nodes/tag_detection
