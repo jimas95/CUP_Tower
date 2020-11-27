@@ -74,8 +74,9 @@ The tower package is the primary package used to control the robot and create th
 7. **arm_control_4_1**: ??? 
 8. **arm_control_4_2**: ???
 9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates
-![](IMB_NpCaFE.gif)
-10. **tag_detection**: ??? 
+![](IMB_8Ma6MX.gif)
+
+1.  **tag_detection**: ??? 
     
 ### Services 
 <rosservice call /test_control> TAB
