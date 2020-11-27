@@ -78,7 +78,7 @@ The tower package is the primary package used to control the robot and create th
 8. **arm_control_4_2**: ???
 9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates
 ![](IMB_NpCaFE.gif)
-10. **tag_detection**
+10. **tag_detection**: ??? 
 
 
 
@@ -108,7 +108,7 @@ call test_control service with the following choices
 
 ## 2. apriltag
 This package scan the april tags and publishes the corresponding tf locations.
-### Nodes
+
  
 
 
