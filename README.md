@@ -66,21 +66,22 @@ rosrun tower arm_control joint_states:=robot/joint_states
 ## 1. tower
 The tower package is the primary package used to control the robot and create the planning scene. 
 ### Nodes
-1. arm_control_2_1:
-Description: stacks cups concentrically into a stack
-Video Demonstration:
+1. **arm_control_2_1**: stacks cups concentrically into a stack
 ![](IMB_8y2szr.GIF)
-1. arm_control_2_2
-    takes cups from middle puts on side- cleans the robot worspace
-2. arm_control_2_3
-    builds 3 cup tower
-3. arm_control_3_1
-    computer vision 3 cup
-4. arm_control_3_2
-    6 cup tower
-5. arm_control_3_3
-    6 cup tower with cv
-6. tag_detection
+2. **arm_control_2_2**: takes cups from middle of the workspace and moves them to the side of the table (cleans the robot workspace)
+3. **arm_control_2_3**: builds a 3 cup tower using cartesian coordinates
+4. **arm_control_3_1**: uses computer vision (april tags) to locate the initial postion of the cups, then stack the cups into a 3 cup tower 
+![](IMB_NpCaFE.gif)
+5. **arm_control_3_2**: uses cartesian coordinates to locate 6 cups and place them in a tower
+6. **arm_control_3_3**: uses computer vision (april tags) to locate the initial postion of the cups, then stack the cups into a 6 cup tower 
+7. **arm_control_4_1**: ??? 
+8. **arm_control_4_2**: ???
+9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates
+![](IMB_NpCaFE.gif)
+10. **tag_detection**
+
+
+
 ### Service Usage
 <rosservice call /test_control> TAB
 ```   
