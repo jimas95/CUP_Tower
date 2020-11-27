@@ -54,7 +54,7 @@ Enable    :`<rosrun baxter_tools enable_robot.py -e>`
 Disable   :`<rosrun baxter_tools enable_robot.py -d>`
 Show state:`<rosrun baxter_tools enable_robot.py -e>`
 ```
-7. Simulation (skip steps 5 and 6 above)
+8. Control the robot 
 ```
 roslaunch tower baxter_world.launch
 roslaunch tower build_tower.launch
@@ -67,7 +67,9 @@ rosrun tower arm_control joint_states:=robot/joint_states
 The tower package is the primary package used to control the robot and create the planning scene. 
 ### Nodes
 1. arm_control_2_1
-    stacks cups
+   1. stacks cups
+   ![Alt text](IMB_8y2szr (1).GIF) / ![](IMB_8y2szr (1).GIF)
+
 2. arm_control_2_2
     takes cups from middle puts on side- cleans the robot worspace
 3. arm_control_2_3
@@ -79,16 +81,11 @@ The tower package is the primary package used to control the robot and create th
 6. arm_control_3_3
     6 cup tower with cv
 7. tag_detection
-### Launch Files
-1. baxter_world.launch
-2. build_tower.launch
-3. empty_world.launch
-4. tagdetect.launch
 ### Service Usage
 1. test_control
 ```
 `<rosservice call /test_control>` TAB
-#### calling tests service with the following choices
+#### call test_comtrol service with the following choices
 0. print current pose of left and right arm
 1. set hands at home position (grab the hands above table before calling this)
 2. restart scene workstation
@@ -100,6 +97,13 @@ The tower package is the primary package used to control the robot and create th
 8. close both grippers
 9. open both grippers
 ```
+### Launch Files
+1. baxter_world.launch
+2. build_tower.launch
+3. empty_world.launch
+4. tagdetect.launch
+
+# Project Architecture
 
 
 ## 2. apriltag
