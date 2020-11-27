@@ -68,7 +68,7 @@ The tower package is the primary package used to control the robot and create th
 ### Nodes
 1. arm_control_2_1
    1. stacks cups
-   ![Alt text](IMB_8y2szr (1).GIF) / ![](IMB_8y2szr (1).GIF)
+   ![](IMB_8y2szr.GIF)
 
 2. arm_control_2_2
     takes cups from middle puts on side- cleans the robot worspace
