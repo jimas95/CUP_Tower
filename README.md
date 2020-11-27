@@ -66,24 +66,25 @@ rosrun tower arm_control joint_states:=robot/joint_states
 ## 1. tower
 The tower package is the primary package used to control the robot and create the planning scene. 
 ### Nodes
-1. arm_control_2_1
-   1. stacks cups
-2. arm_control_2_2
+1. arm_control_2_1:
+Description: stacks cups concentrically into a stack
+Video Demonstration:
+![](IMB_8y2szr.GIF)
+1. arm_control_2_2
     takes cups from middle puts on side- cleans the robot worspace
-3. arm_control_2_3
+2. arm_control_2_3
     builds 3 cup tower
-4. arm_control_3_1
+3. arm_control_3_1
     computer vision 3 cup
-5. arm_control_3_2
+4. arm_control_3_2
     6 cup tower
-6. arm_control_3_3
+5. arm_control_3_3
     6 cup tower with cv
-7. tag_detection
+6. tag_detection
 ### Service Usage
-1. test_control
-```
-`<rosservice call /test_control>` TAB
-#### call test_comtrol service with the following choices
+<rosservice call /test_control> TAB
+```   
+call test_control service with the following choices
 0. print current pose of left and right arm
 1. set hands at home position (grab the hands above table before calling this)
 2. restart scene workstation
@@ -155,5 +156,5 @@ Yuxiao Lai
 Gabrielle Wink
 
 
-![](IMB_8y2szr.GIF)
+
 
