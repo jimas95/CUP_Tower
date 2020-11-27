@@ -4,8 +4,6 @@ A ROS project developed as part of ME495 - Embedded Systems in Robotics course a
 # Project Description
 The goal of this project is to use the robot baxter and build a **HUGE** tower from plastic cups
 
-
-
 # Quickstart Usage Instructions
 1. Set up workspace and clone repo
 ```
@@ -61,7 +59,6 @@ roslaunch tower build_tower.launch
 rosrun tower arm_control joint_states:=robot/joint_states
 ```
 
-
 # Packages
 ## 1. tower
 The tower package is the primary package used to control the robot and create the planning scene. 
@@ -79,10 +76,8 @@ The tower package is the primary package used to control the robot and create th
 9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates
 ![](IMB_NpCaFE.gif)
 10. **tag_detection**: ??? 
-
-
-
-### Service Usage
+    
+### Services 
 <rosservice call /test_control> TAB
 ```   
 call test_control service with the following choices
@@ -97,55 +92,58 @@ call test_control service with the following choices
 8. close both grippers
 9. open both grippers
 ```
+
 ### Launch Files
 1. baxter_world.launch
+   1. opens Gazebo world file: baxter.world
+   2. loads scene_objects.yaml file to obtain object parameters
+   3. spawns URDF Robot into Gazebo (Baxter)
+   4. publishes a static transform between the world and the base of the Baxter Robot
+   5. calls a the Rethink Robotics baxter_simulator launch file used to launch a package that emulates the hardware interfaces of Baxter
+   6. 
+   7. rviz?????????????????????????????????
+   8. 
 2. build_tower.launch
+   1. loads scene_objects.yaml file to obtain object parameters
+   2. ??????????????
+   3. ???????
+   4. 
 3. empty_world.launch
+   1. starts an empty Gazebo world
 4. tagdetect.launch
-
-# Project Architecture
-
+   1. calls continuous_detection.lauch file from the apritag_ros package
+   2. runs the tag_detection node
 
 ## 2. apriltag
 This package scan the april tags and publishes the corresponding tf locations.
 
- 
 
+# Project Architecture
 
+## Tags
+[April_Tags](http://wiki.ros.org/apriltag_ros) package is used for 3D pose estimation of the cups in space. 
+## Motion
+[Moveit](https://moveit.ros.org/) package is used for motion planning of the Baxter.
+## Simulation
+[rviz](http://wiki.ros.org/rviz) is used as visulaization tool to check that the simulation robot workspace matches the actual robot workspace. 
+[BaxterSimulator](https://sdk.rethinkrobotics.com/wiki/Baxter_Simulator) is used to locate the position of the cups in simulation and simulate Baxter motion. The group did not used the Baxter Simulator to build a cup tower becasue this goal was achieve with the actual Baxter robot. 
 
-
-
-
-
-# System Architecture
-    ├── CMakeLists.txt
-
-
-
-
-
-
-
-# kill gazebo
-1. killall gzclient
-2. killall rosmaster
-
-
+# Lessons Learned and Future Work
+_________put robot faoilure videos here______________-
 
 
 # References
-### ME 495 course notes
+**ME 495 course notes**
 [final project guidelines](https://nu-msr.github.io/me495_site/final_project2020.html)
 [rethink workspace](https://nu-msr.github.io/me495_site/lecture13_rethink.html)
-### google doc link
+**google doc link**
 [google doc](https://docs.google.com/document/d/1DyX0WEIv16zhfOnIXlYJH8nFUndHB3Xdr9HTS7mL4ks/edit?usp=sharing)
-### Baxter 
+**Baxter** 
 [rethinkrobotics] (https://sdk.rethinkrobotics.com/wiki/Home)
 [git] (https://github.com/RethinkRobotics/)
-### moveIT
+**moveIT**
 [moveIt](https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial)
 [planning](https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config)
-
 
 # Team
 Dimitrios Chamzas 
