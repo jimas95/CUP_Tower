@@ -10,6 +10,27 @@ from geometry_msgs.msg import Pose, Point
 import geometry_msgs.msg
 
 
+"""
+
+This node uses a apriltag_ros which is a ROS wrapper, and it can be found in the following link:
+http://wiki.ros.org/apriltag_ros
+
+
+While this ROS wrapper is original code originating from the author's master thesis, the core AprilTag 2 algorithm in apriltags2/ is wholly the work of the APRIL Robotics Lab at The University of Michigan
+
+____Citation____
+
+D. Malyuta, “Navigation, Control and Mission Logic for Quadrotor Full-cycle Autonomy,” Master thesis, Jet Propulsion Laboratory, 4800 Oak Grove Drive, Pasadena, CA 91109, USA, December 2017.
+
+J. Wang and E. Olson, "AprilTag 2: Efficient and robust fiducial detection," in Proceedings of the IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), October 2016.
+
+_________________
+
+"""
+
+
+
+
 class TagDetect:
        
     def __init__(self):
