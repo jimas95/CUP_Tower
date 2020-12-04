@@ -85,23 +85,34 @@ The tower package is the primary package used to control the robot and create th
 8. **arm_control_4_2**: uses both baxter arms to take 6 cups from middle of the workspace and move them to the side of the table (cleans the robot workspace)
 9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates
 ![]()
+10.  **tag_detection**: ??? 
 
-1.  **tag_detection**: ??? 
+### Python Package
+1. **simulator.py**: uses the MoveIt to create a planning scene and perform some path planning tasks
+      1. Gets the intial positions of the cups
+            1. If using the real robot gets the cup positions from computer vision
+            2. If using the fake robot gets the cup positions from gazebo (get_model_state service)
+      2. Sets the cup and tables dimensions using scene_objects.yaml
+      3. Adds a table and cups to RViz
+      4. Attaches and detaches the cups 
+      5. Restarts the gazebo scene
+      6. Uses various functions to sort the cups into specific configurations
+   
     
 ### Services 
 <rosservice call /test_control> TAB
 ```   
 call test_control service with the following choices
-0. print current pose of left and right arm
-1. set hands at home position (grab the hands above table before calling this)
-2. restart scene workstation
-3. restart scene inline
-4. left hand grab and place cup
-5. right hand grab and place cup
-6. both hands grab and place
-7. building tower (state_2)
-8. close both grippers
-9. open both grippers
+1. print current pose of left and right arm
+2. set hands at home position (grab the hands above table before calling this)
+3. restart scene workstation
+4. restart scene inline
+5. left hand grab and place cup
+6. right hand grab and place cup
+7. both hands grab and place
+8. building tower (state_2)
+9. close both grippers
+10. open both grippers
 ```
 
 ### Launch Files
