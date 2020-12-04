@@ -1,0 +1,5 @@
+repositories:
+  src:
+    type: git
+    url: git@github.com:ME495-EmbeddedSystems/final-project-fast-tower.git
+    version: lai/moveit
