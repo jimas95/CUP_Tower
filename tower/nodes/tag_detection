@@ -32,7 +32,14 @@ _________________
 
 
 class TagDetect:
-       
+
+"""
+
+
+""" 
+
+
+
     def __init__(self):
 
         # Baxter's right hand camera
@@ -41,8 +48,7 @@ class TagDetect:
         # self.right_camera = rospy.Subscriber("/cameras/left_hand_camera/image", Image, self.baxter_cam)
         
 
-        # Publishes raw and color images from the Baxter
-        self.raw_image_pub = rospy.Publisher("/image_raw", Image, queue_size = 1)
+        # Publishes color images from the Baxter
         self.color_image_pub = rospy.Publisher("/image_color", Image, queue_size = 1)
 
 
@@ -69,19 +75,12 @@ class TagDetect:
     def baxter_cam(self, data):
         #image proc node 
         
-        self.raw_image_pub.publish(data)
         self.color_image_pub.publish(data)
         self.transform()
 
 
     def rect_image_callback(self, data):
         self.image_rect_pub.publish(data)
-
-        
-    # def apriltag_callback(self, data):
-
-    #     print('apriltag_callback is working')
-    #     for detectio
 
     
    
