@@ -2,10 +2,10 @@
 A ROS project developed as part of ME495 - Embedded Systems in Robotics course at Northwestern University.
 
 # Project Description
-The goal of this project is to use the robot baxter and build a **HUGE** tower from plastic cups
+The goal of this project is to use the BAXTER robot and build a **HUGE** tower from plastic cups
 
 # Quickstart Usage Instructions
-1. Set up workspace and clone repo
+1. Set up workspace and clone repository
 ```
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
@@ -52,9 +52,19 @@ Enable    :`<rosrun baxter_tools enable_robot.py -e>`
 Disable   :`<rosrun baxter_tools enable_robot.py -d>`
 Show state:`<rosrun baxter_tools enable_robot.py -e>`
 ```
-8. Control the robot 
+8. Control the robot in simulation
 ```
+skip step 5 & 6 
+set global variable REAL_ROBOT to False at file arm_control
 roslaunch tower baxter_world.launch
+roslaunch tower build_tower.launch
+rosrun tower arm_control joint_states:=robot/joint_states
+```
+
+
+9. Control the real robot
+```
+set global variable REAL_ROBOT to True at file arm_control
 roslaunch tower build_tower.launch
 rosrun tower arm_control joint_states:=robot/joint_states
 ```
@@ -64,17 +74,17 @@ rosrun tower arm_control joint_states:=robot/joint_states
 The tower package is the primary package used to control the robot and create the planning scene. 
 ### Nodes
 1. **arm_control_2_1**: stacks cups concentrically into a stack
-![](IMB_8y2szr.GIF)
+![](https://drive.google.com/file/d/1s5hzuRjC6xggcV8JQsPUKG9TRFy-wpE5/view?usp=sharing)
 2. **arm_control_2_2**: takes cups from middle of the workspace and moves them to the side of the table (cleans the robot workspace)
 3. **arm_control_2_3**: builds a 3 cup tower using cartesian coordinates
 4. **arm_control_3_1**: uses computer vision (april tags) to locate the initial postion of the cups, then stack the cups into a 3 cup tower 
-![](IMB_NpCaFE.gif)
+![](https://drive.google.com/file/d/194e5V0f9VPYthNb1bZZ_MKHvIUMdgzCD/view?usp=sharing)
 5. **arm_control_3_2**: uses cartesian coordinates to locate 6 cups and place them in a tower
 6. **arm_control_3_3**: uses computer vision (april tags) to locate the initial postion of the cups, then stack the cups into a 6 cup tower 
-7. **arm_control_4_1**: ??? 
-8. **arm_control_4_2**: ???
+7. **arm_control_4_1**: uses cartesian coordinates and both Baxter arms to place 6 cups in a tower 
+8. **arm_control_4_2**: uses both baxter arms to take 6 cups from middle of the workspace and move them to the side of the table (cleans the robot workspace)
 9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates
-![](IMB_8Ma6MX.gif)
+![]()
 
 1.  **tag_detection**: ??? 
     
@@ -134,15 +144,14 @@ _________put robot faoilure videos here______________-
 
 
 # References
-**ME 495 course notes**
 [final project guidelines](https://nu-msr.github.io/me495_site/final_project2020.html)
+
 [rethink workspace](https://nu-msr.github.io/me495_site/lecture13_rethink.html)
-**google doc link**
-[google doc](https://docs.google.com/document/d/1DyX0WEIv16zhfOnIXlYJH8nFUndHB3Xdr9HTS7mL4ks/edit?usp=sharing)
-**Baxter** 
-[rethinkrobotics] (https://sdk.rethinkrobotics.com/wiki/Home)
-[git] (https://github.com/RethinkRobotics/)
-**moveIT**
+
+[rethinkrobotics](https://sdk.rethinkrobotics.com/wiki/Home)
+
+[rethinkrobotics git](https://github.com/RethinkRobotics/)
+
 [moveIt](https://sdk.rethinkrobotics.com/wiki/MoveIt_Tutorial)
 [planning](https://github.com/ros-planning/moveit_robots/tree/kinetic-devel/baxter/baxter_moveit_config/config)
 
