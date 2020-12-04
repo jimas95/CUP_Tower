@@ -120,7 +120,7 @@ class Scene():
         cylinder_pose.pose.orientation.w = 1.0
         cylinder_pose.pose.position.x = position.x
         cylinder_pose.pose.position.y = position.y
-        cylinder_pose.pose.position.z = -0.15 #position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
+        cylinder_pose.pose.position.z = position.z # if on first row height should be: self.cup_height/2.0 + self.table_z/2
 
         self.scene.add_cylinder(name,cylinder_pose,self.cup_height,self.cup_radius)
         return self.wait_for_state_update(object_name=name,box_is_known=True, timeout=1)
