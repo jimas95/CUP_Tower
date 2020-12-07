@@ -68,6 +68,8 @@
   <exec_depend>baxter_interface</exec_depend>
   <exec_depend>baxter_tools</exec_depend>
   <exec_depend>baxter_moveit_config</exec_depend>
+  <test_depend>rosunit</test_depend>
+  <exec_depend>apriltag_ros</exec_depend>
 
 
 
