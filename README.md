@@ -75,7 +75,7 @@ rosrun tower arm_control joint_states:=robot/joint_states
 
 
 # Project Architecture
-2 different aproaches where made for this project.
+2 different approaches where made for this project.
 1. Is implemented at arm_control.
 2. Is implemented at arm_control above version 2.
 
@@ -85,7 +85,7 @@ Task 1: the robot removes all the cups that are in the middle of the table and p
 
 Task 2: we scan again and update the new positions of the cups(now located at the sides of table) grab each one of them and build a tower of cups.
 
-This implementation is much more sofisticated and universal. Cups will be picked from "random positions" and the number of cups does not have to be specified (builds tower until there are no cups). Goal positions are calculated in real time (not hard coded) and moveIt scene attaching/detach objects is being used in order to avoid collisions. Different planners are being used to make sure moves will be executed. For example, if cartesian path fails to find path we will retry using a different planner.
+This implementation is much more sophisticated and universal. Cups will be picked from "random positions" and the number of cups does not have to be specified (builds tower until there are no cups). Goal positions are calculated in real time (not hard coded) and moveIt scene attaching/detach objects is being used in order to avoid collisions. Different planners are being used to make sure moves will be executed. For example, if cartesian path fails to find path we will retry using a different planner.
 
 The second implementation is much more simple we use hard coded points for grabing and placing each cup in place of computer vision. 
 
@@ -188,10 +188,11 @@ Debug
 
 
 
+# Future Work
+1. Make all implmentations of the code work with Computer Vision 
+2. Use IR sensors on Baxter hands to increase accuracy
+3. Speed up the process
 
-
-# Lessons Learned and Future Work
-_________put robot faoilure videos here______________-
 
 # External Packages
 ## Tags
