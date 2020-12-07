@@ -107,7 +107,7 @@ The tower package is the primary package used to control the robot and create th
 8. **arm_control_4_2**: uses both baxter arms to take 6 cups from middle of the workspace and move them to the side of the table (cleans the robot workspace) **Task 1**
 9. **arm_control_5_1**: uses both baxter arms to build a 10 cup tower using cartesian coordinates **Task 2**
 
-10.  **tag_detection**: ???  DK FILL THIS WITH YOUR NODES
+10.  **tag_detection**: detects the position of the cups using apriltag_ros package
 
 
 
@@ -121,7 +121,11 @@ The tower package is the primary package used to control the robot and create th
       4. Attaches and detaches the cups 
       5. Restarts the gazebo scene
       6. Uses various functions to sort the cups into specific configurations
-   
+
+2. **buildTower.py** Is a simpl python package that returns the position of points that cups should be placed in order to build the tower.
+
+3. **Testing python package**
+Execute `catkin_make_isolated --catkin-make-args run_tests`
     
 ### Services 
 <rosservice call /test_control "choice:  #id" >
