@@ -140,8 +140,7 @@ class Handler:
                             1. set hands at home position (grab the hands above table before calling this)
                             2. restart scene workstation
                             3. decrease step move 
-                            4. increase step move 
-                            5. execute step                     
+                            4. increase step move and execute step                     
         """
         if req.choice == 0: 
             result = self.current_pose()
@@ -168,6 +167,9 @@ class Handler:
     def state_2_hack(self):
         """
         use only one hand, go at the same position(NO CV), close gripper, got to place position, open gripper
+
+        even hack_id corresponds to right gripper and cups with y<0.
+        odd hack_id corresponds to left gripper and cups with y>0.
         """
         cup1_pos = self.myscene.get_cup_position("Cup_1") #tag2
         cup2_pos = self.myscene.get_cup_position("Cup_2") #tag3
@@ -243,6 +245,12 @@ class Handler:
 
     
     def grab(self,cup_posL):
+        """ 
+        Grabs a cup using left gripper at given position.
+            
+            Args: 
+                cup_posL(tuple in form (x, y, z)) - current position of cup to grab.
+        """
         # Go above Cup
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
         pose_goal = self.orientation_forward(pose_goal)
@@ -266,6 +274,13 @@ class Handler:
 
 
     def place(self,cup_posL,current_state):
+        """ 
+        Places a cup using left gripper at given position.
+            
+            Args: 
+                cup_posL(tuple in form (x, y, z)) - position to place cup.
+                current_state (tuple in form (x, y, z)) - current position of gripper.
+        """
 
         # from current position go up 
         pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
@@ -297,6 +312,13 @@ class Handler:
     def set_pose_goal(self,pos=(0,0,0),offset=(0,0,0)):
         """
         return Pose() with position set to pos+offset
+            
+            Args:
+                pos (tuple in form (x, y, z)) - position of pose to add an offset.
+                pos (tuple in form (x, y, z)) - amount of offset to add to pos.
+            
+            Returns:
+                pose_goal (Pose) - Pose for input position after adding offset.
         """
         pose_goal = Pose()
         pose_goal.position.x = pos[0] + offset[0]

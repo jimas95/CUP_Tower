@@ -10,6 +10,7 @@ The goal of this project is to use the BAXTER robot and build a **HUGE** tower f
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
 git clone https://github.com/ME495-EmbeddedSystems/final-project-fast-tower 
+temporarily remove folders apriltag and apriltag_ros
 ```
 2. Set up rethink workspace
 ```
@@ -34,6 +35,7 @@ source devel/setup.bash
 cd ~/catkin_ws
 git clone https://github.com/AprilRobotics/apriltag.git      # Clone Apriltag library
 git clone https://github.com/AprilRobotics/apriltag_ros.git  # Clone Apriltag ROS wrapper
+or restore folders apriltag and apriltag_ros that was previousely removed
 catkin_make_isolated  
 ```
 5. Setup Baxter Robot

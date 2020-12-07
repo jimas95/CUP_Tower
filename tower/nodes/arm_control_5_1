@@ -178,8 +178,8 @@ class Handler:
         """
         use only one hand, go at the same position(NO CV), close gripper, got to place position, open gripper
 
-        even hack_id --> right gripper (y<0)
-        odd hack_id --> left gripper (y>0)
+        even hack_id corresponds to right gripper and cups with y<0.
+        odd hack_id corresponds to left gripper and cups with y>0.
         """
 
 
@@ -287,6 +287,14 @@ class Handler:
 
     
     def grab(self,hand, cup_posL, cup_name):
+        """ 
+        Grabs a cup using given gripper at given position.
+            
+            Args: 
+                hand(string of Pose) - "left_gripper" or "right_gripper". Select which move group to execute.
+                cup_posL(tuple in form (x, y, z)) - current position of cup to grab.
+                cup_name(String in for Cup_<num>) - name of cup to grab in rviz.
+        """
         self.gripper_control(state=True,gripper=hand)
         # Go above Cup
         pose_goal = self.set_pose_goal(cup_posL,(0,0,0.1)) 
@@ -318,6 +326,15 @@ class Handler:
 
 
     def place(self,hand, cup_posL,current_state, cup_name):
+        """ 
+        Places a cup using given gripper at given position.
+            
+            Args: 
+                hand(string of Pose) - "left_gripper" or "right_gripper". Select which move group to execute.
+                cup_posL(tuple in form (x, y, z)) - position to place cup.
+                current_state (tuple in form (x, y, z)) - current position of gripper.
+                cup_name(String in for Cup_<num>) - name of cup to place in rviz.
+        """
 
         # from current position go up 
         pose_goal = self.set_pose_goal(current_state,(0,0,0.1)) 
@@ -356,7 +373,12 @@ class Handler:
 
     def ready(self,hand):
         """
-        This function gives space to the other hand to prevent collision upon placing the cup at the desired position
+        This function gives space to the other hand to prevent collision upon placing 
+        the cup at the desired position.
+         
+            Args: 
+                hand(string of Pose) - "left_gripper" or "right_gripper". Select which 
+                                        move group to execute.
         """
         time.sleep(0.5)
 
@@ -400,6 +422,13 @@ class Handler:
     def set_pose_goal(self,pos=(0,0,0),offset=(0,0,0)):
         """
         return Pose() with position set to pos+offset
+            
+            Args:
+                pos (tuple in form (x, y, z)) - position of pose to add an offset.
+                pos (tuple in form (x, y, z)) - amount of offset to add to pos.
+            
+            Returns:
+                pose_goal (Pose) - Pose for input position after adding offset.
         """
         pose_goal = Pose()
         pose_goal.position.x = pos[0] + offset[0]

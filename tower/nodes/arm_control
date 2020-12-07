@@ -324,64 +324,7 @@ class Handler:
                 
             else:
                 rospy.logerr("Wrong list of build tower")
-    """
-    def grab_and_place_one_hand(self, hand, grabPos, placePos):
-         grab and place a cup to another position using one hand
-            
-            Args: 
-                hand (string) - "left_gripper" or "right_gripper"
-                grabPos (x, y) - where to grab cup
-                placePos (x, y) - where to place cup
-        rospy.loginfo(f"{grabPos} --> {placePos}")
-        rospy.loginfo("open gripper")
-        self.gripper_control(state=True, gripper=hand)
 
-        rospy.loginfo("Go to pregrasping position")
-        pose_goal = Pose()
-        pose_goal.position.x = grabPos[0] + self.PRE_GRASP_POS[0]
-        pose_goal.position.y = grabPos[1] + self.PRE_GRASP_POS[1]
-        pose_goal.position.z = grabPos[2] + self.PRE_GRASP_POS[2] - self.CUP_Z_TOL
-        pose_goal = self.orientation_forward(pose_goal)
-        rospy.loginfo(f"{pose_goal}")
-        self.go_to(pose_goal,hand)
-        self.execute_path()
-
-        time.sleep(2)
-        
-        rospy.loginfo("grab")
-        pose_goal = Pose()
-        pose_goal.position.x = grabPos[0] - self.PRE_GRASP_POS[0]
-        pose_goal.position.y = grabPos[1] - self.PRE_GRASP_POS[1]
-        pose_goal.position.z = grabPos[2] - self.PRE_GRASP_POS[2] - self.CUP_Z_TOL
-        pose_goal = self.orientation_forward(pose_goal)
-        rospy.loginfo(f"{pose_goal}")
-        self.go_to(pose_goal,hand)
-        self.execute_path()
-
-        rospy.loginfo("close gripper")
-        self.gripper_control(state=False, gripper=hand)
-
-        rospy.loginfo("before place")  
-        pose_goal = Pose()
-        pose_goal.position.x = placePos[0] + self.BEFORE_PLACE_POS[0]
-        pose_goal.position.y = placePos[1] + self.BEFORE_PLACE_POS[1]
-        pose_goal.position.z = placePos[2] + self.BEFORE_PLACE_POS[2]
-        pose_goal = self.orientation_sideway(pose_goal, hand, False)
-        self.go_to(pose_goal,hand)
-        self.execute_path()
-
-        rospy.loginfo("place")  
-        pose_goal = Pose()
-        pose_goal.position.x = placePos[0]
-        pose_goal.position.y = placePos[1]
-        pose_goal.position.z = placePos[2]
-        pose_goal = self.orientation_sideway(pose_goal, hand, False)
-        self.go_to(pose_goal,hand)
-        self.execute_path()
-
-        rospy.loginfo("open gripper")
-        self.gripper_control(state=True, gripper=hand)
-    """
 
     def execute_cartesian(self,hand, waypoints, eef_step):
         """ Helper function for compute and execute cartesian path.
@@ -426,6 +369,7 @@ class Handler:
                     - traj of left hand
                 rightPos (tuple of two tuples in form of (grab, place) where grab = (x, y, z), place = (x, y, z)
                     - traj of right hand
+                sorting (boolean) - whether the robot is sorting cups. 
         """
         rospy.loginfo("open gripper")
         self.gripper_control(state=True, gripper="left_gripper")
